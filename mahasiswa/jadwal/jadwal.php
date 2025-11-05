@@ -14,7 +14,8 @@ if(!isset($_SESSION['role']) || $_SESSION['role'] != 'mahasiswa'){
 function e($v){ return htmlspecialchars((string)($v ?? ''), ENT_QUOTES, 'UTF-8'); }
 
 // Ambil data mahasiswa login
-$id_mahasiswa = (int)$_SESSION['id_user'];
+// ⬇️ Perbaikan: gunakan mhs_id (ID tabel mahasiswa), bukan id_user (ID tabel users)
+$id_mahasiswa = (int)($_SESSION['mhs_id'] ?? 0);
 
 // Semester aktif (ambil 1 yang status 'Aktif')
 $qSem = mysqli_query($conn, "SELECT id, nama_semester, tahun_ajaran FROM semester WHERE status='Aktif' LIMIT 1");
@@ -152,23 +153,20 @@ if ($id_semester){
   <h2>Jadwal Saya</h2>
 
   <?php
-  // Semester aktif (ulang untuk tampilan)
+  // (Boleh tetap, meskipun kamu sudah ambil $semAktif di atas)
   $qSem = mysqli_query($conn, "SELECT id, nama_semester, tahun_ajaran FROM semester WHERE status='Aktif' LIMIT 1");
   $semAktif   = mysqli_fetch_assoc($qSem);
   $id_semester= $semAktif['id'] ?? null;
   ?>
 
   <?php if(!$id_semester): ?>
-    <!-- Peringatan bila tidak ada semester aktif -->
     <div class="kotak_info info_peringatan">Belum ada <b>Semester</b> berstatus <b>Aktif</b>. Tidak ada jadwal yang ditampilkan.</div>
   <?php else: ?>
-    <!-- Info semester aktif -->
     <div class="kotak_info info_sukses">
      Semester: <b><?= e($semAktif['nama_semester']); ?></b> / <b><?= e($semAktif['tahun_ajaran']); ?></b>
     </div>
   <?php endif; ?>
 
-  <!-- Tabel data jadwal mahasiswa -->
   <table id="tabel-jadwal" class="tabel_data">
     <thead>
       <tr>
@@ -186,7 +184,6 @@ if ($id_semester){
     </thead>
     <tbody>
       <?php
-      // Query jadwal yang SUDAH dipilih mahasiswa (semester aktif)
       if ($id_semester) {
         $sql = "
           SELECT
@@ -210,7 +207,6 @@ if ($id_semester){
         $q  = mysqli_query($conn, $sql);
         $no = 1;
 
-        // Render baris-baris data (jika ada)
         if ($q && mysqli_num_rows($q) > 0) {
           while ($row = mysqli_fetch_assoc($q)) {
             $jam_mulai   = !empty($row['jam_mulai']) ? date('H:i', strtotime($row['jam_mulai'])) : '00:00';
@@ -237,7 +233,6 @@ if ($id_semester){
             <?php
           }
         }
-        // Jika tidak ada data, biarkan tbody kosong (DataTables menampilkan pesan bawaan)
       }
       ?>
     </tbody>
@@ -245,7 +240,6 @@ if ($id_semester){
 </div>
 
 <script>
-// Inisialisasi DataTables untuk tabel jadwal
 $(document).ready(function(){
   $('#tabel-jadwal').DataTable({
     pageLength: 10,

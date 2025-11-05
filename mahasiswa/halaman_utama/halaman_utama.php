@@ -9,7 +9,7 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'mahasiswa') {
 
 function e($v){ return htmlspecialchars((string)($v ?? ''), ENT_QUOTES, 'UTF-8'); }
 
-$id_mhs = (int)($_SESSION['id_user'] ?? 0);
+$id_mhs = (int)($_SESSION['mhs_id'] ?? 0);
 
 /* ---- Semester aktif ---- */
 $sem = mysqli_fetch_assoc(mysqli_query($conn,

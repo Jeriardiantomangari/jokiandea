@@ -12,39 +12,81 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'dosen') {
 // Helper escape HTML
 function e($v){ return htmlspecialchars((string)($v ?? ''), ENT_QUOTES, 'UTF-8'); }
 
-// Semester aktif & identitas dosen
-$id_dosen = (int)($_SESSION['id_user'] ?? 0);
+// ✅ Ambil identitas dosen dari session (ID tabel `dosen`)
+$id_dosen = (int)($_SESSION['dosen_id'] ?? 0);
+
+// Semester aktif
 $semAktif = mysqli_fetch_assoc(
   mysqli_query($conn, "SELECT id, nama_semester, tahun_ajaran FROM semester WHERE status='Aktif' LIMIT 1")
 );
-$id_semester_aktif = $semAktif['id'] ?? null;
+$id_semester_aktif = (int)($semAktif['id'] ?? 0);
 
-// Daftar shift dosen (semester aktif)
-$jadwalRes = [];
+// ===== Kumpulkan daftar MK & shift per MK (khusus dosen & semester aktif) =====
+$mkList      = [];              // [mk_id => nama_mk]
+$shiftsByMk  = [];              // [mk_id => [ [id, hari, mulai, selesai, ruangan] ]]
 if ($id_semester_aktif && $id_dosen) {
-  $qJ = mysqli_query($conn, "
-    SELECT jp.id, mk.nama_mk, jp.hari, jp.jam_mulai, jp.jam_selesai, r.nama_ruangan
+  $q = mysqli_query($conn, "
+    SELECT
+      mk.id AS mk_id, mk.nama_mk,
+      jp.id AS id_jadwal, jp.hari, jp.jam_mulai, jp.jam_selesai,
+      COALESCE(r.nama_ruangan,'') AS nama_ruangan
     FROM jadwal_praktikum jp
     JOIN matakuliah_praktikum mk ON mk.id = jp.id_mk
     LEFT JOIN ruangan r ON r.id = jp.id_ruangan
-    WHERE jp.id_semester = ".(int)$id_semester_aktif." AND jp.id_dosen = ".(int)$id_dosen."
-    ORDER BY FIELD(jp.hari,'Senin','Selasa','Rabu','Kamis','Jumat','Sabtu','Minggu'), jp.jam_mulai
+    WHERE jp.id_semester = $id_semester_aktif AND jp.id_dosen = $id_dosen
+    ORDER BY mk.nama_mk ASC,
+             FIELD(jp.hari,'Senin','Selasa','Rabu','Kamis','Jumat','Sabtu','Minggu'),
+             jp.jam_mulai ASC
   ");
-  while($row = mysqli_fetch_assoc($qJ)){ $jadwalRes[] = $row; }
+  while($row = mysqli_fetch_assoc($q)){
+    $mk_id = (int)$row['mk_id'];
+    $mkList[$mk_id] = $row['nama_mk'];
+    if (!isset($shiftsByMk[$mk_id])) $shiftsByMk[$mk_id] = [];
+    $shiftsByMk[$mk_id][] = [
+      'id'      => (int)$row['id_jadwal'],
+      'hari'    => $row['hari'],
+      'mulai'   => substr($row['jam_mulai'],0,5),
+      'selesai' => substr($row['jam_selesai'],0,5),
+      'ruangan' => $row['nama_ruangan'],
+    ];
+  }
 }
 
-// Pilihan shift (GET) + default ke shift pertama
+// ===== Baca pilihan dari GET: mk_id dan id_jadwal =====
+$mk_id_pilih     = isset($_GET['mk_id']) ? (int)$_GET['mk_id'] : 0;
 $id_jadwal_pilih = isset($_GET['id_jadwal']) ? (int)$_GET['id_jadwal'] : 0;
-if (!$id_jadwal_pilih && !empty($jadwalRes)) $id_jadwal_pilih = (int)$jadwalRes[0]['id'];
 
-// Validasi shift milik dosen di semester aktif
+// Defaultkan MK ke yang pertama (jika belum dipilih)
+if ($mk_id_pilih === 0 && !empty($mkList)) {
+  $mk_id_pilih = (int)array_key_first($mkList);
+}
+
+// Jika belum ada id_jadwal (atau id_jadwal tidak sesuai MK terpilih), pilih shift pertama dari MK tsb
+if ($mk_id_pilih && (!isset($shiftsByMk[$mk_id_pilih]) || empty($shiftsByMk[$mk_id_pilih]))) {
+  // MK terpilih belum punya shift → kosongkan pilihan
+  $id_jadwal_pilih = 0;
+} else if ($mk_id_pilih && $id_jadwal_pilih > 0) {
+  // Validasi: id_jadwal harus ada di list shiftsByMk[mk_id_pilih]
+  $ok = false;
+  foreach ($shiftsByMk[$mk_id_pilih] ?? [] as $s) {
+    if ($s['id'] === $id_jadwal_pilih) { $ok = true; break; }
+  }
+  if (!$ok) $id_jadwal_pilih = 0;
+}
+if ($mk_id_pilih && $id_jadwal_pilih === 0 && !empty($shiftsByMk[$mk_id_pilih])) {
+  $id_jadwal_pilih = (int)$shiftsByMk[$mk_id_pilih][0]['id'];
+}
+
+// Validasi shift milik dosen di semester aktif (final check)
 $shiftValid = null;
 if ($id_jadwal_pilih) {
   $shiftValid = mysqli_fetch_assoc(mysqli_query($conn, "
     SELECT jp.id, mk.nama_mk, jp.hari, jp.jam_mulai, jp.jam_selesai
     FROM jadwal_praktikum jp
     JOIN matakuliah_praktikum mk ON mk.id = jp.id_mk
-    WHERE jp.id = $id_jadwal_pilih AND jp.id_dosen = $id_dosen AND jp.id_semester = ".(int)$id_semester_aktif."
+    WHERE jp.id = $id_jadwal_pilih
+      AND jp.id_dosen = $id_dosen
+      AND jp.id_semester = $id_semester_aktif
     LIMIT 1
   "));
 }
@@ -70,7 +112,6 @@ function ambilMahasiswaByJadwal(mysqli $conn, int $id_jadwal, ?int $id_semester)
 $tanggalSesi = [];   // Daftar tanggal (YYYY-MM-DD) untuk header tabel
 $statusMap   = [];   // Peta status: [id_mhs][tanggal] => 'Hadir'/'Alpha'/'Izin'
 $mhsList     = [];   // Daftar mahasiswa pada shift
-
 
 // Isi data jika shift valid
 if ($shiftValid) {
@@ -172,17 +213,29 @@ if ($shiftValid) {
     <div class="kotak-info info-berhasil">Semester: <b><?= e($semAktif['nama_semester']) ?></b><b>/</b><b><?= e($semAktif['tahun_ajaran']) ?></b></div>
   <?php endif; ?>
 
-  <!-- Pilih shift + tombol cetak -->
-  <form method="get" id="form-shift" style="display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin:10px 0 14px;">
-    <label for="id_jadwal"><b>Pilih Shift</b></label>
-    <select name="id_jadwal" id="id_jadwal" <?= empty($jadwalRes) ? 'disabled' : '' ?> required>
-      <?php foreach($jadwalRes as $j):
-        $jam = substr($j['jam_mulai'],0,5).' - '.substr($j['jam_selesai'],0,5);
-        $label = $j['hari'].' '.$jam;
-      ?>
-        <option value="<?= (int)$j['id'] ?>" <?= $id_jadwal_pilih===(int)$j['id'] ? 'selected' : '' ?>><?= e($label) ?></option>
-      <?php endforeach; ?>
-    </select>
+  <!-- Pilih MK -> Shift + tombol cetak -->
+  <form method="get" id="form-shift" style="display:flex; gap:10px; align-items:end; flex-wrap:wrap; margin:10px 0 14px;">
+    <div style="display:flex; flex-direction:column;">
+      <label for="mk_id"><b>Pilih Mata Kuliah</b></label>
+      <select name="mk_id" id="mk_id" <?= empty($mkList) ? 'disabled' : '' ?> required>
+        <?php foreach($mkList as $mk_id => $nm): ?>
+          <option value="<?= (int)$mk_id ?>" <?= $mk_id_pilih===(int)$mk_id ? 'selected' : '' ?>><?= e($nm) ?></option>
+        <?php endforeach; ?>
+      </select>
+    </div>
+
+    <div style="display:flex; flex-direction:column;">
+      <label for="id_jadwal"><b>Pilih Shift</b></label>
+      <select name="id_jadwal" id="id_jadwal" <?= (empty($shiftsByMk[$mk_id_pilih]) ? 'disabled' : '') ?> required>
+        <?php
+          foreach($shiftsByMk[$mk_id_pilih] ?? [] as $s){
+            $label = $s['hari'].' '.$s['mulai'].' - '.$s['selesai'].($s['ruangan'] ? ' | '.$s['ruangan'] : '');
+            $sel = ($id_jadwal_pilih === (int)$s['id']) ? 'selected' : '';
+            echo '<option value="'.(int)$s['id'].'" '.$sel.'>'.e($label).'</option>';
+          }
+        ?>
+      </select>
+    </div>
 
     <button type="button" class="tombol-umum tombol-cetak" id="btn-cetak" <?= (!$shiftValid || empty($mhsList)) ? 'disabled' : '' ?>>
       <i class="fa-solid fa-print"></i> Cetak
@@ -192,10 +245,11 @@ if ($shiftValid) {
   <!-- Ringkasan shift -->
   <?php if($shiftValid): ?>
     <div class="kotak-info info-berhasil">
-      <b>Shift:</b> <?= e($shiftValid['nama_mk']) ?>, <?= e($shiftValid['hari']) ?> <?= e(substr($shiftValid['jam_mulai'],0,5).' - '.substr($shiftValid['jam_selesai'],0,5)) ?>.
+      <b>Shift:</b> <?= e($shiftValid['nama_mk']) ?>, <?= e($shiftValid['hari']) ?>
+      <?= e(substr($shiftValid['jam_mulai'],0,5).' - '.substr($shiftValid['jam_selesai'],0,5)) ?>.
       <?php if(empty($tanggalSesi)): ?>&nbsp;Belum ada sesi absensi tersimpan.<?php endif; ?>
     </div>
-  <?php elseif(empty($jadwalRes)): ?>
+  <?php elseif($id_semester_aktif && empty($mkList)): ?>
     <div class="kotak-info info-peringatan">Belum ada jadwal untuk akun Anda pada semester ini.</div>
   <?php endif; ?>
 
@@ -231,8 +285,13 @@ if ($shiftValid) {
 </div>
 
 <script>
-// Auto-submit saat ganti shift
-document.getElementById('id_jadwal')?.addEventListener('change', ()=> {
+// Auto-submit saat ganti MK atau Shift
+document.getElementById('mk_id')?.addEventListener('change', ()=>{
+  // reset shift agar server memilih default shift untuk MK baru
+  document.getElementById('id_jadwal')?.removeAttribute('name');
+  document.getElementById('form-shift').submit();
+});
+document.getElementById('id_jadwal')?.addEventListener('change', ()=>{
   document.getElementById('form-shift').submit();
 });
 

@@ -128,7 +128,7 @@ if(!isset($_SESSION['role']) || $_SESSION['role'] != 'admin'){
         <th>Jenis Kelamin</th>
         <th>Alamat</th>
         <th>No. HP</th>
-        <th>Password</th>
+        <!-- <th>Password</th> --> <!-- DIHAPUS -->
         <th>Aksi</th>
       </tr>
     </thead>
@@ -146,7 +146,7 @@ if(!isset($_SESSION['role']) || $_SESSION['role'] != 'admin'){
         <td data-label="Jenis Kelamin"><?php echo $row['jenis_kelamin']; ?></td>
         <td data-label="Alamat"><?php echo $row['alamat']; ?></td>
         <td data-label="No.Hp"><?php echo $row['no_hp']; ?></td>
-        <td data-label="Pasword"><?php echo $row['password']; ?></td>
+        <!-- <td data-label="Pasword"><?php echo $row['password']; ?></td> --> <!-- DIHAPUS -->
         <td data-label="Aksi">
           <button class="tombol tombol-edit" onclick="editMahasiswa(<?php echo $row['id']; ?>)"><i class="fa-solid fa-pen-to-square"></i> Edit</button>
           <button class="tombol tombol-hapus" onclick="hapusMahasiswa(<?php echo $row['id']; ?>)"><i class="fa-solid fa-trash"></i> Hapus</button>
@@ -178,7 +178,7 @@ if(!isset($_SESSION['role']) || $_SESSION['role'] != 'admin'){
       </select>
       <input type="text" name="alamat" id="alamat" placeholder="Alamat">
       <input type="text" name="no_hp" id="noHP" placeholder="No. HP">
-      <input type="password" name="password" id="password" placeholder="Password/NIM Login">
+      <!-- <input type="password" name="password" id="password" placeholder="Password/NIM Login"> --> <!-- DIHAPUS -->
       <button type="submit" id="simpanMahasiswa">Simpan</button>
     </form>
   </div>
@@ -186,32 +186,32 @@ if(!isset($_SESSION['role']) || $_SESSION['role'] != 'admin'){
 
 <script>
 // DataTables
- $(document).ready(function () {
-    $('#tabel-mahasiswa').DataTable({
-      "pageLength": 10,
-      "lengthMenu": [5, 10, 25, 50],
-      "columnDefs": [{
-        "orderable": false,"targets": 8 }],
-      "language": {
-        "decimal": "",
-        "emptyTable": "Tidak ada data tersedia",
-        "info": "Menampilkan _START_ sampai _END_ dari _TOTAL_ data",
-        "infoEmpty": "Menampilkan 0 sampai 0 dari 0 data",
-        "infoFiltered": "(disaring dari _MAX_ data total)",
-        "lengthMenu": "Tampilkan _MENU_ data",
-        "loadingRecords": "Memuat...",
-        "processing": "Sedang diproses...",
-        "search": "Cari:",
-        "zeroRecords": "Tidak ditemukan data yang sesuai",
-        "paginate": {
-          "first": "Pertama",
-          "last": "Terakhir",
-          "next": "Berikutnya",
-          "previous": "Sebelumnya"
-        }
+$(document).ready(function () {
+  $('#tabel-mahasiswa').DataTable({
+    "pageLength": 10,
+    "lengthMenu": [5, 10, 25, 50],
+    "columnDefs": [{
+      "orderable": false,"targets": 7 }], // indeks kolom Aksi sekarang 7 (karena kolom Password dihapus)
+    "language": {
+      "decimal": "",
+      "emptyTable": "Tidak ada data tersedia",
+      "info": "Menampilkan _START_ sampai _END_ dari _TOTAL_ data",
+      "infoEmpty": "Menampilkan 0 sampai 0 dari 0 data",
+      "infoFiltered": "(disaring dari _MAX_ data total)",
+      "lengthMenu": "Tampilkan _MENU_ data",
+      "loadingRecords": "Memuat...",
+      "processing": "Sedang diproses...",
+      "search": "Cari:",
+      "zeroRecords": "Tidak ditemukan data yang sesuai",
+      "paginate": {
+        "first": "Pertama",
+        "last": "Terakhir",
+        "next": "Berikutnya",
+        "previous": "Sebelumnya"
       }
-    });
+    }
   });
+});
 
 // Modal Tambah
 function tambahMahasiswa() {
@@ -223,7 +223,10 @@ function tambahMahasiswa() {
 // Modal Edit
 function editMahasiswa(id) {
   $.post('proses_mahasiswa.php', {aksi:'ambil',id:id}, function(data){
-    let obj = JSON.parse(data);
+    let obj = (typeof data === 'string') ? JSON.parse(data) : data;
+    // Jika backend sudah mengirim {ok:true,data:{...}}
+    if (obj && obj.data) obj = obj.data;
+
     $('#judulModal').text('Edit Mahasiswa');
     $('#idMahasiswa').val(obj.id);
     $('#nim').val(obj.nim);
@@ -232,7 +235,7 @@ function editMahasiswa(id) {
     $('#jenisKelamin').val(obj.jenis_kelamin);
     $('#alamat').val(obj.alamat);
     $('#noHP').val(obj.no_hp);
-    $('#password').val(obj.password); // password ditampilkan
+    // $('#password').val(obj.password); // DIHAPUS
     $('#modalMahasiswa').css('display','flex');
   });
 }
@@ -270,12 +273,13 @@ $('.tombol-cetak').click(function(){
   doc.text("Data Mahasiswa", 105, 15, {align:"center"});
 
   let headers = [];
-  $('#tabel-mahasiswa thead th').each(function(index){ if(index!==8) headers.push($(this).text()); });
+  // skip kolom Aksi (indeks 7 sekarang)
+  $('#tabel-mahasiswa thead th').each(function(index){ if(index!==7) headers.push($(this).text()); });
 
   let data = [];
   $('#tabel-mahasiswa tbody tr').each(function(){
     let rowData=[];
-    $(this).find('td').each(function(index){ if(index!==8) rowData.push($(this).text()); });
+    $(this).find('td').each(function(index){ if(index!==7) rowData.push($(this).text()); });
     data.push(rowData);
   });
 

@@ -13,8 +13,10 @@ if(!isset($_SESSION['role']) || $_SESSION['role'] != 'mahasiswa'){
 // Helper aman untuk escape output HTML
 function e($v){ return htmlspecialchars((string)($v ?? ''), ENT_QUOTES, 'UTF-8'); }
 
-// Data mahasiswa login
-$id_mahasiswa = (int)$_SESSION['id_user'];
+// ✅ PAKAI mhs_id (bukan id_user)
+$id_mahasiswa = (int)($_SESSION['mhs_id'] ?? 0);
+
+// ✅ Ambil data mahasiswa berdasarkan id mahasiswa yang login
 $mahasiswa = mysqli_query($conn, "SELECT * FROM mahasiswa WHERE id='$id_mahasiswa'");
 $data_mahasiswa = mysqli_fetch_assoc($mahasiswa) ?: [];
 
@@ -96,28 +98,9 @@ if ($id_semester_aktif) {
   .tutup_modal:hover { color:black; }
 
   /* Checkbox daftar MK */
-  .wadah_checkbox {
-    max-height: 250px;
-    overflow-y: auto;
-    border: 1px solid #ddd;
-    padding: 10px;
-    border-radius: 8px;
-    background-color: #fff;
-  }
-  .item_checkbox {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 4px 0;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-  }
-  .item_checkbox input[type="checkbox"] {
-    width: 18px;
-    height: 18px;
-    cursor: pointer;
-    accent-color: #007bff;
-  }
+  .wadah_checkbox { max-height: 250px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; border-radius: 8px; background-color: #fff; }
+  .item_checkbox { display: flex; align-items: center; gap: 8px; padding: 4px 0; cursor: pointer; transition: background-color 0.2s ease; }
+  .item_checkbox input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; accent-color: #007bff; }
 
   /* Scrollbar custom */
   .wadah_checkbox::-webkit-scrollbar { width: 8px; }

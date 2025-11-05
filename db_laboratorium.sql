@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Nov 04, 2025 at 10:35 AM
+-- Generation Time: Nov 05, 2025 at 04:59 PM
 -- Server version: 8.4.3
 -- PHP Version: 8.3.26
 
@@ -35,6 +35,21 @@ CREATE TABLE `absensi_detail` (
   `dicatat_pada` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+--
+-- Dumping data for table `absensi_detail`
+--
+
+INSERT INTO `absensi_detail` (`id`, `id_sesi`, `id_mahasiswa`, `status`, `dicatat_pada`) VALUES
+(18, 19, 7, 'Hadir', '2025-11-06 01:52:22'),
+(19, 19, 6, 'Alpha', '2025-11-06 01:52:22'),
+(20, 19, 8, 'Izin', '2025-11-06 01:52:22'),
+(21, 20, 7, 'Izin', '2025-11-06 01:53:15'),
+(22, 20, 6, 'Alpha', '2025-11-06 01:53:15'),
+(23, 20, 8, 'Hadir', '2025-11-06 01:53:15'),
+(24, 21, 7, 'Alpha', '2025-11-06 01:54:50'),
+(25, 21, 6, 'Hadir', '2025-11-06 01:54:50'),
+(26, 21, 8, 'Alpha', '2025-11-06 01:54:50');
+
 -- --------------------------------------------------------
 
 --
@@ -50,25 +65,14 @@ CREATE TABLE `absensi_sesi` (
   `keterangan` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- --------------------------------------------------------
-
 --
--- Table structure for table `admin`
+-- Dumping data for table `absensi_sesi`
 --
 
-CREATE TABLE `admin` (
-  `id` int NOT NULL,
-  `username` varchar(50) NOT NULL,
-  `password` varchar(255) NOT NULL,
-  `nama` varchar(100) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table `admin`
---
-
-INSERT INTO `admin` (`id`, `username`, `password`, `nama`) VALUES
-(1, 'admin', 'admin123', 'Administrator');
+INSERT INTO `absensi_sesi` (`id`, `id_jadwal`, `id_dosen`, `mulai_at`, `selesai_at`, `keterangan`) VALUES
+(19, 36, 10, '2025-11-06 01:52:15', '2025-11-06 01:52:22', NULL),
+(20, 35, 11, '2025-11-06 01:53:07', '2025-11-06 01:53:15', NULL),
+(21, 37, 12, '2025-11-06 01:53:53', '2025-11-06 01:54:50', NULL);
 
 -- --------------------------------------------------------
 
@@ -84,17 +88,17 @@ CREATE TABLE `dosen` (
   `jenis_kelamin` enum('Laki-laki','Perempuan') NOT NULL,
   `alamat` varchar(255) DEFAULT NULL,
   `no_hp` varchar(20) DEFAULT NULL,
-  `password` varchar(255) NOT NULL
+  `user_id` int DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `dosen`
 --
 
-INSERT INTO `dosen` (`id`, `nidn`, `nama`, `prodi`, `jenis_kelamin`, `alamat`, `no_hp`, `password`) VALUES
-(3, '123456333334', 'Jeri Arianto', 'Farmasi', 'Laki-laki', 'jln. yoka Kompleks Eks.APDN', '081240288596', 'okedang'),
-(4, '123456', 'abdul', 'Farmasi', 'Laki-laki', 'jayapura papua', '081240288596', 'okedang'),
-(5, '1234562233', 'Jeri Arianto', 'Farmasi', 'Laki-laki', 'jln. yoka Kompleks Eks.APDN', '081240288596<', 'okedang');
+INSERT INTO `dosen` (`id`, `nidn`, `nama`, `prodi`, `jenis_kelamin`, `alamat`, `no_hp`, `user_id`) VALUES
+(10, '22421001', 'Jeri', 'Farmasi', 'Laki-laki', 'jayapura papua ', '080008006799', 5),
+(11, '22421002', 'abdul ', 'Analis Kesehatan', 'Laki-laki', 'jayapura papua ', '080008006788', 6),
+(12, '22421003', 'Putri', 'Farmasi', 'Perempuan', 'jayapura papua ', '080008006777', 7);
 
 -- --------------------------------------------------------
 
@@ -121,7 +125,9 @@ CREATE TABLE `jadwal_praktikum` (
 --
 
 INSERT INTO `jadwal_praktikum` (`id`, `id_mk`, `id_dosen`, `id_ruangan`, `id_semester`, `hari`, `jam_mulai`, `jam_selesai`, `kuota`, `kuota_awal`, `peserta`) VALUES
-(30, 22, 3, 2, 4, 'Selasa', '02:20:00', '02:30:00', 1, 2, 0);
+(35, 27, 11, 5, 5, 'Senin', '02:20:00', '02:30:00', 17, 20, 0),
+(36, 26, 10, 4, 5, 'Selasa', '02:20:00', '02:30:00', 17, 20, 0),
+(37, 25, 12, 3, 5, 'Rabu', '02:20:00', '02:30:00', 27, 30, 0);
 
 -- --------------------------------------------------------
 
@@ -147,7 +153,9 @@ CREATE TABLE `kontrak_mk` (
 --
 
 INSERT INTO `kontrak_mk` (`id`, `id_mahasiswa`, `id_semester`, `nim`, `nama`, `no_hp`, `mk_dikontrak`, `bukti_pembayaran`, `status`, `created_at`) VALUES
-(5, 3, 4, '12345', 'abdul j', '08000800', 'imk', '1762183039_Jeri_Ardianto_Mangari_22421007_Manajemen_Jaringan_Komputer.pdf', 'Disetujui', '2025-11-03 15:17:19');
+(12, 6, 5, '22421007', 'Kaneji', '080008006766', 'Kerangka Manusia,Organ Dalam Manusia,Organ Tubuh manusia', '1762361154_Jeri_Ardianto_Mangari_22421007_Manajemen_Jaringan_Komputer.pdf', 'Disetujui', '2025-11-05 16:45:54'),
+(13, 7, 5, '22421008', 'Jago', '080008006755', 'Kerangka Manusia,Organ Dalam Manusia,Organ Tubuh manusia', '1762361181_Jeri_Ardianto_Mangari_22421007_Manajemen_Jaringan_Komputer.pdf', 'Disetujui', '2025-11-05 16:46:21'),
+(14, 8, 5, '22421009', 'Mullet', '080008006744', 'Kerangka Manusia,Organ Dalam Manusia,Organ Tubuh manusia', '1762361204_Jeri_Ardianto_Mangari_22421007_Manajemen_Jaringan_Komputer.pdf', 'Disetujui', '2025-11-05 16:46:44');
 
 -- --------------------------------------------------------
 
@@ -163,16 +171,17 @@ CREATE TABLE `mahasiswa` (
   `jenis_kelamin` enum('Laki-laki','Perempuan') NOT NULL,
   `alamat` text,
   `no_hp` varchar(20) DEFAULT NULL,
-  `password` varchar(255) NOT NULL
+  `user_id` int DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `mahasiswa`
 --
 
-INSERT INTO `mahasiswa` (`id`, `nim`, `nama`, `jurusan`, `jenis_kelamin`, `alamat`, `no_hp`, `password`) VALUES
-(3, '12345', 'abdul j', 'Farmasi', 'Perempuan', 'perumnas1', '08000800', 'swdef'),
-(4, '12345678', 'Jeri Arianto', 'Farmasi', 'Laki-laki', 'jayapura', '08000800', 'okedang');
+INSERT INTO `mahasiswa` (`id`, `nim`, `nama`, `jurusan`, `jenis_kelamin`, `alamat`, `no_hp`, `user_id`) VALUES
+(6, '22421007', 'Kaneji', 'Farmasi', 'Laki-laki', 'perumnas1', '080008006766', 8),
+(7, '22421008', 'Jago', 'Farmasi', 'Laki-laki', 'jayapura papua ', '080008006755', 9),
+(8, '22421009', 'Mullet', 'Farmasi', 'Laki-laki', 'jayapura papua ', '080008006744', 10);
 
 -- --------------------------------------------------------
 
@@ -195,9 +204,9 @@ CREATE TABLE `matakuliah_praktikum` (
 --
 
 INSERT INTO `matakuliah_praktikum` (`id`, `kode_mk`, `nama_mk`, `sks`, `semester`, `id_semester`, `modul`) VALUES
-(22, 'mk002', 'imk', 2, '2', NULL, 'Modul_Praktikum_imk.pdf'),
-(23, 'mk003', 'pbo', 2, '7', NULL, 'Modul_Praktikum_pbo.pdf'),
-(24, 'mk004', 'okee', 1, '7', NULL, 'Modul_Praktikum_okee.pdf');
+(25, 'Mk1', 'Organ Tubuh manusia', 1, '7', NULL, 'Modul_Praktikum_Organ_Tubuh_manusia.pdf'),
+(26, 'Mk2', 'Organ Dalam Manusia', 1, '5', NULL, 'Modul_Praktikum_Organ_Dalam_Manusia.pdf'),
+(27, 'Mk3', 'Kerangka Manusia', 2, '5', NULL, 'Modul_Praktikum_Kerangka_Manusia.pdf');
 
 -- --------------------------------------------------------
 
@@ -220,7 +229,15 @@ CREATE TABLE `pilihan_jadwal` (
 --
 
 INSERT INTO `pilihan_jadwal` (`id`, `id_mahasiswa`, `id_kontrak`, `id_jadwal`, `id_mk`, `id_semester`, `tanggal_daftar`) VALUES
-(3, 3, 5, 30, 22, 4, '2025-11-03 15:18:49');
+(9, 6, 12, 35, 27, 5, '2025-11-05 16:48:10'),
+(10, 6, 12, 36, 26, 5, '2025-11-05 16:48:16'),
+(11, 6, 12, 37, 25, 5, '2025-11-05 16:48:19'),
+(12, 7, 13, 35, 27, 5, '2025-11-05 16:49:00'),
+(13, 7, 13, 36, 26, 5, '2025-11-05 16:49:04'),
+(14, 7, 13, 37, 25, 5, '2025-11-05 16:49:07'),
+(15, 8, 14, 35, 27, 5, '2025-11-05 16:49:28'),
+(16, 8, 14, 36, 26, 5, '2025-11-05 16:49:31'),
+(17, 8, 14, 37, 25, 5, '2025-11-05 16:49:35');
 
 -- --------------------------------------------------------
 
@@ -241,8 +258,9 @@ CREATE TABLE `ruangan` (
 --
 
 INSERT INTO `ruangan` (`id`, `kode_ruangan`, `nama_ruangan`, `kapasitas`, `lokasi`) VALUES
-(1, 'oyfv', 'eegg', 4, 'feee'),
-(2, 'wefefdf', 'ddf', 30, 'feeepp');
+(3, 'R01', 'Lab organ tubuh', 30, ' FIKES'),
+(4, 'R02', 'Lab organ Dalam', 30, ' FIKES'),
+(5, 'R03', 'Lab Kerangka Manusia', 30, 'FIKES');
 
 -- --------------------------------------------------------
 
@@ -262,7 +280,36 @@ CREATE TABLE `semester` (
 --
 
 INSERT INTO `semester` (`id`, `nama_semester`, `tahun_ajaran`, `status`) VALUES
-(4, 'Ganjil', '2025/2026', 'Aktif');
+(5, 'Ganjil', '2025/2026', 'Aktif');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `users`
+--
+
+CREATE TABLE `users` (
+  `id` int NOT NULL,
+  `nama` varchar(100) NOT NULL,
+  `username` varchar(50) NOT NULL,
+  `password` varchar(255) DEFAULT NULL,
+  `role` enum('Admin','Dosen','Mahasiswa') NOT NULL,
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table `users`
+--
+
+INSERT INTO `users` (`id`, `nama`, `username`, `password`, `role`, `created_at`, `updated_at`) VALUES
+(4, 'Administrator', 'admin', 'admin123', 'Admin', '2025-11-05 23:18:05', NULL),
+(5, 'Jeri', '22421001', '22421001', 'Dosen', '2025-11-06 01:35:45', NULL),
+(6, 'abdul ', '22421002', '22421002', 'Dosen', '2025-11-06 01:36:21', NULL),
+(7, 'Putri', '22421003', '22421003', 'Dosen', '2025-11-06 01:37:08', NULL),
+(8, 'Kaneji', '22421007', '22421007', 'Mahasiswa', '2025-11-06 01:37:39', NULL),
+(9, 'Jago', '22421008', '22421008', 'Mahasiswa', '2025-11-06 01:38:24', NULL),
+(10, 'Mullet', '22421009', '22421009', 'Mahasiswa', '2025-11-06 01:38:51', NULL);
 
 --
 -- Indexes for dumped tables
@@ -286,18 +333,12 @@ ALTER TABLE `absensi_sesi`
   ADD KEY `fk_absensi_sesi_dosen` (`id_dosen`);
 
 --
--- Indexes for table `admin`
---
-ALTER TABLE `admin`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `username` (`username`);
-
---
 -- Indexes for table `dosen`
 --
 ALTER TABLE `dosen`
   ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `nidn` (`nidn`);
+  ADD UNIQUE KEY `nidn` (`nidn`),
+  ADD UNIQUE KEY `user_id` (`user_id`);
 
 --
 -- Indexes for table `jadwal_praktikum`
@@ -324,7 +365,8 @@ ALTER TABLE `kontrak_mk`
 --
 ALTER TABLE `mahasiswa`
   ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `nim` (`nim`);
+  ADD UNIQUE KEY `nim` (`nim`),
+  ADD UNIQUE KEY `user_id` (`user_id`);
 
 --
 -- Indexes for table `matakuliah_praktikum`
@@ -360,6 +402,13 @@ ALTER TABLE `semester`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `users`
+--
+ALTER TABLE `users`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `username` (`username`);
+
+--
 -- AUTO_INCREMENT for dumped tables
 --
 
@@ -367,67 +416,67 @@ ALTER TABLE `semester`
 -- AUTO_INCREMENT for table `absensi_detail`
 --
 ALTER TABLE `absensi_detail`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
 
 --
 -- AUTO_INCREMENT for table `absensi_sesi`
 --
 ALTER TABLE `absensi_sesi`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
-
---
--- AUTO_INCREMENT for table `admin`
---
-ALTER TABLE `admin`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
 
 --
 -- AUTO_INCREMENT for table `dosen`
 --
 ALTER TABLE `dosen`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT for table `jadwal_praktikum`
 --
 ALTER TABLE `jadwal_praktikum`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=31;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=38;
 
 --
 -- AUTO_INCREMENT for table `kontrak_mk`
 --
 ALTER TABLE `kontrak_mk`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- AUTO_INCREMENT for table `mahasiswa`
 --
 ALTER TABLE `mahasiswa`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `matakuliah_praktikum`
 --
 ALTER TABLE `matakuliah_praktikum`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
 
 --
 -- AUTO_INCREMENT for table `pilihan_jadwal`
 --
 ALTER TABLE `pilihan_jadwal`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
 
 --
 -- AUTO_INCREMENT for table `ruangan`
 --
 ALTER TABLE `ruangan`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `semester`
 --
 ALTER TABLE `semester`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+
+--
+-- AUTO_INCREMENT for table `users`
+--
+ALTER TABLE `users`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- Constraints for dumped tables
@@ -448,6 +497,12 @@ ALTER TABLE `absensi_sesi`
   ADD CONSTRAINT `fk_absensi_sesi_jadwal` FOREIGN KEY (`id_jadwal`) REFERENCES `jadwal_praktikum` (`id`) ON DELETE CASCADE;
 
 --
+-- Constraints for table `dosen`
+--
+ALTER TABLE `dosen`
+  ADD CONSTRAINT `fk_dosen_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL;
+
+--
 -- Constraints for table `jadwal_praktikum`
 --
 ALTER TABLE `jadwal_praktikum`
@@ -462,6 +517,12 @@ ALTER TABLE `jadwal_praktikum`
 ALTER TABLE `kontrak_mk`
   ADD CONSTRAINT `fk_kontrak_mahasiswa` FOREIGN KEY (`id_mahasiswa`) REFERENCES `mahasiswa` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `fk_kontrak_semester` FOREIGN KEY (`id_semester`) REFERENCES `semester` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `mahasiswa`
+--
+ALTER TABLE `mahasiswa`
+  ADD CONSTRAINT `fk_mhs_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL;
 
 --
 -- Constraints for table `matakuliah_praktikum`

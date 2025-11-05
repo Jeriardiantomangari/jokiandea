@@ -9,7 +9,8 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] != 'mahasiswa') {
     exit;
 }
 
-$id_mahasiswa = (int)($_SESSION['id_user'] ?? 0);
+// ✅ gunakan mhs_id (ID dari tabel `mahasiswa`), bukan id_user (users.id)
+$id_mahasiswa = (int)($_SESSION['mhs_id'] ?? 0);
 $id_jadwal    = (int)($_POST['id_jadwal'] ?? 0);
 
 if(!$id_mahasiswa || !$id_jadwal){
@@ -61,7 +62,7 @@ if((int)$J['id_semester'] !== (int)$id_semester){
     exit;
 }
 
-$id_mk = (int)$J['id_mk'];
+$id_mk  = (int)$J['id_mk'];
 $nama_mk = $J['nama_mk'] ?? '';
 
 // Pastikan MK ini memang ada di daftar kontrak mahasiswa

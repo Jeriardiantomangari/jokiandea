@@ -23,7 +23,6 @@ function verify_csrf(){
 function flash_add($type, $msg){ $_SESSION['flash'][$type][] = $msg; }
 function flash_show(){
   if (empty($_SESSION['flash'])) return;
-  // mapping tipe → kelas
   $map = ['ok'=>'kotak-info info-berhasil','err'=>'kotak-info info-peringatan'];
   foreach ($map as $k=>$cls) {
     if (!empty($_SESSION['flash'][$k])) {
@@ -34,24 +33,44 @@ function flash_show(){
 }
 
 // ===== Data dosen & semester aktif =====
-$id_dosen = (int)($_SESSION['id_user'] ?? 0);
+// ✅ gunakan ID tabel `dosen`, bukan `users`
+$id_dosen = (int)($_SESSION['dosen_id'] ?? 0);
+
 $semAktif = mysqli_fetch_assoc(
   mysqli_query($conn, "SELECT id, nama_semester, tahun_ajaran FROM semester WHERE status='Aktif' LIMIT 1")
 );
 $id_semester_aktif = $semAktif['id'] ?? null;
 
-// ===== Daftar shift dosen (semester aktif) =====
-$jadwalRes = [];
+// ===== Daftar MK & Shift dosen (semester aktif) =====
+$mkList = [];            // [mk_id => nama_mk]
+$shiftsByMk = [];        // [mk_id => [ [id, hari, jam_mulai, jam_selesai, ruangan] ]]
+$shiftIdToMkId = [];     // [id_jadwal => mk_id] (untuk preselect)
 if ($id_semester_aktif && $id_dosen) {
-  $qJ = mysqli_query($conn, "
-    SELECT jp.id, mk.kode_mk, mk.nama_mk, jp.hari, jp.jam_mulai, jp.jam_selesai, r.nama_ruangan
+  $q = mysqli_query($conn, "
+    SELECT 
+      mk.id   AS mk_id, mk.nama_mk,
+      jp.id   AS id_jadwal, jp.hari, jp.jam_mulai, jp.jam_selesai,
+      COALESCE(r.nama_ruangan,'') AS nama_ruangan
     FROM jadwal_praktikum jp
     JOIN matakuliah_praktikum mk ON mk.id = jp.id_mk
     LEFT JOIN ruangan r ON r.id = jp.id_ruangan
-    WHERE jp.id_semester = ".(int)$id_semester_aktif." AND jp.id_dosen = ".(int)$id_dosen."
-    ORDER BY FIELD(jp.hari,'Senin','Selasa','Rabu','Kamis','Jumat','Sabtu','Minggu'), jp.jam_mulai
+    WHERE jp.id_semester = ".(int)$id_semester_aktif." 
+      AND jp.id_dosen    = ".(int)$id_dosen."
+    ORDER BY mk.nama_mk ASC, FIELD(jp.hari,'Senin','Selasa','Rabu','Kamis','Jumat','Sabtu','Minggu'), jp.jam_mulai
   ");
-  while($row = mysqli_fetch_assoc($qJ)){ $jadwalRes[] = $row; }
+  while($row = mysqli_fetch_assoc($q)){
+    $mk_id = (int)$row['mk_id'];
+    $mkList[$mk_id] = $row['nama_mk'];
+    if (!isset($shiftsByMk[$mk_id])) $shiftsByMk[$mk_id] = [];
+    $shiftsByMk[$mk_id][] = [
+      'id'   => (int)$row['id_jadwal'],
+      'hari' => $row['hari'],
+      'mulai'=> substr($row['jam_mulai'],0,5),
+      'selesai'=> substr($row['jam_selesai'],0,5),
+      'ruangan'=> $row['nama_ruangan'],
+    ];
+    $shiftIdToMkId[(int)$row['id_jadwal']] = $mk_id;
+  }
 }
 
 // ===== Ambil mahasiswa per jadwal =====
@@ -81,7 +100,7 @@ if ($_SERVER['REQUEST_METHOD']==='POST') {
   // --- Mulai sesi ---
   if ($aksi === 'mulai') {
     $id_jadwal = (int)($_POST['id_jadwal'] ?? 0);
-    if (!$id_jadwal) { flash_add('err','Pilih shift terlebih dahulu.'); header('Location: '.$_SERVER['PHP_SELF']); exit; }
+    if (!$id_jadwal) { flash_add('err','Pilih Mata Kuliah dan Shift terlebih dahulu.'); header('Location: '.$_SERVER['PHP_SELF']); exit; }
 
     $cek = mysqli_fetch_assoc(mysqli_query($conn, "
       SELECT jp.id FROM jadwal_praktikum jp
@@ -148,6 +167,15 @@ if ($sedang_sesi && $sedang_jadwal) {
   "));
   $daftar_mhs = ambilMahasiswaByJadwal($conn, $sedang_jadwal, $id_semester_aktif);
 }
+
+// ===== Preselect MK saat ada sesi berjalan =====
+$preselect_mk_id = 0;
+if ($sedang_jadwal && isset($shiftIdToMkId[$sedang_jadwal])) {
+  $preselect_mk_id = (int)$shiftIdToMkId[$sedang_jadwal];
+} else {
+  // default ke MK pertama bila ada
+  if (!empty($mkList)) $preselect_mk_id = (int)array_key_first($mkList);
+}
 ?>
 <!doctype html>
 <html lang="id">
@@ -172,7 +200,7 @@ if ($sedang_sesi && $sedang_jadwal) {
 .tombol-mulai { background:#0ea5e9; }
 .tombol-selesai { background:#10b981; }
 
-/* ===== Kontrol DataTables (biarkan kelas bawaannya) ===== */
+/* ===== Kontrol DataTables ===== */
 .dataTables_wrapper .dataTables_filter input,
 .dataTables_wrapper .dataTables_length select { padding:6px 10px; border-radius:5px; border:1px solid #ccc; font-size:14px; margin-bottom:5px; }
 
@@ -217,20 +245,28 @@ if ($sedang_sesi && $sedang_jadwal) {
 
   <?php flash_show(); ?>
 
-  <!-- ===== Pilih Shift + Mulai ===== -->
-  <form method="post" class="bar" autocomplete="off" style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+  <!-- ===== Pilih MK -> Shift + Mulai ===== -->
+  <form method="post" class="bar" autocomplete="off" style="display:flex; gap:10px; align-items:flex-end; flex-wrap:wrap;">
     <input type="hidden" name="aksi" value="mulai">
     <input type="hidden" name="csrf" value="<?= e($CSRF) ?>">
-    <label for="id_jadwal"><b>Pilih Shift</b></label>
-    <select name="id_jadwal" id="id_jadwal" <?= $sedang_sesi ? 'disabled' : '' ?> required>
-      <option value="">-- pilih --</option>
-      <?php foreach($jadwalRes as $j):
-        $jam = substr($j['jam_mulai'],0,5).' - '.substr($j['jam_selesai'],0,5);
-        $label = $j['hari'].' '.$jam;
-      ?>
-        <option value="<?= (int)$j['id'] ?>" <?= $sedang_jadwal===(int)$j['id'] ? 'selected' : '' ?>><?= e($label) ?></option>
-      <?php endforeach; ?>
-    </select>
+
+    <div style="display:flex; flex-direction:column;">
+      <label for="mk_id"><b>Pilih Mata Kuliah</b></label>
+      <select id="mk_id" <?= $sedang_sesi ? 'disabled' : '' ?> style="min-width:220px;">
+        <option value="">-- pilih MK --</option>
+        <?php foreach($mkList as $mk_id=>$nm): ?>
+          <option value="<?= (int)$mk_id ?>" <?= ($preselect_mk_id===(int)$mk_id ? 'selected':'') ?>><?= e($nm) ?></option>
+        <?php endforeach; ?>
+      </select>
+    </div>
+
+    <div style="display:flex; flex-direction:column;">
+      <label for="id_jadwal"><b>Pilih Shift</b></label>
+      <select name="id_jadwal" id="id_jadwal" <?= $sedang_sesi ? 'disabled' : '' ?> required style="min-width:260px;">
+        <option value="">-- pilih shift --</option>
+        <!-- opsi diisi via JS berdasarkan MK -->
+      </select>
+    </div>
 
     <button class="tombol-umum tombol-mulai" type="submit" <?= (!$id_semester_aktif || $sedang_sesi) ? 'disabled' : '' ?>>
       <i class="fa-solid fa-play"></i> Mulai Praktikum
@@ -318,9 +354,52 @@ if ($sedang_sesi && $sedang_jadwal) {
 // ===== Perapihan URL (hindari re-submit) =====
 window.history.replaceState({}, document.title, window.location.pathname);
 
-// ===== DataTables (kolom Aksi non-sortable) =====
+// ===== Data MK & Shift dari PHP =====
+const SHIFTS_BY_MK = <?=
+  json_encode($shiftsByMk, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES)
+?>;
+const PRESELECT_MK_ID = <?= (int)$preselect_mk_id ?>;
+const PRESELECT_SHIFT_ID = <?= (int)$sedang_jadwal ?>;
+
+// Render opsi shift berdasarkan MK
+function renderShiftOptions(mkId){
+  const shiftSel = document.getElementById('id_jadwal');
+  const sedangSesi = <?= $sedang_sesi ? 'true':'false' ?>;
+  const list = SHIFTS_BY_MK[mkId] || [];
+  shiftSel.innerHTML = '<option value="">-- pilih shift --</option>';
+  list.forEach(s => {
+    const label = `${s.hari} ${s.mulai} - ${s.selesai}${s.ruangan?(' | '+s.ruangan):''}`;
+    const opt = document.createElement('option');
+    opt.value = s.id;
+    opt.textContent = label;
+    if (PRESELECT_SHIFT_ID && s.id === PRESELECT_SHIFT_ID) opt.selected = true;
+    shiftSel.appendChild(opt);
+  });
+  shiftSel.disabled = sedangSesi || list.length === 0;
+}
+
+// Inisialisasi pilihan MK & Shift
+(function initSelects(){
+  const mkSel = document.getElementById('mk_id');
+  const shiftSel = document.getElementById('id_jadwal');
+
+  // bila ada preselect MK, render shift-nya
+  if (mkSel && mkSel.value) {
+    renderShiftOptions(parseInt(mkSel.value,10));
+  } else if (PRESELECT_MK_ID) {
+    mkSel.value = String(PRESELECT_MK_ID);
+    renderShiftOptions(PRESELECT_MK_ID);
+  }
+
+  mkSel?.addEventListener('change', (e)=>{
+    const mkId = parseInt(e.target.value || '0', 10);
+    renderShiftOptions(mkId);
+  });
+})();
+
+// ===== DataTables =====
 $(document).ready(function () {
-    $('#tabel-absen').DataTable({
+  $('#tabel-absen').DataTable({
     pageLength: 10,
     lengthMenu: [5,10,25,50],
     language: {

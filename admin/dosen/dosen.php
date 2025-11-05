@@ -131,7 +131,6 @@ if(!isset($_SESSION['role']) || $_SESSION['role'] != 'admin'){
         <th>Jenis Kelamin</th>
         <th>Alamat</th>
         <th>No. HP</th>
-        <th>Password</th>
         <th>Aksi</th>
       </tr>
     </thead>
@@ -149,7 +148,6 @@ if(!isset($_SESSION['role']) || $_SESSION['role'] != 'admin'){
         <td data-label="Jenis Kelamin"><?php echo $row['jenis_kelamin']; ?></td>
         <td data-label="Alamat"><?php echo $row['alamat']; ?></td>
         <td data-label="No.Hp"><?php echo $row['no_hp']; ?></td>
-        <td data-label="Pasword"><?php echo $row['password']; ?></td>
         <td data-label="Aksi">
            <button class="tombol tombol-edit" onclick="editDosen(<?php echo $row['id']; ?>)"><i class="fa-solid fa-pen-to-square"></i> Edit</button>
           <button class="tombol tombol-hapus" onclick="hapusDosen(<?php echo $row['id']; ?>)"><i class="fa-solid fa-trash"></i> Hapus</button>
@@ -184,7 +182,6 @@ if(!isset($_SESSION['role']) || $_SESSION['role'] != 'admin'){
       </select>
       <input type="text" name="alamat" id="alamat" placeholder="Alamat">
       <input type="text" name="no_hp" id="noHP" placeholder="No. HP">
-      <input type="password" name="password" id="password" placeholder="Password/NIDN Login">
       <button type="submit" id="simpanDosen">Simpan</button>
     </form>
   </div>
@@ -197,7 +194,7 @@ if(!isset($_SESSION['role']) || $_SESSION['role'] != 'admin'){
       "pageLength": 10,
       "lengthMenu": [5, 10, 25, 50],
       "columnDefs": [{
-        "orderable": false,"targets": 8 }],
+        "orderable": false,"targets": 7 }], // indeks aksi disesuaikan (sebelumnya 8)
       "language": {
         "decimal": "",
         "emptyTable": "Tidak ada data tersedia",
@@ -238,7 +235,6 @@ function editDosen(id) {
     $('#jenisKelamin').val(obj.jenis_kelamin);
     $('#alamat').val(obj.alamat);
     $('#noHP').val(obj.no_hp);
-    $('#password').val(obj.password);
     $('#modalDosen').css('display','flex');
   });
 }
@@ -276,12 +272,13 @@ $('.tombol-cetak').click(function(){
   doc.text("Data Dosen", 105, 15, {align:"center"});
 
   let headers = [];
-  $('#tabel-dosen thead th').each(function(index){ if(index!==8) headers.push($(this).text()); });
+  // skip kolom Aksi (indeks 7 sekarang)
+  $('#tabel-dosen thead th').each(function(index){ if(index!==7) headers.push($(this).text()); });
 
   let data = [];
   $('#tabel-dosen tbody tr').each(function(){
     let rowData=[];
-    $(this).find('td').each(function(index){ if(index!==8) rowData.push($(this).text()); });
+    $(this).find('td').each(function(index){ if(index!==7) rowData.push($(this).text()); });
     data.push(rowData);
   });
 

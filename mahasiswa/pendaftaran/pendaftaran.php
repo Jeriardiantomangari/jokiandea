@@ -13,8 +13,8 @@ if(!isset($_SESSION['role']) || $_SESSION['role'] != 'mahasiswa'){
 // Helper aman untuk escape output HTML
 function e($v){ return htmlspecialchars((string)($v ?? ''), ENT_QUOTES, 'UTF-8'); }
 
-// Ambil data mahasiswa login
-$id_mahasiswa = (int)$_SESSION['id_user'];
+// ✅ Ambil data mahasiswa login (pakai mhs_id, bukan id_user)
+$id_mahasiswa = (int)($_SESSION['mhs_id'] ?? 0);
 
 // Semester aktif (ambil yang status 'Aktif')
 $qSem = mysqli_query($conn, "SELECT id, nama_semester, tahun_ajaran FROM semester WHERE status='Aktif' LIMIT 1");
@@ -97,7 +97,7 @@ if ($id_semester){
 .lencana_sukses { background:#e7f7e9; color:#096a2e; border:1px solid #bde5c8; }
 .lencana_peringatan { background:#fff3cd; color:#7a5b00; border:1px solid #ffe08a; }
 
-/* Kontrol bawaan DataTables (biarkan class aslinya) */
+/* Kontrol bawaan DataTables */
 .dataTables_wrapper .dataTables_filter input,
 .dataTables_wrapper .dataTables_length select { padding:6px 10px; border-radius:5px; border:1px solid #ccc; font-size:14px; margin-bottom:5px; }
 
@@ -146,13 +146,9 @@ if ($id_semester){
     </thead>
     <tbody>
 <?php
-// Nomor baris tabel
 $no=1;
-
-// Cek prasyarat penampilan data jadwal
 $boleh_tampil = $id_semester && $kontrak && $status_bayar === 'Disetujui';
 
-// Siapkan IN list aman untuk nama MK
 $mk_in_sql = '';
 if ($boleh_tampil && count($mk_list_raw) > 0){
     $escaped = [];
@@ -161,7 +157,6 @@ if ($boleh_tampil && count($mk_list_raw) > 0){
     }
     $mk_in_sql = implode(',', $escaped);
 
-    // Ambil jadwal pada semester aktif untuk MK yang dikontrak & kuota > 0
     $sql = "
         SELECT jp.*, mk.kode_mk, mk.nama_mk, d.nama as pengajar, r.nama_ruangan
         FROM jadwal_praktikum jp
@@ -244,7 +239,7 @@ function pilihJadwal(id_jadwal){
   if(!confirm("Ambil shift ini?")) return;
   $.post('proses_pilih_jadwal.php', {id_jadwal:id_jadwal}, function(res){
     res = (res||'').toString().trim();
-    alert(res.replace(/^ok\|/,''));
+    alert(res.replace(/^ok\|/, ''));
     if(!res.startsWith('error|')) location.reload();
   });
 }

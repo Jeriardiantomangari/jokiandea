@@ -12,8 +12,10 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'dosen') {
 // Helper escape HTML
 function e($v){ return htmlspecialchars((string)($v ?? ''), ENT_QUOTES, 'UTF-8'); }
 
-// Identitas & semester aktif
-$id_dosen = (int)($_SESSION['id_user'] ?? 0);
+// ✅ Identitas dosen dari session (ID tabel `dosen`, bukan `users`)
+$id_dosen = (int)($_SESSION['dosen_id'] ?? 0);
+
+// Semester aktif
 $semAktif = mysqli_fetch_assoc(
   mysqli_query($conn, "SELECT id, nama_semester, tahun_ajaran FROM semester WHERE status='Aktif' LIMIT 1")
 );
@@ -160,7 +162,6 @@ if ($id_semester_aktif && $id_dosen) {
 
 <script>
 // DataTables
-
 $(document).ready(function () {
   $('#tabel-jadwal').DataTable({
     pageLength: 10,
