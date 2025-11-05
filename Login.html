@@ -12,10 +12,12 @@
       font-family: Inter, system-ui, Arial;
     }
 
-    body {
-      margin: 0;
-      background: #ffffff;
-    }
+   body {
+  margin: 0;
+  background: url('gambar/ustj.jpg') no-repeat center center fixed;
+  background-size: cover;
+  font-family: Arial, sans-serif; 
+}
 
     .wadah {
       display: flex;
@@ -35,12 +37,13 @@
     }
 
     .gambar {
-      width: 100%;
-      height: 300px;
-      object-fit: contain;
-      margin-bottom: 14px;
+      width: 50%;            
+      max-width: 250px;        
+      height: auto;            
+      display: block;          
+      margin: 0 auto 20px;    
+      object-fit: contain;     
     }
-
     .formulir-masuk label {
       display: block;
       font-size: 13px;
@@ -170,11 +173,10 @@
     }
   </style>
 </head>
-
 <body>
   <div class="wadah">
     <div class="kartu">
-      <img src="gambar/login.png" alt="login" class="gambar" />
+      <img src="gambar/logo.png" alt="login" class="gambar" />
 
       <form action="login.php" method="POST" class="formulir-masuk">
         <label><i style="margin-right: 7px; font-size: 15px;" class="fa-solid fa-user"></i> Email/Nidn/Npm </label>

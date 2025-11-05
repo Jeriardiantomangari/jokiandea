@@ -50,28 +50,34 @@ $halaman = basename($_SERVER['PHP_SELF']);
       transform: translateX(-100%);
     }
 
-    /* Foto profil */
-    .bagian-foto {
-      width: 100%;
-      display: flex;
-      justify-content: center;
-      margin-bottom: 30px;
-      cursor: pointer;
-    }
+   /* Foto Profil */
+.bagian-foto {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 30px;
+  cursor: pointer;
+}
 
-    .bagian-foto img {
-      width: 90px;
-      height: 90px;
-      border-radius: 50%;
-      object-fit: cover;
-      border: 3px solid #00b4ff;
-      transition: 0.3s;
-    }
+.bagian-foto img {
+  width: 120px;                 
+  height: 120px;
+  border-radius: 5px;
+  object-fit: contain;          
+  background-color: #fff;        
+  border: 1px solid #00b4ff;     
+  padding: 5px;                  
+  box-sizing: border-box;        
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
 
-    .bagian-foto img:hover {
-      transform: scale(1.05);
-      border-color: #8bc9ff;
-    }
+.bagian-foto img:hover {
+  transform: scale(1.04);
+  border-color: #80d4ff;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.2);
+}
 
     /* Daftar menu */
     .daftar-menu {
@@ -218,8 +224,8 @@ $halaman = basename($_SERVER['PHP_SELF']);
 
   <!-- MENU SAMPING -->
   <div class="menu-samping" id="menuSamping">
-    <div class="bagian-foto" id="tombolProfil">
-      <img src="logo.png" alt="Foto Profil">
+   <div class="bagian-foto">
+      <img src="../../gambar/logo.png" alt="login" class="gambar" />
     </div>
 
     <div class="daftar-menu">
