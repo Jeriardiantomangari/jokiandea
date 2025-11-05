@@ -30,7 +30,7 @@ if(isset($_POST['role'], $_POST['username'], $_POST['password'])){
             $_SESSION['id_user'] = $user['id'];
             $_SESSION['nama'] = $user['nama'];
             $_SESSION['nidn'] = $user['nidn'];
-            header("Location: dosen/dosen/dashboard.php");
+            header("Location: dosen/jadwal/jadwal.php");
             exit;
         }
     } elseif($role == 'admin'){

@@ -237,6 +237,7 @@ $halaman = basename($_SERVER['PHP_SELF']);
         <a href="../mahasiswa/mahasiswa.php" class="<?= $halaman == 'mahasiswa.php' ? 'active' : '' ?>">Data Mahasiswa</a>
         <a href="../ruangan/ruangan.php" class="<?= $halaman == 'ruangan.php' ? 'active' : '' ?>">Data Ruangan</a>
         <a href="../mk_praktikum/mk_praktikum.php" class="<?= $halaman == 'mk_praktikum.php' ? 'active' : '' ?>">Data MK Praktikum</a>
+         <a href="../semester/semester.php" class="<?= $halaman == 'semester.php' ? 'active' : '' ?>">Data Semester</a>
       </div>
 
       <!-- MENU LAIN DI LUAR SUBMENU -->

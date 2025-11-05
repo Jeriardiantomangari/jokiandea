@@ -2,54 +2,113 @@
 session_start();
 include '../../koneksi/koneksi.php'; 
 
-if(!isset($_SESSION['role']) || $_SESSION['role'] != 'mahasiswa'){
-    echo "Akses ditolak!";
+header('Content-Type: text/plain; charset=utf-8');
+
+if (!isset($_SESSION['role']) || $_SESSION['role'] != 'mahasiswa') {
+    echo "error|Akses ditolak!";
     exit;
 }
 
-$id_mahasiswa = $_SESSION['id_user'];
-$id_jadwal = $_POST['id_jadwal'];
+$id_mahasiswa = (int)($_SESSION['id_user'] ?? 0);
+$id_jadwal    = (int)($_POST['id_jadwal'] ?? 0);
 
-// Ambil info jadwal yang dipilih
-$jadwal = mysqli_query($conn,"SELECT id_mk, kuota FROM jadwal_praktikum WHERE id='$id_jadwal'");
-$data_jadwal = mysqli_fetch_assoc($jadwal);
-
-if(!$data_jadwal){
-    echo "Jadwal tidak ditemukan!";
+if(!$id_mahasiswa || !$id_jadwal){
+    echo "error|Data tidak valid";
     exit;
 }
 
-$id_mk = $data_jadwal['id_mk'];
-$kuota = $data_jadwal['kuota'];
-
-// Cek apakah mahasiswa sudah memilih jadwal ini
-$cek_sama = mysqli_query($conn,"SELECT * FROM pilihan_jadwal WHERE id_mahasiswa='$id_mahasiswa' AND id_jadwal='$id_jadwal'");
-if(mysqli_num_rows($cek_sama) > 0){
-    echo "Anda sudah memilih jadwal ini!";
+// Semester aktif
+$sem = mysqli_query($conn, "SELECT id FROM semester WHERE status='Aktif' LIMIT 1");
+$semRow = mysqli_fetch_assoc($sem);
+$id_semester = $semRow['id'] ?? null;
+if(!$id_semester){
+    echo "error|Tidak ada Semester Aktif";
     exit;
 }
 
-// Cek apakah mahasiswa sudah memilih MK ini di jam lain
-$cek_mk = mysqli_query($conn,"SELECT pj.id_jadwal, jp.hari, jp.jam_mulai, jp.jam_selesai
-    FROM pilihan_jadwal pj
-    JOIN jadwal_praktikum jp ON pj.id_jadwal = jp.id
-    WHERE pj.id_mahasiswa='$id_mahasiswa' AND jp.id_mk='$id_mk'");
-if(mysqli_num_rows($cek_mk) > 0){
-    echo "Anda sudah memilih mata kuliah ini di jam lain!";
+// Kontrak mahasiswa pada semester aktif HARUS ada & Disetujui
+$qKon = mysqli_query($conn, "
+    SELECT id, status, mk_dikontrak 
+    FROM kontrak_mk 
+    WHERE id_mahasiswa='$id_mahasiswa' AND id_semester='$id_semester'
+    ORDER BY id DESC LIMIT 1
+");
+$kontrak = mysqli_fetch_assoc($qKon);
+if(!$kontrak){
+    echo "error|Anda belum mengirim kontrak pada Semester Aktif";
+    exit;
+}
+if($kontrak['status'] !== 'Disetujui'){
+    echo "error|Kontrak belum Disetujui";
+    exit;
+}
+$id_kontrak = (int)$kontrak['id'];
+
+// Ambil jadwal & pastikan berada pada Semester Aktif
+$qJ = mysqli_query($conn, "
+    SELECT jp.id, jp.id_mk, jp.kuota, jp.id_semester, mk.nama_mk
+    FROM jadwal_praktikum jp
+    LEFT JOIN matakuliah_praktikum mk ON mk.id = jp.id_mk
+    WHERE jp.id='$id_jadwal' LIMIT 1
+");
+$J = mysqli_fetch_assoc($qJ);
+if(!$J){
+    echo "error|Jadwal tidak ditemukan";
+    exit;
+}
+if((int)$J['id_semester'] !== (int)$id_semester){
+    echo "error|Jadwal bukan untuk Semester Aktif";
     exit;
 }
 
-// Cek kuota
-if($kuota <= 0){
-    echo "Kuota jadwal sudah penuh!";
+$id_mk = (int)$J['id_mk'];
+$nama_mk = $J['nama_mk'] ?? '';
+
+// Pastikan MK ini memang ada di daftar kontrak mahasiswa
+$mk_dikontrak = array_filter(array_map('trim', explode(',', (string)$kontrak['mk_dikontrak'])));
+$mk_in_kontrak = in_array($nama_mk, $mk_dikontrak, true);
+if(!$mk_in_kontrak){
+    echo "error|MK ini tidak ada di kontrak Anda";
     exit;
 }
 
-// Simpan pilihan mahasiswa
-mysqli_query($conn,"INSERT INTO pilihan_jadwal (id_mahasiswa,id_jadwal) VALUES ('$id_mahasiswa','$id_jadwal')");
+// Cek sudah memilih shift untuk MK ini pada semester aktif
+$cek_dup = mysqli_query($conn, "
+    SELECT id FROM pilihan_jadwal
+    WHERE id_mahasiswa='$id_mahasiswa' AND id_semester='$id_semester' AND id_mk='$id_mk'
+    LIMIT 1
+");
+if(mysqli_fetch_assoc($cek_dup)){
+    echo "error|Anda sudah memilih shift untuk MK ini";
+    exit;
+}
 
-// Kurangi kuota
-mysqli_query($conn,"UPDATE jadwal_praktikum SET kuota=kuota-1 WHERE id='$id_jadwal'");
+// Transaksi untuk amankan kuota
+mysqli_begin_transaction($conn);
 
-echo "Jadwal berhasil dipilih!";
-?>
+try {
+    // Kurangi kuota kalau masih ada
+    $upd = mysqli_query($conn, "
+        UPDATE jadwal_praktikum 
+        SET kuota = kuota - 1
+        WHERE id = '$id_jadwal' AND kuota > 0
+    ");
+    if(!$upd || mysqli_affected_rows($conn) < 1){
+        throw new Exception("Kuota jadwal sudah habis");
+    }
+
+    // Simpan pilihan
+    $ins = mysqli_query($conn, "
+        INSERT INTO pilihan_jadwal (id_mahasiswa, id_kontrak, id_jadwal, id_mk, id_semester)
+        VALUES ('$id_mahasiswa', '$id_kontrak', '$id_jadwal', '$id_mk', '$id_semester')
+    ");
+    if(!$ins){
+        throw new Exception("Gagal menyimpan pilihan");
+    }
+
+    mysqli_commit($conn);
+    echo "ok|Jadwal berhasil dipilih!";
+} catch (Exception $e){
+    mysqli_rollback($conn);
+    echo "error|".$e->getMessage();
+}
