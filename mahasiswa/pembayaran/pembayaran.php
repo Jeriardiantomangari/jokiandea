@@ -59,8 +59,8 @@ if ($id_semester_aktif) {
 
   /* Info semester */
   .kotak_info { margin-bottom:15px; padding:10px 12px; border-radius:6px; }
-  .info_sukses { background:#e7f7e9; color:#096a2e; border:1px solid #bde5c8; }
-  .info_peringatan { background:#fff3cd; color:#7a5b00; border:1px solid #ffe08a; }
+  .info_sukses { color:#333  }
+  .info_peringatan { color :#ff5252;}
 
   /* Wadah tombol atas */
   .wadah_tombol { display:flex; width:100%; margin-bottom: 15px; }
@@ -83,7 +83,7 @@ if ($id_semester_aktif) {
 
   /* Tabel data */
   .tabel_data { width:100%; border-collapse:collapse; background:white; border-radius:10px; overflow:hidden; box-shadow:0 2px 6px rgba(0,0,0,0.1); table-layout:fixed; }
-  .tabel_data th { background:#8bc9ff; color:#333; text-align:left; padding:12px 15px; }
+  .tabel_data th { background:#00AEEF; color:#333; text-align:left; padding:12px 15px; }
   .tabel_data td { padding:12px 15px; border-bottom:1px solid #ddd; border-right:1px solid #ddd; }
   .tabel_data tr:hover { background:#f1f1f1; }
 

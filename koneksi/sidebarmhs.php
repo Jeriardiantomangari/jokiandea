@@ -16,7 +16,8 @@ $halaman = basename($_SERVER['PHP_SELF']);
     .menu-samping {
       width:250px; background:#00AEEF; display:flex; flex-direction:column; align-items:flex-start;
       padding:30px 0; color:#fff; position:fixed; top:0; bottom:0; left:0; z-index:200;
-      border-right:1px solid #ffffffff; transition: transform 0.3s ease;
+     transition: transform 0.3s ease;
+       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
     }
     .menu-samping.hidden { transform:translateX(-100%); }
 
@@ -41,7 +42,8 @@ $halaman = basename($_SERVER['PHP_SELF']);
   transition: 0.3s;
   display: block;
   margin: 0 auto;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15); 
+  
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25); 
 }
         
 
@@ -50,31 +52,61 @@ $halaman = basename($_SERVER['PHP_SELF']);
 
     .daftar-menu { display:flex; flex-direction:column; width:100%; padding-left:20px; }
     .daftar-menu a {
-      display:flex; align-items:center; text-decoration:none; color:#fff;
-      font-weight:bold; font-size:15px; padding:10px 0; transition:all 0.3s ease;
+      display:flex; align-items:center; text-decoration:none; color:black;
+      font-weight:bold; font-size:17px; padding:10px 0; transition:all 0.3s ease;
     }
     .daftar-menu a i { margin-right:10px; width:20px; text-align:center; }
-    .daftar-menu a:hover, .daftar-menu a.active { color:#00b4ff; font-weight:bold; }
+    .daftar-menu a:hover, .daftar-menu a.active { color:white; font-weight:bold; }
 
     .menu-atas {
-      position: fixed; top:0; left:250px; right:0; height:60px;
-      background:#3DDC97; border-bottom:1px solid #c0c3c6ff;
-      display:flex; justify-content:flex-end; align-items:center; padding:0 10px; z-index:250;
-      transition: left 0.3s ease;
-    }
+  position: fixed;
+  top: 0;
+  left: 250px;
+  right: 0;
+  height: 60px;
+  background: #ffffff; /* ubah jadi putih */
+  border-bottom: none; /* hilangkan border lama */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25); /* tambahkan bayangan lembut di bawah */
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 0 10px;
+  z-index: 250;
+  transition: left 0.3s ease;
+}
 
-    .tombol-keluar {
-      background-color:#ff5252; color:white; border:none; padding:10px 15px;
-      border-radius:6px; cursor:pointer; font-weight:bold; display:flex; align-items:center; gap:8px; transition:0.3s;
-    }
-    .tombol-keluar:hover { background-color:#d83c3c; }
+.tombol-keluar {
+  background: none;          /* tanpa background */
+  color: #ff5252;            /* warna ikon merah */
+  border: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;        /* opsional: biar tetap proporsional */
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  transition: color 0.3s ease, transform 0.2s ease;
+}
+
+.tombol-keluar:hover {
+  color: #d83c3c;            /* warna lebih gelap saat hover */
+  transform: scale(1.1);     /* sedikit membesar */
+}
+
+.tombol-keluar:active {
+  transform: scale(0.95);    /* efek klik */
+}
+
+
     .tombol-menu { display:none !important; font-size:1.6rem; color:#333; cursor:pointer; }
 
 
        @media (max-width: 768px) {
       .menu-samping {
         transform: translateX(-100%);
-        width:220px;
+        width:250px;
       }
 
       .bagian-foto {
@@ -102,7 +134,7 @@ $halaman = basename($_SERVER['PHP_SELF']);
   <!-- MENU SAMPING -->
   <div class="menu-samping" id="menuSamping">
     <div class="bagian-foto">
-      <img src="../../gambar/ustj.jpg" alt="login" class="gambar" />
+      <img src="../../gambar/ustj.jpg" alt="logo" class="gambar" />
     </div>
 
 
@@ -111,7 +143,7 @@ $halaman = basename($_SERVER['PHP_SELF']);
         <i class="fa-solid fa-house"></i> Halaman Utama
       </a>
       <a href="../pembayaran/pembayaran.php" class="<?= strpos($_SERVER['REQUEST_URI'],'pembayaran.php') !== false ? 'active' : '' ?>">
-        <i class="fa-solid fa-file-invoice-dollar"></i> Upload Pembayaran
+        <i class="fa-solid fa-file-arrow-up" ></i> Upload Pembayaran
       </a>
       <a href="../pendaftaran/pendaftaran.php" class="<?= strpos($_SERVER['REQUEST_URI'],'pendaftaran.php') !== false ? 'active' : '' ?>">
         <i class="fa-solid fa-file-circle-plus"></i> Pendaftaran Praktikum
@@ -125,9 +157,9 @@ $halaman = basename($_SERVER['PHP_SELF']);
   <!-- MENU ATAS -->
   <div class="menu-atas">
     <i class="fa-solid fa-bars tombol-menu" id="tombolMenu"></i>
-    <button class="tombol-keluar" id="keluar">
-      <i class="fa-solid fa-right-from-bracket"></i> Keluar
-    </button>
+   <button class="tombol-keluar" id="keluar">
+  <i class="fa-solid fa-power-off"></i>
+</button>
   </div>
 
   <script>

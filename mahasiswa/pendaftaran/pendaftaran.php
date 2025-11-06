@@ -43,16 +43,20 @@ if (!empty($kontrak['mk_dikontrak'])) {
     }
 }
 
-// Ambil set MK yang sudah dipilih shiftnya (semester aktif)
-$mk_sudah_dipilih = [];
+/* ========================================================================
+   - Ambil set JADWAL yang sudah dipilih (berdasarkan id_jadwal), dan penanda per-MK
+   ======================================================================== */
+$mk_sudah_dipilih = [];          // penanda per MK
+$jadwal_sudah_diambil = [];      // penanda per id_jadwal yang sudah dipilih
 if ($id_semester){
     $qSudah = mysqli_query($conn, "
-        SELECT DISTINCT id_mk 
+        SELECT id_mk, id_jadwal
         FROM pilihan_jadwal 
         WHERE id_mahasiswa='$id_mahasiswa' AND id_semester='$id_semester'
     ");
     while($r = mysqli_fetch_assoc($qSudah)){
         $mk_sudah_dipilih[(int)$r['id_mk']] = true;
+        $jadwal_sudah_diambil[(int)$r['id_jadwal']] = true;
     }
 }
 ?>
@@ -77,9 +81,9 @@ if ($id_semester){
 
 /* Komponen kotak informasi */
 .kotak_info { margin:10px 0 15px 0; padding:10px 12px; border-radius:6px; }
-.info_sukses { background:#e7f7e9; color:#096a2e; border:1px solid #bde5c8; }
-.info_peringatan { background:#fff3cd; color:#7a5b00; border:1px solid #ffe08a; }
-.info_gagal { background:#fde2e1; color:#7a1c1a; border:1px solid #f5b5b2; }
+.info_sukses { color:#333  }
+ .info_peringatan { color :#ff5252;}
+.info_gagal {   color :#ff5252;}
 
 /* Tombol umum & tombol tambah */
 .tombol_umum { border:none; border-radius:5px; cursor:pointer; color:white; font-size:12px; transition:0.3s; padding:6px 10px; }
@@ -88,12 +92,12 @@ if ($id_semester){
 
 /* Tabel data jadwal */
 .tabel_data { width:100%; border-collapse:collapse; background:white; border-radius:10px; overflow:hidden; box-shadow:0 2px 6px rgba(0,0,0,0.1); table-layout:fixed; }
-.tabel_data th { background:#8bc9ff; color:#333; text-align:left; padding:12px 15px; }
+.tabel_data th { background:#00AEEF; color:#333; text-align:left; padding:12px 15px; }
 .tabel_data td { padding:12px 15px; border-bottom:1px solid #ddd; border-right:1px solid #ddd; }
 .tabel_data tr:hover { background:#f7fbff; }
 
 /* Badge status MK */
-.lencana { display:inline-block; padding:3px 8px; border-radius:5px; font-size:12px; }
+.lencana { display:inline-block; padding:5px 10px; border-radius:5px; font-size:15px; }
 .lencana_sukses { background:#e7f7e9; color:#096a2e; border:1px solid #bde5c8; }
 .lencana_peringatan { background:#fff3cd; color:#7a5b00; border:1px solid #ffe08a; }
 
@@ -175,7 +179,17 @@ if ($boleh_tampil && count($mk_list_raw) > 0){
     while($row = mysqli_fetch_assoc($q)){
         $jam = date('H:i', strtotime($row['jam_mulai'])) . ' - ' . date('H:i', strtotime($row['jam_selesai']));
         $mk_id = (int)$row['id_mk'];
-        $sudah_ambil_mk = isset($mk_sudah_dipilih[$mk_id]); // 1 shift per MK
+
+        // Per status per-jadwal
+        $id_jadwal_baris = (int)$row['id']; // id dari tabel jadwal_praktikum (alias jp.id)
+        $sudah_ambil_jadwal = isset($jadwal_sudah_diambil[$id_jadwal_baris]);
+
+        /* ======================= PERUBAHAN PENTING (AKSI) =======================
+           - Jika baris ini yang dipilih  -> tombol: Selesai
+           - Jika MK ini sudah punya jadwal lain dipilih -> tombol juga: Selesai (kunci)
+           - Jika belum ada pilihan untuk MK ini -> tombol: Pilih
+        ======================================================================== */
+        $sudah_ambil_mk = isset($mk_sudah_dipilih[$mk_id]);
         ?>
         <tr>
           <td data-label="No"><?= $no++; ?></td>
@@ -187,14 +201,14 @@ if ($boleh_tampil && count($mk_list_raw) > 0){
           <td data-label="Ruangan"><?= e($row['nama_ruangan']); ?></td>
           <td data-label="Kuota"><?= e($row['kuota']); ?></td>
           <td data-label="Status MK">
-            <?php if($sudah_ambil_mk): ?>
+            <?php if($sudah_ambil_jadwal): ?>
               <span class="lencana lencana_sukses">Sudah ambil</span>
             <?php else: ?>
               <span class="lencana lencana_peringatan">Belum ambil</span>
             <?php endif; ?>
           </td>
           <td data-label="Aksi">
-            <?php if($sudah_ambil_mk): ?>
+            <?php if($sudah_ambil_jadwal || $sudah_ambil_mk): ?>
               <span style="color:green; font-weight:bold;">Selesai</span>
             <?php else: ?>
               <button class="tombol_umum tombol_tambah" onclick="pilihJadwal(<?= (int)$row['id']; ?>)">

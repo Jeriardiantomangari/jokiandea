@@ -85,9 +85,9 @@ if ($id_semester){
 
 /* Komponen kotak informasi */
 .kotak_info { margin:10px 0 15px 0; padding:10px 12px; border-radius:6px; }
-.info_sukses { background:#e7f7e9; color:#096a2e; border:1px solid #bde5c8; }
-.info_peringatan { background:#fff3cd; color:#7a5b00; border:1px solid #ffe08a; }
-.info_gagal { background:#fde2e1; color:#7a1c1a; border:1px solid #f5b5b2; }
+.info_sukses { color:#333  }
+ .info_peringatan { color :#ff5252;}
+.info_gagal {   color :#ff5252;}
 
 /* Kontrol bawaan DataTables (JANGAN diubah class-nya) */
 .dataTables_wrapper .dataTables_filter input,
@@ -122,9 +122,13 @@ if ($id_semester){
   box-shadow:0 2px 6px rgba(0,0,0,0.1); 
   table-layout:fixed; 
 }
-.tabel_data th { background:#8bc9ff; color:#333; text-align:left; padding:12px 15px; }
+.tabel_data th { background:#00AEEF; color:#333; text-align:left; padding:12px 15px; }
 .tabel_data td { padding:12px 15px; border-bottom:1px solid #ddd; border-right:1px solid #ddd; }
 .tabel_data tr:hover { background:#f7fbff; }
+
+.sel_modul{
+  text-align:center; 
+}
 
 /* Tampilan mobile (<=768px) */
 @media screen and (max-width: 768px) {
@@ -144,6 +148,9 @@ if ($id_semester){
     font-weight:bold; 
     text-align:left; 
   }
+  .sel_modul{
+  text-align:right; 
+}
 }
 </style>
 </head>
@@ -215,7 +222,7 @@ if ($id_semester){
 
             $modul = trim((string)($row['modul'] ?? ''));
             $modul_html = $modul !== ''
-              ? "<a href='../../uploads/".e($modul)."' target='_blank' title='Buka Modul'><i class='fa-solid fa-file-arrow-down' style='font-size:18px;color:#0d6efd;'></i></a>"
+              ? "<a href='../../uploads/".e($modul)."' target='_blank' title='Buka Modul'><i class='fa-solid fa-file-arrow-down' style='font-size:30px;color:#dc3545'></i></a>"
               : "<span style='color:#999;'>-</span>";
             ?>
             <tr>
@@ -228,7 +235,7 @@ if ($id_semester){
               <td data-label="Ruangan"><?= e($row['nama_ruangan'] ?? ''); ?></td>
               <td data-label="Semester"><?= e($row['semester_mk'] ?? ''); ?></td>
               <td data-label="SKS"><?= e($row['sks'] ?? ''); ?></td>
-              <td data-label="Modul"><?= $modul_html; ?></td>
+              <td data-label="Modul" class="sel_modul"><?= $modul_html; ?></td>
             </tr>
             <?php
           }
