@@ -14,40 +14,36 @@ $halaman = basename($_SERVER['PHP_SELF']);
     body { display:flex; min-height:100vh; background:#f3f3f3; overflow-x:hidden; }
 
     .menu-samping {
-      width:250px; background: #2563eb; display:flex; flex-direction:column; align-items:flex-start;
+      width:250px; background:#00AEEF; display:flex; flex-direction:column; align-items:flex-start;
       padding:30px 0; color:#fff; position:fixed; top:0; bottom:0; left:0; z-index:200;
-      border-right:1px solid #2b7ef4ff; transition: transform 0.3s ease;
+      border-right:1px solid #ffffffff; transition: transform 0.3s ease;
     }
     .menu-samping.hidden { transform:translateX(-100%); }
 
-/* Foto Profil */
+/* Foto profil */
 .bagian-foto {
   width: 100%;
   display: flex;
-  justify-content: center;
-  align-items: center;
+  flex-direction: column;
+  justify-content: center;  
+  align-items: center;      
   margin-bottom: 30px;
   cursor: pointer;
+  position: relative;
+  text-align: center;       
 }
 
 .bagian-foto img {
-  width: 120px;                 
-  height: 120px;
-  border-radius: 5px;
-  object-fit: contain;          
-  background-color: #fff;        
-  border: 1px solid #00b4ff;     
-  padding: 5px;                  
-  box-sizing: border-box;        
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+  transition: 0.3s;
+  display: block;
+  margin: 0 auto;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15); 
 }
-
-.bagian-foto img:hover {
-  transform: scale(1.04);
-  border-color: #80d4ff;
-  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.2);
-}
+        
 
 
 
@@ -62,7 +58,7 @@ $halaman = basename($_SERVER['PHP_SELF']);
 
     .menu-atas {
       position: fixed; top:0; left:250px; right:0; height:60px;
-      background:#8bc9ff; border-bottom:1px solid #c0c3c6ff;
+      background:#3DDC97; border-bottom:1px solid #c0c3c6ff;
       display:flex; justify-content:flex-end; align-items:center; padding:0 10px; z-index:250;
       transition: left 0.3s ease;
     }
@@ -74,11 +70,30 @@ $halaman = basename($_SERVER['PHP_SELF']);
     .tombol-keluar:hover { background-color:#d83c3c; }
     .tombol-menu { display:none !important; font-size:1.6rem; color:#333; cursor:pointer; }
 
-    @media (max-width:768px){
-      .menu-samping { transform:translateX(-100%); }
-      .menu-samping.active { transform:translateX(0); }
-      .menu-atas { left:0; justify-content:space-between; }
-      .tombol-menu { display:block !important; }
+
+       @media (max-width: 768px) {
+      .menu-samping {
+        transform: translateX(-100%);
+        width:220px;
+      }
+
+      .bagian-foto {
+        margin-top: 80px;
+        margin-bottom: 20px;
+      }
+
+      .menu-samping.active {
+        transform: translateX(0);
+      }
+
+      .menu-atas {
+        left: 0;
+        justify-content: space-between;
+      }
+
+      .tombol-menu {
+        display: block !important;
+      }
     }
   </style>
 </head>
@@ -87,8 +102,9 @@ $halaman = basename($_SERVER['PHP_SELF']);
   <!-- MENU SAMPING -->
   <div class="menu-samping" id="menuSamping">
     <div class="bagian-foto">
-      <img src="../../gambar/logo.png" alt="login" class="gambar" />
+      <img src="../../gambar/ustj.jpg" alt="login" class="gambar" />
     </div>
+
 
     <div class="daftar-menu">
       <a href="../halaman_utama/halaman_utama.php" class="<?= strpos($_SERVER['REQUEST_URI'],'halaman_utama.php') !== false ? 'active' : '' ?>">

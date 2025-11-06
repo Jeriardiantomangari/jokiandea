@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Nov 05, 2025 at 04:59 PM
+-- Generation Time: Nov 06, 2025 at 04:54 AM
 -- Server version: 8.4.3
 -- PHP Version: 8.3.26
 
@@ -291,7 +291,6 @@ INSERT INTO `semester` (`id`, `nama_semester`, `tahun_ajaran`, `status`) VALUES
 CREATE TABLE `users` (
   `id` int NOT NULL,
   `nama` varchar(100) NOT NULL,
-  `username` varchar(50) NOT NULL,
   `password` varchar(255) DEFAULT NULL,
   `role` enum('Admin','Dosen','Mahasiswa') NOT NULL,
   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -302,14 +301,14 @@ CREATE TABLE `users` (
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`id`, `nama`, `username`, `password`, `role`, `created_at`, `updated_at`) VALUES
-(4, 'Administrator', 'admin', 'admin123', 'Admin', '2025-11-05 23:18:05', NULL),
-(5, 'Jeri', '22421001', '22421001', 'Dosen', '2025-11-06 01:35:45', NULL),
-(6, 'abdul ', '22421002', '22421002', 'Dosen', '2025-11-06 01:36:21', NULL),
-(7, 'Putri', '22421003', '22421003', 'Dosen', '2025-11-06 01:37:08', NULL),
-(8, 'Kaneji', '22421007', '22421007', 'Mahasiswa', '2025-11-06 01:37:39', NULL),
-(9, 'Jago', '22421008', '22421008', 'Mahasiswa', '2025-11-06 01:38:24', NULL),
-(10, 'Mullet', '22421009', '22421009', 'Mahasiswa', '2025-11-06 01:38:51', NULL);
+INSERT INTO `users` (`id`, `nama`, `password`, `role`, `created_at`, `updated_at`) VALUES
+(4, 'Administrator', 'admin123', 'Admin', '2025-11-05 23:18:05', NULL),
+(5, 'Jeri', '22421001', 'Dosen', '2025-11-06 01:35:45', NULL),
+(6, 'abdul ', '22421002', 'Dosen', '2025-11-06 01:36:21', NULL),
+(7, 'Putri', '22421003', 'Dosen', '2025-11-06 01:37:08', NULL),
+(8, 'Kaneji', '22421007', 'Mahasiswa', '2025-11-06 01:37:39', NULL),
+(9, 'Jago', '22421008', 'Mahasiswa', '2025-11-06 01:38:24', NULL),
+(10, 'Mullet', '22421009', 'Mahasiswa', '2025-11-06 01:38:51', NULL);
 
 --
 -- Indexes for dumped tables
@@ -405,8 +404,7 @@ ALTER TABLE `semester`
 -- Indexes for table `users`
 --
 ALTER TABLE `users`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `username` (`username`);
+  ADD PRIMARY KEY (`id`);
 
 --
 -- AUTO_INCREMENT for dumped tables
