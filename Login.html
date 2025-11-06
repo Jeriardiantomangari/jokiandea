@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -12,12 +13,12 @@
       font-family: Inter, system-ui, Arial;
     }
 
-   body {
-  margin: 0;
-  background: url('gambar/ustj.jpg') no-repeat center center fixed;
-  background-size: cover;
-  font-family: Arial, sans-serif; 
-}
+    body {
+      margin: 0;
+      background: url('gambar/ustj.jpg') no-repeat center center fixed;
+      background-size: cover;
+      font-family: Arial, sans-serif;
+    }
 
     .wadah {
       display: flex;
@@ -37,13 +38,14 @@
     }
 
     .gambar {
-      width: 50%;            
-      max-width: 250px;        
-      height: auto;            
-      display: block;          
-      margin: 0 auto 20px;    
-      object-fit: contain;     
+      width: 50%;
+      max-width: 250px;
+      height: auto;
+      display: block;
+      margin: 0 auto 20px;
+      object-fit: contain;
     }
+
     .formulir-masuk label {
       display: block;
       font-size: 13px;
@@ -173,6 +175,7 @@
     }
   </style>
 </head>
+
 <body>
   <div class="wadah">
     <div class="kartu">
@@ -188,14 +191,14 @@
           <i id="tombolLihatSandi" class="fa-solid fa-eye tombol-lihat-sandi"></i>
         </div>
 
-       <div class="pilihan-peran">
-  <label><i class="fa-solid fa-user-gear" style="margin-right: 3px;"></i> Login sebagai:</label>
-  <div class="kelompok-radio">
-    <label><input type="radio" name="role" value="admin" required> Admin</label>
-    <label><input type="radio" name="role" value="dosen" required> Dosen</label>
-    <label><input type="radio" name="role" value="mahasiswa" required> Mahasiswa</label>
-  </div>
-</div>
+        <div class="pilihan-peran">
+          <label><i class="fa-solid fa-user-gear" style="margin-right: 3px;"></i> Login sebagai:</label>
+          <div class="kelompok-radio">
+            <label><input type="radio" name="role" value="admin" required> Admin</label>
+            <label><input type="radio" name="role" value="dosen" required> Dosen</label>
+            <label><input type="radio" name="role" value="mahasiswa" required> Mahasiswa</label>
+          </div>
+        </div>
 
 
         <button type="submit" class="tombol-masuk">Masuk</button>

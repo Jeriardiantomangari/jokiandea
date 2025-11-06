@@ -29,18 +29,18 @@ if(!isset($_SESSION['role']) || $_SESSION['role'] != 'admin'){
 }
 .konten-utama h2 { margin-bottom:20px; color:#333; }
 
-.tombol { border:none; border-radius:5px; cursor:pointer; color:white; transition:0.3s; }
+.tombol { border:none; border-radius:5px; cursor:pointer; color:white; font-size:10px; transition:0.3s; }
 .tombol:hover { opacity:0.85; }
-.tombol-edit { background:#007bff; width:60px; margin-bottom:3px; padding:6px 10px; font-size:12px; }
-.tombol-hapus { background:#dc3545; width:60px; padding:6px 10px; font-size:12px; }
-.tombol-tambah { background:#00b4ff; margin-bottom:10px; padding:8px 15px; font-size:14px; display:flex; align-items:center; gap:5px; }
+.tombol-edit { background:#007bff; width:60px; margin-bottom:3px; padding:6px 10px; }
+.tombol-hapus { background:#dc3545; width:60px; padding:6px 10px; }
+.tombol-tambah { background:#00b4ff; margin-bottom:10px; padding:8px 15px; }
 
 .dataTables_wrapper .dataTables_filter input,
 .dataTables_wrapper .dataTables_length select { padding:6px 10px; border-radius:5px; border:1px solid #ccc; font-size:14px; margin-bottom:5px; }
 
 .tabel-semester { width:100%; border-collapse:collapse; background:white; border-radius:10px; overflow:hidden; box-shadow:0 2px 6px rgba(0,0,0,0.1); table-layout:fixed; }
 .tabel-semester th {
-  background:#8bc9ff;
+  background:#00AEEF;
   color:#333;
   padding:12px 15px;
 }
@@ -166,11 +166,7 @@ if(!isset($_SESSION['role']) || $_SESSION['role'] != 'admin'){
 <div class="konten-utama">
   <h2>Data Semester</h2>
 
-  <div style="display:flex; justify-content:flex-start; align-items:center; margin-bottom:15px;">
-    <button class="tombol tombol-tambah" onclick="tambahSemester()">
-      <i class="fa-solid fa-plus"></i> Tambah Semester
-    </button>
-  </div>
+  <button class="tombol tombol-tambah" onclick="tambahSemester()"><i class="fa-solid fa-plus"></i> Tambah</button>
 
   <table id="tabel-semester" class="tabel-semester">
     <thead>
@@ -194,12 +190,8 @@ if(!isset($_SESSION['role']) || $_SESSION['role'] != 'admin'){
         <td data-label="Tahun Ajaran"><?php echo htmlspecialchars($row['tahun_ajaran']); ?></td>
         <td data-label="Status"><?php echo htmlspecialchars($row['status']); ?></td>
         <td data-label="Aksi">
-          <button class="tombol tombol-edit" onclick="editSemester(<?php echo $row['id']; ?>)">
-            <i class="fa-solid fa-pen-to-square"></i>
-          </button>
-          <button class="tombol tombol-hapus" onclick="hapusSemester(<?php echo $row['id']; ?>)">
-            <i class="fa-solid fa-trash"></i>
-          </button>
+           <button class="tombol tombol-edit" onclick="editDosen(<?php echo $row['id']; ?>)"><i class="fa-solid fa-pen-to-square"></i> Edit</button>
+          <button class="tombol tombol-hapus" onclick="hapusDosen(<?php echo $row['id']; ?>)"><i class="fa-solid fa-trash"></i> Hapus</button>
         </td>
       </tr>
       <?php } ?>

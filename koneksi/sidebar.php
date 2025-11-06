@@ -13,156 +13,107 @@ $halaman = basename($_SERVER['PHP_SELF']);
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
   <style>
-    /* === Reset & Font Global === */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
+  /* === Reset & Font Global === */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
 
-    body {
-      display: flex;
-      min-height: 100vh;
-      background-color: #f3f3f3;
-      overflow-x: hidden;
-    }
+body {
+  display: flex;
+  min-height: 100vh;
+  background: #f3f3f3;
+  overflow-x: hidden;
+}
 
-    /* === MENU SAMPING === */
-    .menu-samping {
-      width: 250px;
-      background-color: #3a3b3c;
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-      padding: 30px 0;
-      color: #fff;
-      position: fixed;
-      top: 0;
-      bottom: 0;
-      left: 0;
-      z-index: 200;
-      border-right: 1px solid #222;
-      transition: transform 0.3s ease;
-    }
+/* === MENU SAMPING (gaya dari snippet 1) === */
+.menu-samping {
+  width: 250px;
+  background: #00AEEF;           /* biru seperti snippet 1 */
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 30px 0;
+  color: #fff;
+  position: fixed;
+  top: 0; bottom: 0; left: 0;
+  z-index: 200;
+  transition: transform 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0,0,0,.25);
+}
+.menu-samping.hidden { transform: translateX(-100%); }
 
-    .menu-samping.hidden {
-      transform: translateX(-100%);
-    }
-
-   /* Foto Profil */
+/* Foto/logo */
 .bagian-foto {
   width: 100%;
   display: flex;
-  justify-content: center;
-  align-items: center;
+  flex-direction: column;
+  justify-content: center; align-items: center;
   margin-bottom: 30px;
   cursor: pointer;
+  position: relative; text-align: center;
 }
-
 .bagian-foto img {
-  width: 120px;                 
-  height: 120px;
-  border-radius: 5px;
-  object-fit: contain;          
-  background-color: #fff;        
-  border: 1px solid #00b4ff;     
-  padding: 5px;                  
-  box-sizing: border-box;        
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+  width: 100px; height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block; margin: 0 auto;
+  transition: .3s;
+  box-shadow: 0 4px 10px rgba(0,0,0,.25);
 }
 
-.bagian-foto img:hover {
-  transform: scale(1.04);
-  border-color: #80d4ff;
-  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.2);
+/* Daftar menu */
+.daftar-menu {
+  display: flex; flex-direction: column;
+  width: 100%;
+  padding-left: 20px;
+}
+.daftar-menu a,
+.menu-item {
+  display: flex; align-items: center; justify-content: flex-start;
+  text-decoration: none;
+  color: black;                    /* seperti snippet 1 */
+  font-weight: bold;
+  font-size: 17px;                 /* seperti snippet 1 */
+  padding: 10px 0;
+  transition: all .3s ease;
+  cursor: pointer;
+}
+.daftar-menu a i,
+.menu-item i:first-child { margin-right: 10px; width: 20px; text-align: center; }
+
+.daftar-menu a:hover,
+.daftar-menu a.active,
+.menu-item:hover,
+.menu-item.active span {
+  color: #fff;                     /* hover/active putih seperti snippet 1 */
+  font-weight: bold;
 }
 
-    /* Daftar menu */
-    .daftar-menu {
-      display: flex;
-      flex-direction: column;
-      width: 100%;
-      padding-left: 20px;
-    }
+/* Submenu (tetap ada, hanya warna disesuaikan agar kontras) */
+.submenu { display: none; flex-direction: column; margin-left: 30px; }
+.submenu a {
+  color: black;                  /* lebih kontras di biru */
+  font-weight: bold; font-size: 14px;
+  padding: 8px 0; text-decoration: none; transition: .3s;
+}
+.submenu a:hover, .submenu a.active { color: #ffffff; }
+.submenu.active { display: flex; }
+.menu-item .arrow { margin-left: auto; margin-right: 20px; transition: transform .3s; }
+.menu-item.active .arrow { transform: rotate(90deg); }
 
-    .daftar-menu a,
-    .menu-item {
-      display: flex;
-      align-items: center;
-      justify-content: flex-start;
-      text-decoration: none;
-      color: #fff;
-      font-weight: bold;
-      font-size: 15px;
-      padding: 10px 0;
-      transition: all 0.3s ease;
-      cursor: pointer;
-    }
-
-    .daftar-menu a i,
-    .menu-item i:first-child {
-      margin-right: 10px;
-      width: 20px;
-      text-align: center;
-    }
-
-    .daftar-menu a:hover,
-    .menu-item:hover {
-      color: #00b4ff;
-    }
-
-    .daftar-menu a.active,
-    .menu-item.active span {
-      color: #00b4ff;
-      font-weight: bold;
-    }
-
-    /* Submenu */
-    .submenu {
-      display: none;
-      flex-direction: column;
-      margin-left: 30px;
-    }
-
-    .submenu a {
-      color: #dcdcdc;
-      font-weight: bold;
-      font-size: 14px;
-      padding: 8px 0;
-      text-decoration: none;
-      transition: 0.3s;
-    }
-
-    .submenu a:hover,
-    .submenu a.active {
-      color: #00b4ff;
-    }
-
-    .submenu.active {
-      display: flex;
-    }
-
-    .menu-item .arrow {
-      margin-left: auto;
-      margin-right: 20px;
-      transition: transform 0.3s;
-    }
-
-    .menu-item.active .arrow {
-      transform: rotate(90deg);
-    }
-
-    /* === MENU ATAS === */
-    .menu-atas {
+/* === MENU ATAS (gaya dari snippet 1) === */
+.menu-atas {
       position: fixed;
       top: 0;
       left: 250px;
       right: 0;
       height: 60px;
-      background: #8bc9ff;
-      border-bottom: 1px solid #c0c3c6ff;
+      background: #ffffff;
+      border-bottom: none;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
       display: flex;
       justify-content: flex-end;
       align-items: center;
@@ -171,52 +122,39 @@ $halaman = basename($_SERVER['PHP_SELF']);
       transition: left 0.3s ease;
     }
 
-    /* Tombol keluar */
     .tombol-keluar {
-      background-color: #ff5252;
-      color: white;
+      background: none;
+      color: #ff5252;
       border: none;
-      padding: 10px 15px;
-      border-radius: 6px;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
       cursor: pointer;
-      font-weight: bold;
-      transition: 0.3s;
       display: flex;
       align-items: center;
-      gap: 8px;
+      justify-content: center;
+      font-size: 20px;
+      transition: color 0.3s ease, transform 0.2s ease;
     }
 
-    .tombol-keluar:hover {
-      background-color: #d83c3c;
-    }
+/* Tombol menu (ikon hamburger) */
+.tombol-menu {
+  display: none !important;
+  font-size: 1.6rem;
+  color: #333;
+  cursor: pointer;
+}
 
-    .tombol-menu {
-      display: none !important;
-      font-size: 1.6rem;
-      color: #333;
-      cursor: pointer;
-    }
+/* === RESPONSIVE seperti snippet 1 === */
+@media (max-width: 768px) {
+  .menu-samping { transform: translateX(-100%); width: 250px; }
+  .bagian-foto { margin-top: 80px; margin-bottom: 20px; }
+  .menu-samping.active { transform: translateX(0); }
 
-    /* RESPONSIVE */
-    @media (max-width: 768px) {
-      .menu-samping {
-        transform: translateX(-100%);
-      }
-      .bagian-foto {
-        margin-top: 50px;
-        margin-bottom: 20px;
-      }
-      .menu-samping.active {
-        transform: translateX(0);
-      }
-      .menu-atas {
-        left: 0;
-        justify-content: space-between;
-      }
-      .tombol-menu {
-        display: block !important;
-      }
-    }
+  .menu-atas { left: 0; justify-content: space-between; }
+  .tombol-menu { display: block !important; }
+}
+
 
   </style>
 </head>
@@ -225,7 +163,7 @@ $halaman = basename($_SERVER['PHP_SELF']);
   <!-- MENU SAMPING -->
   <div class="menu-samping" id="menuSamping">
    <div class="bagian-foto">
-      <img src="../../gambar/logo.png" alt="login" class="gambar" />
+      <img src="../../gambar/ustj.jpg" alt="ustj" class="gambar" />
     </div>
 
     <div class="daftar-menu">
@@ -262,36 +200,43 @@ $halaman = basename($_SERVER['PHP_SELF']);
       <a href="../laporan/laporan.php" class="<?= $halaman == 'laporan.php' ? 'active' : '' ?>">
         <i class="fa-solid fa-file-circle-check"></i> Data Praktikum
       </a>
+        <a href="../pengaturan/pengaturan.php" class="<?= $halaman == 'pengaturan.php' ? 'active' : '' ?>">
+        <i class="fa-solid fa-gear"></i> Pengaturan Akun
+      </a>
     </div>
   </div>
 
-  <!-- MENU ATAS -->
+ <!-- MENU ATAS -->
   <div class="menu-atas">
     <i class="fa-solid fa-bars tombol-menu" id="tombolMenu"></i>
     <button class="tombol-keluar" id="keluar">
-      <i class="fa-solid fa-right-from-bracket"></i> Keluar
+      <i class="fa-solid fa-power-off"></i>
     </button>
   </div>
 
-  <script>
-    const tombolMenu = document.getElementById("tombolMenu");
-    const menuSamping = document.getElementById("menuSamping");
-    const dataMenu = document.getElementById("dataMenu");
-    const submenuData = document.getElementById("submenuData");
+ <script>
+  const tombolMenu = document.getElementById("tombolMenu");
+  const menuSamping = document.getElementById("menuSamping");
+  const dataMenu = document.getElementById("dataMenu");
+  const submenuData = document.getElementById("submenuData");
 
-    tombolMenu.addEventListener("click", () => {
-      menuSamping.classList.toggle("active");
-    });
+  tombolMenu.addEventListener("click", () => {
+    menuSamping.classList.toggle("active");
+  });
 
-    dataMenu.addEventListener("click", () => {
-      submenuData.classList.toggle("active");
-      dataMenu.classList.toggle("active");
-    });
+  dataMenu.addEventListener("click", () => {
+    submenuData.classList.toggle("active");
+    dataMenu.classList.toggle("active");
+  });
 
-    document.getElementById("keluar").addEventListener("click", () => {
-      window.location.href = "../index.php";
-    });
-  </script>
+  document.getElementById("keluar").addEventListener("click", () => {
+    const yakin = confirm("Apakah Anda yakin ingin keluar ?");
+    if (yakin) {
+      window.location.href = "../../login.html";
+    }
+  });
+</script>
+
 
 </body>
 </html>

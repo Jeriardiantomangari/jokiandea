@@ -2,7 +2,7 @@
 // admin/absensi/laporan_shift.php
 session_start();
 include '../../koneksi/sidebar.php';   // <-- sesuaikan
-include '../../koneksi/koneksi.php';       // <-- sesuaikan
+include '../../koneksi/koneksi.php';   // <-- sesuaikan
 
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
   header("Location: ../login.php"); exit;
@@ -17,6 +17,10 @@ $semAktif = mysqli_fetch_assoc(mysqli_query($conn,
 $id_semester = isset($_GET['id_semester']) ? (int)$_GET['id_semester'] : 0;
 if (!$id_semester && $semAktif) { $id_semester = (int)$semAktif['id']; }
 
+// Tidak auto-pilih apapun saat awal
+$id_mk     = isset($_GET['id_mk']) ? (int)$_GET['id_mk'] : 0;
+$id_jadwal = isset($_GET['id_jadwal']) ? (int)$_GET['id_jadwal'] : 0;
+
 // ===== Dropdown MK (hanya yang punya jadwal di semester terpilih) =====
 $mkList = [];
 if ($id_semester) {
@@ -29,8 +33,6 @@ if ($id_semester) {
   ");
   while($r = mysqli_fetch_assoc($q)){ $mkList[] = $r; }
 }
-$id_mk = isset($_GET['id_mk']) ? (int)$_GET['id_mk'] : 0;
-if (!$id_mk && !empty($mkList)) { $id_mk = (int)$mkList[0]['id']; }
 
 // ===== Dropdown Shift berdasarkan MK + Semester =====
 $shiftList = [];
@@ -48,8 +50,6 @@ if ($id_semester && $id_mk) {
   ");
   while($r = mysqli_fetch_assoc($q)){ $shiftList[] = $r; }
 }
-$id_jadwal = isset($_GET['id_jadwal']) ? (int)$_GET['id_jadwal'] : 0;
-if (!$id_jadwal && !empty($shiftList)) { $id_jadwal = (int)$shiftList[0]['id']; }
 
 // ===== Validasi shift =====
 $shiftValid = null;
@@ -87,38 +87,36 @@ $tanggalSesi = [];   // header (YYYY-MM-DD)
 $statusMap   = [];   // [id_mhs][tgl] => 'Hadir'|'Alpha'|'Izin'
 $mhsList     = [];
 
-if ($shiftValid) {
-  $resSesi = mysqli_query($conn, "
-    SELECT id, DATE(mulai_at) AS tgl
-    FROM absensi_sesi
-    WHERE id_jadwal = ".(int)$id_jadwal." AND selesai_at IS NOT NULL
-    ORDER BY mulai_at ASC
+// hanya isi data jika MK & Shift sudah dipilih dan valid
+if ($id_semester && $id_mk && $id_jadwal && $shiftValid) {
+  // ambil kolom tanggal dari absensi_detail (tanpa syarat selesai_at), khusus jadwal terpilih
+  $resTgl = mysqli_query($conn, "
+    SELECT DISTINCT DATE(s.mulai_at) AS tgl
+    FROM absensi_detail ad
+    JOIN absensi_sesi s ON s.id = ad.id_sesi
+    WHERE s.id_jadwal = ".(int)$id_jadwal."
+    ORDER BY tgl ASC
   ");
-  $tglSet = []; $sesiIds = [];
-  while($r = mysqli_fetch_assoc($resSesi)){
-    $tglSet[$r['tgl']] = true;
-    $sesiIds[] = (int)$r['id'];
+  while($r = mysqli_fetch_assoc($resTgl)){
+    $tanggalSesi[] = $r['tgl'];
   }
-  $tanggalSesi = array_keys($tglSet);
-  sort($tanggalSesi);
 
+  // Ambil list mahasiswa terdaftar (No/NPM/Nama tetap muncul setelah shift dipilih)
   $mhsList = ambilMahasiswaByJadwal($conn, $id_jadwal, $id_semester);
 
-  if (!empty($sesiIds)) {
-    $in = implode(',', $sesiIds);
-    $qDet = mysqli_query($conn, "
-      SELECT ad.id_mahasiswa, DATE(s.mulai_at) AS tgl, ad.status
-      FROM absensi_detail ad
-      JOIN absensi_sesi s ON s.id = ad.id_sesi
-      WHERE ad.id_sesi IN ($in)
-    ");
-    while($d = mysqli_fetch_assoc($qDet)){
-      $idm = (int)$d['id_mahasiswa'];
-      $tgl = $d['tgl'];
-      $status = ucfirst(strtolower(trim((string)$d['status'])));
-      if (in_array($status, ['Hadir','Alpha','Izin'])) {
-        $statusMap[$idm][$tgl] = $status;
-      }
+  // Peta status per (mahasiswa, tanggal)
+  $qDet = mysqli_query($conn, "
+    SELECT ad.id_mahasiswa, DATE(s.mulai_at) AS tgl, ad.status
+    FROM absensi_detail ad
+    JOIN absensi_sesi s ON s.id = ad.id_sesi
+    WHERE s.id_jadwal = ".(int)$id_jadwal."
+  ");
+  while($d = mysqli_fetch_assoc($qDet)){
+    $idm = (int)$d['id_mahasiswa'];
+    $tgl = $d['tgl'];
+    $status = ucfirst(strtolower(trim((string)$d['status'])));
+    if (in_array($status, ['Hadir','Alpha','Izin'])) {
+      $statusMap[$idm][$tgl] = $status;
     }
   }
 }
@@ -129,127 +127,129 @@ if ($shiftValid) {
 <meta charset="utf-8">
 <title>Admin - Laporan Absensi per Shift</title>
 
-<!-- DataTables (tetap dipakai, tapi kita skin dengan CSS kita sendiri) -->
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/jquery.dataTables.min.css">
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
 
-<!-- jsPDF untuk Cetak -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
 
 <style>
-:root{
-  --bg: #f5f7fb;
-  --card-bg: #ffffff;
-  --text: #1f2937;
-  --muted: #6b7280;
-  --primary: #2c7be5;
-  --primary-100:#e8f1ff;
-  --success:#16a34a;
-  --warn:#f97316;
-  --danger:#ef4444;
-  --info:#06b6d4;
-  --border:#e5e7eb;
-  --shadow: 0 6px 20px rgba(17,24,39,.08);
-  --radius: 14px;
-}
-
+/* Tidak pakai variabel CSS, semua warna langsung */
 *{ box-sizing: border-box; }
 html,body{ height:100%; }
 body{
-  margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif;
-  color:var(--text); background:var(--bg);
+  margin:0;
+  font-family: system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial,"Noto Sans","Liberation Sans",sans-serif;
+  color:#1f2937;                 /* teks */
+  background:#f5f7fb;           /* latar */
 }
 
-.konten-utama{
-  margin-left:250px; /* sesuaikan dengan sidebar-mu */
-  margin-top:60px;   /* sesuaikan dengan topbar-mu   */
-  padding:24px;
-}
-@media (max-width: 992px){
-  .konten-utama{ margin-left:0; padding:16px; }
-}
-.h2{
-  margin:0 0 14px; font-weight:700; letter-spacing:.2px;
-}
+/* Tata letak utama */
+.konten-utama{ margin-left:250px; margin-top:60px; padding:24px; }
+@media (max-width: 992px){ .konten-utama{ margin-left:0; padding:16px; } }
+.h2{ margin:0 0 14px; font-weight:700; letter-spacing:.2px; }
 
-.card{
-  background:var(--card-bg);
-  border:1px solid var(--border);
-  border-radius:var(--radius);
-  box-shadow:var(--shadow);
+/* Kartu */
+.kartu{
+  background:#ffffff;
+  border:1px solid #e5e7eb;
+  border-radius:14px;
+  box-shadow:0 6px 20px rgba(17,24,39,.08);
   margin-bottom:16px;
 }
-.card .card-body{ padding:16px 18px; }
+.kartu .badan-kartu{ padding:16px 18px; }
 
-.row{
-  display:flex; flex-wrap:wrap; gap:12px;
-  align-items:flex-end;
-}
-.form-group{ display:flex; flex-direction:column; gap:6px; min-width: 220px; }
-.label{ font-size:13px; color:var(--muted); font-weight:600; }
-.select, .input, .btn{
-  border:1px solid var(--border);
+/* Form */
+.baris{ display:flex; flex-wrap:wrap; gap:12px; align-items:flex-end; }
+.grup-form{ display:flex; flex-direction:column; gap:6px; min-width: 220px; }
+.label{ font-size:13px; color:#6b7280; font-weight:600; }
+
+.pilih, .masukan, .tombol{
+  border:1px solid #e5e7eb;
   border-radius:10px;
   padding:10px 12px;
   font-size:14px;
-  background:#fff; color:var(--text);
+  background:#ffffff;
+  color:#1f2937;
   outline:none;
 }
-.select:focus, .input:focus{ border-color: var(--primary); box-shadow: 0 0 0 2px rgba(44,123,229,.15); }
+.pilih:focus, .masukan:focus{
+  border-color:#2c7be5;
+  box-shadow:0 0 0 2px rgba(44,123,229,.15);
+}
 
-.btn{ cursor:pointer; user-select:none; }
-.btn-primary{ background:var(--primary); color:#fff; border-color:transparent; }
-.btn-primary:hover{ filter:brightness(.95); }
-.btn-success{ background:var(--success); color:#fff; border-color:transparent; }
-.btn-success:disabled{ opacity:.5; cursor:not-allowed; }
-.btn-ghost{ background:#fff; color:var(--text); }
-.btn-ghost:hover{ background:#f3f4f6; }
+.tombol{ cursor:pointer; user-select:none; }
+.tombol-sukses{ background:#16a34a; color:#ffffff; border-color:transparent; }
+.tombol-sukses:disabled{ opacity:.5; cursor:not-allowed; }
 
-.alert{
-  border:1px solid var(--border);
+/* Kotak pesan */
+.kotak-pesan{
+  border:1px solid #e5e7eb;
   border-radius:10px;
   background:#f9fafb;
   padding:10px 12px;
   color:#0f172a;
 }
-.alert.info{  border-color:#67e8f9; color:#075985; margin-bottom:10px;}
+.kotak-pesan.info{  border-color:#67e8f9; color:#075985; margin-bottom:10px; }
+.kotak-pesan.peringatan{ border-color:#fecaca; color:#7f1d1d; background:#fff; }
 
+/* Lencana */
+.lencana{ display:inline-block; font-size:12px; padding:3px 9px; border-radius:999px; }
+.lencana.utama{ background:#e8f1ff; color:#1d4ed8; border:1px solid #bfdbfe; }
+.lencana.ok{ background:#dcfce7; color:#065f46; border:1px solid #86efac; }
+.lencana.peringatan{ background:#fee2e2; color:#7f1d1d; border:1px solid #fecaca; }
+.lencana.info{ background:#e0f2fe; color:#075985; border:1px solid #bae6fd; }
 
-.badge{
-  display:inline-block; font-size:12px; padding:3px 9px; border-radius:999px;
+/* ====== Tabel (HANYA bagian ini diubah) ====== */
+.pembungkus-tabel{
+  overflow:auto;
+  border:1px solid #e5e7eb;
+  border-radius:12px;
+  box-shadow:0 6px 20px rgba(17,24,39,.08);
+  background:#ffffff;
 }
-.badge.primary{ background:var(--primary-100); color:#1d4ed8; border:1px solid #bfdbfe; }
-.badge.ok{ background:#dcfce7; color:#065f46; border:1px solid #86efac; }
-.badge.warn{ background:#fee2e2; color:#7f1d1d; border:1px solid #fecaca; }
-.badge.info{ background:#e0f2fe; color:#075985; border:1px solid #bae6fd; }
-
-.toolbar{ display:flex; justify-content:space-between; gap:12px; align-items:center; margin-bottom:8px; }
-
-.table-wrap{ overflow:auto; border:1px solid var(--border); border-radius:12px; box-shadow:var(--shadow); background:#fff; }
 table.dataTable{ width:100% !important; table-layout:fixed;}
+/* Header th jadi biru seperti permintaan */
 table.dataTable thead th{
-  background:#eef6ff; color:#111827; font-weight:700;
+  background:#00AEEF;           /* biru header */
+  color:#333;                   /* teks header */
+  font-weight:700;
   position: sticky; top: 0; z-index: 2;
-  border-bottom:1px solid var(--border);
+  border-bottom:1px solid #e5e7eb;
+  white-space:nowrap;
 }
-table.dataTable tbody td{ border-bottom:1px solid var(--border); }
+table.dataTable tbody td{ border-bottom:1px solid #e5e7eb; }
 table.dataTable tbody tr:hover{ background:#fafcff; }
 
-.dt-controls{
-  display:flex; justify-content:space-between; gap:12px; align-items:center; margin:10px;;
+/* Kontrol DataTables */
+.kontrol-dt{
+  display:flex; justify-content:space-between; gap:12px; align-items:center; margin:10px;
 }
-.dataTables_filter input, .dataTables_length select{
-  border:1px solid var(--border); border-radius:8px; padding:7px 10px; outline:none;
+.dataTables_filter input,.dataTables_length select{
+  border:1px solid #e5e7eb; border-radius:8px; padding:7px 10px; outline:none;
 }
-.dataTables_filter input:focus, .dataTables_length select:focus{
-  border-color:var(--primary); box-shadow: 0 0 0 2px rgba(44,123,229,.15);
+.dataTables_filter input:focus,.dataTables_length select:focus{
+  border-color:#2c7be5; box-shadow:0 0 0 2px rgba(44,123,229,.15);
 }
 
-/* Mobile tweaks */
+/* ====== Responsif dengan PENANDA data-label (hanya untuk tabel) ====== */
+@media screen and (max-width: 768px){
+  #tabel-laporan, #tabel-laporan thead, #tabel-laporan tbody, #tabel-laporan th, #tabel-laporan td, #tabel-laporan tr { display:block; }
+  #tabel-laporan thead tr{ display:none; }
+  #tabel-laporan tr{ margin-bottom:15px; border-bottom:2px solid #000; }
+  #tabel-laporan td{
+    text-align:right; padding-left:50%; position:relative; border-right:none;
+  }
+  #tabel-laporan td::before{
+    content: attr(data-label);
+    position:absolute; left:15px; width:45%; font-weight:bold; text-align:left;
+  }
+}
+
+/* Mobile tweaks (lainnya tetap) */
 @media (max-width: 600px){
-  .form-group{ min-width: 100%; }
+  .grup-form{ min-width: 100%; }
 }
 </style>
 </head>
@@ -258,30 +258,30 @@ table.dataTable tbody tr:hover{ background:#fafcff; }
   <h2 class="h2">Laporan Absensi per Shift (Admin)</h2>
 
   <!-- Info Semester -->
-  <div class="card">
-    <div class="card-body">
+  <div class="kartu">
+    <div class="badan-kartu">
       <?php if($id_semester):
         $sem = mysqli_fetch_assoc(mysqli_query($conn,"SELECT nama_semester, tahun_ajaran FROM semester WHERE id=".(int)$id_semester." LIMIT 1"));
       ?>
-        <span class="badge primary">Semester</span>
+        <span class="lencana utama">Semester</span>
         <b style="margin-left:6px"><?= e($sem['nama_semester'] ?? '-') ?></b>
         <span style="margin:0 8px">/</span>
-        <span class="badge" style="background:#fff; border:1px solid var(--border); color:#111827">
+        <span class="lencana" style="background:#ffffff; border:1px solid #e5e7eb; color:#111827">
           <?= e($sem['tahun_ajaran'] ?? '-') ?>
         </span>
       <?php else: ?>
-        <div class="alert warn">Silakan pilih <b>Semester</b> terlebih dahulu.</div>
+        <div class="kotak-pesan peringatan">Silakan pilih <b>Semester</b> terlebih dahulu.</div>
       <?php endif; ?>
     </div>
   </div>
 
   <!-- Filter -->
-  <div class="card">
-    <div class="card-body">
-      <form method="get" id="form-filter" class="row">
-        <div class="form-group">
+  <div class="kartu">
+    <div class="badan-kartu">
+      <form method="get" id="form-filter" class="baris">
+        <div class="grup-form">
           <label class="label">Semester</label>
-          <select name="id_semester" id="id_semester" class="select" onchange="this.form.submit()">
+          <select name="id_semester" id="id_semester" class="pilih" onchange="this.form.submit()">
             <option value="0">-- Pilih Semester --</option>
             <?php
               $qs = mysqli_query($conn,"SELECT id, nama_semester, tahun_ajaran, status FROM semester ORDER BY id DESC");
@@ -293,12 +293,11 @@ table.dataTable tbody tr:hover{ background:#fafcff; }
           </select>
         </div>
 
-        <div class="form-group">
+        <div class="grup-form">
           <label class="label">Mata Kuliah</label>
-          <select name="id_mk" id="id_mk" class="select" onchange="this.form.submit()" <?= !$id_semester || empty($mkList) ? 'disabled':'' ?>>
-            <?php if(empty($mkList)): ?>
-              <option value="0">-- Tidak ada MK --</option>
-            <?php else: foreach($mkList as $mk): ?>
+          <select name="id_mk" id="id_mk" class="pilih" onchange="this.form.submit()" <?= (!$id_semester || empty($mkList)) ? 'disabled':'' ?>>
+            <option value="0" <?= $id_mk===0 ? 'selected':'' ?>>-- Pilih MK --</option>
+            <?php if(!empty($mkList)): foreach($mkList as $mk): ?>
               <option value="<?= (int)$mk['id'] ?>" <?= $id_mk===(int)$mk['id']?'selected':'' ?>>
                 <?= e($mk['nama_mk']) ?>
               </option>
@@ -306,13 +305,12 @@ table.dataTable tbody tr:hover{ background:#fafcff; }
           </select>
         </div>
 
-        <div class="form-group" style="min-width:320px">
+        <div class="grup-form" style="min-width:320px">
           <label class="label">Shift</label>
           <div style="display:flex; gap:8px;">
-            <select name="id_jadwal" id="id_jadwal" class="select" onchange="this.form.submit()" <?= (!$id_semester || !$id_mk || empty($shiftList)) ? 'disabled':'' ?>>
-              <?php if(empty($shiftList)): ?>
-                <option value="0">-- Tidak ada Shift --</option>
-              <?php else: foreach($shiftList as $j):
+            <select name="id_jadwal" id="id_jadwal" class="pilih" onchange="this.form.submit()" <?= (!$id_semester || !$id_mk || empty($shiftList)) ? 'disabled':'' ?>>
+              <option value="0" <?= $id_jadwal===0 ? 'selected':'' ?>>-- Pilih Shift --</option>
+              <?php if(!empty($shiftList)): foreach($shiftList as $j):
                 $jam = substr($j['jam_mulai'],0,5).' - '.substr($j['jam_selesai'],0,5);
                 $label = $j['hari'].' '.$jam; ?>
                 <option value="<?= (int)$j['id'] ?>" <?= $id_jadwal===(int)$j['id']?'selected':'' ?>>
@@ -320,7 +318,7 @@ table.dataTable tbody tr:hover{ background:#fafcff; }
                 </option>
               <?php endforeach; endif; ?>
             </select>
-            <button type="button" class="btn btn-success" id="btn-cetak" <?= (!$shiftValid || empty($mhsList)) ? 'disabled' : '' ?>>Cetak</button>
+            <button type="button" class="tombol tombol-sukses" id="btn-cetak" <?= (!$shiftValid || empty($mhsList)) ? 'disabled' : '' ?>>Cetak</button>
           </div>
         </div>
       </form>
@@ -329,16 +327,15 @@ table.dataTable tbody tr:hover{ background:#fafcff; }
 
   <!-- Info Shift -->
   <?php if($shiftValid): ?>
-    <div class="alert info">
-     
+    <div class="kotak-pesan info">
       <?php if(empty($tanggalSesi)): ?><span style="margin-left:14px; color:#64748b">Belum ada sesi absensi tersimpan.</span><?php endif; ?>
     </div>
   <?php elseif($id_mk && empty($shiftList)): ?>
-    <div class="alert warn">Tidak ada shift untuk MK terpilih pada semester ini.</div>
+    <div class="kotak-pesan peringatan">Tidak ada shift untuk MK terpilih pada semester ini.</div>
   <?php endif; ?>
 
   <!-- Tabel Rekap -->
-  <div class="table-wrap">
+  <div class="pembungkus-tabel">
     <table id="tabel-laporan" class="display" style="width:100%">
       <thead>
         <tr>
@@ -354,20 +351,23 @@ table.dataTable tbody tr:hover{ background:#fafcff; }
         <?php if (!empty($mhsList)): ?>
           <?php $no=1; foreach($mhsList as $m): $idm=(int)$m['id_mhs']; ?>
             <tr>
-              <td><?= $no++ ?></td>
-              <td><?= e($m['nim']) ?></td>
-              <td><?= e($m['nama']) ?></td>
+              <!-- Tambah penanda data-label pada setiap sel -->
+              <td data-label="No"><?= $no++ ?></td>
+              <td data-label="NPM"><?= e($m['nim']) ?></td>
+              <td data-label="Nama"><?= e($m['nama']) ?></td>
               <?php foreach ($tanggalSesi as $tgl):
                 $s = $statusMap[$idm][$tgl] ?? '';
                 $badge = '';
-                if     ($s==='Hadir') $badge = '<span class="badge ok">Hadir</span>';
-                elseif ($s==='Alpha') $badge = '<span class="badge warn">Alpha</span>';
-                elseif ($s==='Izin')  $badge = '<span class="badge info">Izin</span>';
+                if     ($s==='Hadir') $badge = '<span class="lencana ok">Hadir</span>';
+                elseif ($s==='Alpha') $badge = '<span class="lencana peringatan">Alpha</span>';
+                elseif ($s==='Izin')  $badge = '<span class="lencana info">Izin</span>';
               ?>
-                <td><?= $badge ?></td>
+                <td data-label="<?= e($tgl) ?>"><?= $badge ?></td>
               <?php endforeach; ?>
             </tr>
           <?php endforeach; ?>
+        <?php else: ?>
+          <!-- Biarkan kosong saat awal; DataTables akan tampil dengan "Tidak ada data" -->
         <?php endif; ?>
       </tbody>
     </table>
@@ -375,7 +375,7 @@ table.dataTable tbody tr:hover{ background:#fafcff; }
 </div>
 
 <script>
-// DataTables dengan layout yang rapi + scroll X
+// DataTables + scroll X
 $(function(){
   const tbl = $('#tabel-laporan');
   if (tbl.length){
@@ -385,10 +385,7 @@ $(function(){
       scrollX: true,
       autoWidth: false,
       ordering: false,
-      dom:
-        '<"dt-controls"lf>' + // l=length, f=filter
-        't' +
-        '<"dt-controls"ip>',  // i=info, p=pagination
+      dom: '<"kontrol-dt"lf>t<"kontrol-dt"ip>', // class Indonesia
       language: {
         emptyTable: "Tidak ada data",
         info: "Menampilkan _START_ sampai _END_ dari _TOTAL_ data",

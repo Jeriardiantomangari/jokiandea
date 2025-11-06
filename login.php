@@ -6,8 +6,8 @@ $error = '';
 
 if (isset($_POST['role'], $_POST['username'], $_POST['password'])) {
     // Ambil input
-    $role_in   = strtolower(trim($_POST['role']));     // 'admin' | 'dosen' | 'mahasiswa'
-    $role      = strtoupper($role_in);                 // 'ADMIN' | 'DOSEN' | 'MAHASISWA'
+    $role_in   = strtolower(trim($_POST['role']));    
+    $role      = strtoupper($role_in);              
     $username  = mysqli_real_escape_string($conn, trim($_POST['username']));
     $password  = mysqli_real_escape_string($conn, trim($_POST['password']));
 
@@ -27,14 +27,13 @@ if (isset($_POST['role'], $_POST['username'], $_POST['password'])) {
 
         // Set sesi umum
         $_SESSION['login']    = true;
-        $_SESSION['role']     = $role_in;      // simpan versi lowercase agar konsisten dg kode lama
-        $_SESSION['id_user']  = (int)$u['id']; // id di tabel users
+        $_SESSION['role']     = $role_in;      
+        $_SESSION['id_user']  = (int)$u['id']; 
         $_SESSION['nama']     = $u['nama'];
         $_SESSION['username'] = $u['username'];
 
-        // 2) Routing & pengayaan sesi sesuai role
+       
         if ($role_in === 'mahasiswa') {
-            // coba berdasarkan user_id (utama), fallback ke NIM = username
             $qM = mysqli_query(
                 $conn,
                 "SELECT id, nim FROM mahasiswa WHERE user_id = {$u['id']} LIMIT 1"
@@ -50,12 +49,11 @@ if (isset($_POST['role'], $_POST['username'], $_POST['password'])) {
                 $_SESSION['mhs_id'] = (int)$m['id'];
                 $_SESSION['nim']    = $m['nim'];
             }
-            header("Location: mahasiswa/pembayaran/pembayaran.php");
+            header("Location: mahasiswa/halaman_utama/halaman_utama.php");
             exit;
         }
 
         if ($role_in === 'dosen') {
-            // coba berdasarkan user_id (utama), fallback ke NIDN = username
             $qD = mysqli_query(
                 $conn,
                 "SELECT id, nidn FROM dosen WHERE user_id = {$u['id']} LIMIT 1"
@@ -71,7 +69,7 @@ if (isset($_POST['role'], $_POST['username'], $_POST['password'])) {
                 $_SESSION['dosen_id'] = (int)$d['id'];
                 $_SESSION['nidn']     = $d['nidn'];
             }
-            header("Location: dosen/jadwal/jadwal.php");
+            header("Location: dosen/halaman_utama/halaman_utama.php");
             exit;
         }
 

@@ -8,7 +8,14 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
   header("Location: ../login.php");
   exit;
 }
+// helper aman untuk echo
 function e($v){ return htmlspecialchars((string)($v ?? ''), ENT_QUOTES, 'UTF-8'); }
+
+// Ambil ID semester aktif (jika ada)
+$rsSem = mysqli_query($conn, "SELECT id, nama_semester, tahun_ajaran FROM semester WHERE status='Aktif' LIMIT 1");
+$semAktif = mysqli_fetch_assoc($rsSem);
+$id_semester_aktif = $semAktif['id'] ?? null;
+
 ?>
 <!doctype html>
 <html lang="id">
@@ -36,6 +43,10 @@ function e($v){ return htmlspecialchars((string)($v ?? ''), ENT_QUOTES, 'UTF-8')
 }
 .konten-utama h2{ margin-bottom:20px; color:#333; }
 
+.info-sem { margin-bottom:15px; padding:10px 12px; border-radius:6px; }
+  .info-aktif { color: #333 }
+  .info-none { color: #333}
+
 .tombol{ border:none; border-radius:5px; cursor:pointer; color:white; font-size:10px; transition:.3s; }
 .tombol:hover{ opacity:.85; }
 .tombol-cetak{ background:#28a745; margin-right:10px; padding:8px 15px; }
@@ -48,7 +59,7 @@ function e($v){ return htmlspecialchars((string)($v ?? ''), ENT_QUOTES, 'UTF-8')
 
 .tabel-praktikum{ width:100%; border-collapse:collapse; background:white;
   border-radius:10px; overflow:hidden; box-shadow:0 2px 6px rgba(0,0,0,0.1); table-layout:fixed;}
-.tabel-praktikum th{ background:#8bc9ff; color:#333; text-align:left; padding:12px 15px; }
+.tabel-praktikum th{ background:#00AEEF; color:#333; text-align:left; padding:12px 15px; }
 .tabel-praktikum td{ padding:12px 15px; border-bottom:1px solid #ddd; border-right:1px solid #ddd; }
 .tabel-praktikum tr:hover{ background:#f1f1f1; }
 
@@ -88,6 +99,15 @@ function e($v){ return htmlspecialchars((string)($v ?? ''), ENT_QUOTES, 'UTF-8')
 <div class="konten-utama">
   <h2>Data Praktikum</h2>
 
+   <?php if($id_semester_aktif): ?>
+    <div class="info-sem info-aktif">
+      Semester Aktif: <b><?= e($semAktif['nama_semester']) ?></b> — <b><?= e($semAktif['tahun_ajaran']) ?></b>
+    </div>
+  <?php else: ?>
+    <div class="info-sem info-none">
+      Belum ada <b>Semester</b> berstatus <b>Aktif</b>. Silakan aktifkan/ tambahkan semester terlebih dahulu pada menu Semester.
+    </div>
+  <?php endif; ?>
   <!-- tombol -->
   <div class="filters">
     <button id="btn-cetak" class="tombol tombol-cetak" disabled>
@@ -99,7 +119,7 @@ function e($v){ return htmlspecialchars((string)($v ?? ''), ENT_QUOTES, 'UTF-8')
 
     <!-- Dropdown MK -->
     <select id="filter-mk" required>
-  <option value="">Pilih Mata Kuliah</option>
+  <option value="">//Pilih Mata Kuliah</option>
   <?php
   $mk = mysqli_query($conn, "SELECT id, kode_mk, nama_mk FROM matakuliah_praktikum ORDER BY nama_mk ASC");
   while($r = mysqli_fetch_assoc($mk)){

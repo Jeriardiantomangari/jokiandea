@@ -38,7 +38,7 @@ if(!isset($_SESSION['role']) || $_SESSION['role'] != 'admin'){
 .dataTables_wrapper .dataTables_length select { padding:6px 10px; border-radius:5px; border:1px solid #ccc; font-size:14px; margin-bottom:5px; }
 
 .tabel-dosen { width:100%; border-collapse:collapse; background:white; border-radius:10px; overflow:hidden; box-shadow:0 2px 6px rgba(0,0,0,0.1); table-layout:fixed; }
-.tabel-dosen th { background:#8bc9ff; color:#333; text-align:left; padding:12px 15px; }
+.tabel-dosen th { background:#00AEEF; color:#333; text-align:left; padding:12px 15px; }
 .tabel-dosen td { padding:12px 15px; border-bottom:1px solid #ddd; border-right:1px solid #ddd; }
 .tabel-dosen tr:hover { background:#f1f1f1; }
 

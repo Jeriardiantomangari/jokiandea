@@ -15,6 +15,13 @@ $id_dosen = (int)($_SESSION['dosen_id'] ?? 0);
 $semAktif = mysqli_fetch_assoc(mysqli_query($conn, "SELECT id, nama_semester, tahun_ajaran FROM semester WHERE status='Aktif' LIMIT 1"));
 $id_semester_aktif = (int)($semAktif['id'] ?? 0);
 
+/* === [BARU] Ambil NIDN & Nama dosen untuk header === */
+$dosenInfo = ['nidn'=>'-','nama'=>'-'];
+if ($id_dosen) {
+  $tmp = mysqli_fetch_assoc(mysqli_query($conn, "SELECT nidn, nama FROM dosen WHERE id = $id_dosen LIMIT 1"));
+  if ($tmp) $dosenInfo = $tmp;
+}
+
 // KPI (total praktikum/shift/mahasiswa)
 $total_praktikum = $total_shift = $total_mhs_all = 0;
 if ($id_semester_aktif && $id_dosen) {
@@ -98,17 +105,51 @@ if ($id_semester_aktif && $id_dosen) {
   border-radius:12px; box-shadow:0 4px 10px rgba(0,0,0,0.1);
 }
 
-/* Responsif */
+/* ========================= */
+/* ====== RESPONSIVE ======= */
+/* ========================= */
+
+/* Tablet landscape & layar sedang */
+@media screen and (max-width: 1024px){
+  .konten-utama{ margin-left:0; padding:24px; overflow-x:hidden; }
+  .konten-utama h2{ font-size:20px; margin-bottom:22px; }
+  .kartu-dashboard{ justify-content:center; gap:20px; }
+  .kartu{
+    flex:1 1 calc(50% - 20px);
+    margin-right:0;
+  }
+  .wadah-grafik{ width:92%; }
+}
+
+/* Ponsel / Tablet kecil */
 @media screen and (max-width:768px){
-  .konten-utama{ margin-left:0; padding:20px; width:100%; text-align:center; }
-  .kartu{ flex:1 1 100%; max-width:none; margin:auto; margin-bottom:20px; margin-right:0; }
-  .wadah-grafik{ width:95%; }
+  .konten-utama{ margin-left:0; padding:20px; width:100%; text-align:center; overflow-x:hidden; }
+  .konten-utama h2{ font-size:18px; margin-bottom:18px; }
+  .kartu-dashboard{ gap:16px; }
+  .kartu{
+    flex:1 1 100%;
+    max-width:none;
+    margin:auto;
+    margin-bottom:16px;
+    margin-right:0;
+    padding:20px;
+  }
+  .kartu h3{ font-size:18px; }
+  .kartu p{ font-size:20px; }
+
+  .wadah-grafik{ width:95%; padding:18px; }
+  /* Pastikan chart terlihat proporsional di mobile */
+  .wadah-grafik canvas{ width:100% !important; height:320px !important; }
+
+  /* Hindari overflow horizontal dari elemen inline-block */
+  img, canvas{ max-width:100%; height:auto; }
 }
 </style>
 </head>
 <body>
 <div class="konten-utama">
-  <h2>Beranda</h2>
+  <!-- NIDN - Nama -->
+  <h2><?= e($dosenInfo['nidn'] ?? '-') ?> - <?= e($dosenInfo['nama'] ?? '-') ?></h2>
 
   <div class="kartu-dashboard">
     <div class="kartu">

@@ -77,10 +77,11 @@ if (isset($_FILES['bukti_pembayaran']) && is_array($_FILES['bukti_pembayaran']) 
 
     // Simpan
     $nama_file = time() . '_' . preg_replace('/[^A-Za-z0-9_\.-]/','_', $nama_asli);
-    if(!is_dir('../../uploads')){ @mkdir('../../uploads', 0775, true); }
-    if(!move_uploaded_file($tmp, '../../uploads/' . $nama_file)){
+    if(!is_dir('../../uploads/pembayaran/')){ @mkdir('../../uploads/pembayaran/', 0775, true); }
+    if(!move_uploaded_file($tmp, '../../uploads/pembayaran/' . $nama_file)){
         echo "error|Gagal mengupload file";
         exit;
+
     }
     $bukti = $nama_file;
 }

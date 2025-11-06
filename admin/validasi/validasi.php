@@ -1,15 +1,22 @@
 <?php 
 session_start();
-include '../../koneksi/sidebar.php'; 
 include '../../koneksi/koneksi.php'; 
+include '../../koneksi/sidebar.php'; 
 
-// Cek role admin
+// Cek role
 if(!isset($_SESSION['role']) || $_SESSION['role'] != 'admin'){
     header("Location: ../login.php");
     exit;
 }
-?>
 
+// helper aman untuk echo
+function e($v){ return htmlspecialchars((string)($v ?? ''), ENT_QUOTES, 'UTF-8'); }
+
+// Ambil ID semester aktif (jika ada)
+$rsSem = mysqli_query($conn, "SELECT id, nama_semester, tahun_ajaran FROM semester WHERE status='Aktif' LIMIT 1");
+$semAktif = mysqli_fetch_assoc($rsSem);
+$id_semester_aktif = $semAktif['id'] ?? null;
+?>
 <!-- CDN jQuery dan DataTables -->
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
@@ -22,6 +29,10 @@ if(!isset($_SESSION['role']) || $_SESSION['role'] != 'admin'){
 .konten-utama { margin-left:250px; margin-top:60px; padding:30px; background:#f9f9f9; font-family:Arial,sans-serif; }
 .tombol { border:none; border-radius:5px; cursor:pointer; color:white; font-size:12px; transition:0.3s; padding:6px 10px; }
 .tombol:hover { opacity:0.85; }
+
+ .info-sem { margin-bottom:15px; padding:10px 12px; border-radius:6px; }
+  .info-aktif { color: #333 }
+  .info-none { color: #333}
 
   .tombol-setujui {
     background-color: #28a745;
@@ -37,7 +48,7 @@ if(!isset($_SESSION['role']) || $_SESSION['role'] != 'admin'){
 .dataTables_wrapper .dataTables_length select { padding:6px 10px; border-radius:5px; border:1px solid #ccc; font-size:14px; margin-bottom:5px; }
 
 .tabel-data { width:100%; border-collapse:collapse; background:white; border-radius:10px; overflow:hidden; box-shadow:0 2px 6px rgba(0,0,0,0.1); table-layout:fixed; }
-.tabel-data th { background:#8bc9ff; color:#333; text-align:left; padding:12px 15px; }
+.tabel-data th { background:#00AEEF; color:#333; text-align:left; padding:12px 15px; }
 .tabel-data td { padding:12px 15px; border-bottom:1px solid #ddd; border-right:1px solid #ddd; }
 .tabel-data tr:hover { background:#f1f1f1; }
 
@@ -67,6 +78,16 @@ if(!isset($_SESSION['role']) || $_SESSION['role'] != 'admin'){
 
 <div class="konten-utama">
   <h2>Validasi Pendaftaran Praktikum</h2>
+
+   <?php if($id_semester_aktif): ?>
+    <div class="info-sem info-aktif">
+      Semester Aktif: <b><?= e($semAktif['nama_semester']) ?></b> — <b><?= e($semAktif['tahun_ajaran']) ?></b>
+    </div>
+  <?php else: ?>
+    <div class="info-sem info-none">
+      Belum ada <b>Semester</b> berstatus <b>Aktif</b>. Silakan aktifkan/ tambahkan semester terlebih dahulu pada menu Semester.
+    </div>
+  <?php endif; ?>
 
   <table id="tabel-validasi" class="tabel-data">
     <thead>

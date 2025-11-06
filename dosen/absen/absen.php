@@ -1,13 +1,7 @@
 <?php
-// ===== Sesi & Koneksi =====
+// ===== Sesi & Koneksi (URUTAN PENTING) =====
 session_start();
-include '../../koneksi/sidebardosen.php';
-include '../../koneksi/koneksi.php';
-
-// ===== Akses: hanya dosen =====
-if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'dosen') {
-  header("Location: ../login.php"); exit;
-}
+include '../../koneksi/koneksi.php'; // koneksi aman (tidak output HTML)
 
 // ===== Util HTML escape =====
 function e($v){ return htmlspecialchars((string)($v ?? ''), ENT_QUOTES, 'UTF-8'); }
@@ -30,6 +24,11 @@ function flash_show(){
     }
   }
   unset($_SESSION['flash']);
+}
+
+// ===== Akses: hanya dosen =====
+if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'dosen') {
+  header("Location: ../login.php", true, 303); exit;
 }
 
 // ===== Data dosen & semester aktif =====
@@ -91,23 +90,23 @@ function ambilMahasiswaByJadwal(mysqli $conn, int $id_jadwal, ?int $id_semester)
 // ===== State sesi di sesi PHP =====
 if (!isset($_SESSION['absensi'])) $_SESSION['absensi'] = ['sesi_id'=>null,'id_jadwal'=>null];
 
-// ====== HANDLE POST ======
+// ====== HANDLE POST (DIPINDAH KE ATAS, EVITASI OUTPUT SEBELUM HEADER) ======
 if ($_SERVER['REQUEST_METHOD']==='POST') {
-  if (!verify_csrf()) { flash_add('err','Token CSRF tidak valid.'); header('Location: '.$_SERVER['PHP_SELF']); exit; }
+  if (!verify_csrf()) { flash_add('err','Token CSRF tidak valid.'); header('Location: '.$_SERVER['PHP_SELF'], true, 303); exit; }
 
   $aksi = $_POST['aksi'] ?? '';
 
   // --- Mulai sesi ---
   if ($aksi === 'mulai') {
     $id_jadwal = (int)($_POST['id_jadwal'] ?? 0);
-    if (!$id_jadwal) { flash_add('err','Pilih Mata Kuliah dan Shift terlebih dahulu.'); header('Location: '.$_SERVER['PHP_SELF']); exit; }
+    if (!$id_jadwal) { flash_add('err','Pilih Mata Kuliah dan Shift terlebih dahulu.'); header('Location: '.$_SERVER['PHP_SELF'], true, 303); exit; }
 
     $cek = mysqli_fetch_assoc(mysqli_query($conn, "
       SELECT jp.id FROM jadwal_praktikum jp
-      WHERE jp.id = $id_jadwal AND jp.id_dosen = $id_dosen AND jp.id_semester = $id_semester_aktif
+      WHERE jp.id = $id_jadwal AND jp.id_dosen = $id_dosen AND jp.id_semester = ".(int)$id_semester_aktif."
       LIMIT 1
     "));
-    if (!$cek) { flash_add('err','Shift tidak valid.'); header('Location: '.$_SERVER['PHP_SELF']); exit; }
+    if (!$cek) { flash_add('err','Shift tidak valid.'); header('Location: '.$_SERVER['PHP_SELF'], true, 303); exit; }
 
     // Lanjutkan sesi terbuka jika ada
     $open = mysqli_fetch_assoc(mysqli_query($conn, "
@@ -116,7 +115,7 @@ if ($_SERVER['REQUEST_METHOD']==='POST') {
     if ($open) {
       $_SESSION['absensi'] = ['sesi_id'=>(int)$open['id'],'id_jadwal'=>$id_jadwal];
       flash_add('ok','Melanjutkan sesi absensi yang masih terbuka.');
-      header('Location: '.$_SERVER['PHP_SELF']); exit;
+      header('Location: '.$_SERVER['PHP_SELF'], true, 303); exit;
     }
 
     // Buat sesi baru
@@ -125,7 +124,7 @@ if ($_SERVER['REQUEST_METHOD']==='POST') {
     mysqli_stmt_execute($stmt);
     $_SESSION['absensi'] = ['sesi_id'=>mysqli_insert_id($conn),'id_jadwal'=>$id_jadwal];
     flash_add('ok','Sesi absensi dimulai.');
-    header('Location: '.$_SERVER['PHP_SELF']); exit;
+    header('Location: '.$_SERVER['PHP_SELF'], true, 303); exit;
   }
 
   // --- Selesaikan & simpan ---
@@ -134,23 +133,57 @@ if ($_SERVER['REQUEST_METHOD']==='POST') {
     $id_jadwal = (int)($_SESSION['absensi']['id_jadwal'] ?? 0);
     $mhsStatuses = $_POST['mhs'] ?? [];
 
-    $stmt = mysqli_prepare($conn,"INSERT INTO absensi_detail (id_sesi,id_mahasiswa,status)
-      VALUES (?,?,?) ON DUPLICATE KEY UPDATE status=VALUES(status), dicatat_pada=NOW()");
-    foreach($mhsStatuses as $id_mhs=>$val){
-      $status = ($val==='H'?'Hadir':($val==='A'?'Alpha':($val==='I'?'Izin':null)));
-      if(!$status) continue;
-      $idm=(int)$id_mhs;
-      mysqli_stmt_bind_param($stmt,"iis",$sesi_id,$idm,$status);
-      mysqli_stmt_execute($stmt);
+    // Validasi sesi
+    if ($sesi_id <= 0) {
+      flash_add('err','Sesi absensi tidak ditemukan atau sudah berakhir. Silakan mulai sesi lagi.');
+      header('Location: '.$_SERVER['PHP_SELF'], true, 303); exit;
     }
-    mysqli_stmt_close($stmt);
+    $cekSesi = mysqli_fetch_assoc(mysqli_query(
+      $conn,
+      "SELECT id FROM absensi_sesi WHERE id = $sesi_id AND id_dosen = $id_dosen LIMIT 1"
+    ));
+    if (!$cekSesi) {
+      flash_add('err','Sesi absensi tidak valid (mungkin sudah dihapus). Silakan mulai sesi lagi.');
+      header('Location: '.$_SERVER['PHP_SELF'], true, 303); exit;
+    }
 
-    mysqli_query($conn,"UPDATE absensi_sesi SET selesai_at=NOW() WHERE id=$sesi_id");
-    $_SESSION['absensi']=['sesi_id'=>null,'id_jadwal'=>null];
-    flash_add('ok','Absensi disimpan & sesi ditutup.');
-    header('Location: '.$_SERVER['PHP_SELF']); exit;
+    // Transaksi untuk konsistensi
+    mysqli_begin_transaction($conn);
+    try {
+      $stmt = mysqli_prepare($conn,"INSERT INTO absensi_detail (id_sesi,id_mahasiswa,status)
+        VALUES (?,?,?)
+        ON DUPLICATE KEY UPDATE status=VALUES(status), dicatat_pada=NOW()");
+      if (!$stmt) throw new Exception('Gagal siapkan statement: '.mysqli_error($conn));
+
+      foreach($mhsStatuses as $id_mhs=>$val){
+        $status = ($val==='H'?'Hadir':($val==='A'?'Alpha':($val==='I'?'Izin':null)));
+        if(!$status) continue;
+        $idm=(int)$id_mhs;
+        mysqli_stmt_bind_param($stmt,"iis",$sesi_id,$idm,$status);
+        if (!mysqli_stmt_execute($stmt)) throw new Exception('Gagal simpan detail: '.mysqli_stmt_error($stmt));
+      }
+      mysqli_stmt_close($stmt);
+
+      if (!mysqli_query($conn,"UPDATE absensi_sesi SET selesai_at=NOW() WHERE id=$sesi_id")) {
+        throw new Exception('Gagal menutup sesi: '.mysqli_error($conn));
+      }
+
+      mysqli_commit($conn);
+
+      $_SESSION['absensi']=['sesi_id'=>null,'id_jadwal'=>null];
+      flash_add('ok','Absensi disimpan & sesi ditutup.');
+      header('Location: '.$_SERVER['PHP_SELF'], true, 303); exit;
+
+    } catch (Throwable $e) {
+      mysqli_rollback($conn);
+      flash_add('err','Gagal menyimpan absensi: '.$e->getMessage());
+      header('Location: '.$_SERVER['PHP_SELF'], true, 303); exit;
+    }
   }
 }
+
+// ===== Include komponen UI SETELAH semua kemungkinan header redirect =====
+include '../../koneksi/sidebardosen.php';
 
 // ====== GET DATA UNTUK VIEW ======
 $sedang_sesi   = (int)($_SESSION['absensi']['sesi_id'] ?? 0);
@@ -173,7 +206,6 @@ $preselect_mk_id = 0;
 if ($sedang_jadwal && isset($shiftIdToMkId[$sedang_jadwal])) {
   $preselect_mk_id = (int)$shiftIdToMkId[$sedang_jadwal];
 } else {
-  // default ke MK pertama bila ada
   if (!empty($mkList)) $preselect_mk_id = (int)array_key_first($mkList);
 }
 ?>
@@ -197,23 +229,23 @@ if ($sedang_jadwal && isset($shiftIdToMkId[$sedang_jadwal])) {
 /* ===== Tombol ===== */
 .tombol-umum { border:none; border-radius:6px; cursor:pointer; color:white; font-size:12px; transition:.2s; padding:8px 12px; }
 .tombol-umum:hover { opacity:.9; }
-.tombol-mulai { background:#0ea5e9; }
+.tombol-mulai { background: #00AEEF; }
 .tombol-selesai { background:#10b981; }
 
 /* ===== Kontrol DataTables ===== */
 .dataTables_wrapper .dataTables_filter input,
-.dataTables_wrapper .dataTables_length select { padding:6px 10px; border-radius:5px; border:1px solid #ccc; font-size:14px; margin-bottom:5px; }
+.dataTables_wrapper .dataTables_length select { padding:6px 10px; border-radius:5px; border:1px solid #ccc; font-size:14px; margin-bottom:5px; margin-top:5px;}
 
 /* ===== Tabel absensi ===== */
 .tabel-absensi { width:100%; border-collapse:collapse; background:#fff; border-radius:10px; overflow:hidden; box-shadow:0 2px 6px rgba(0,0,0,.08); table-layout:fixed; }
-.tabel-absensi th { background:#8bc9ff; color:#333; text-align:left; padding:12px 15px; }
+.tabel-absensi th { background: #00AEEF; color:#333; text-align:left; padding:12px 15px; }
 .tabel-absensi td { padding:12px 15px; border-bottom:1px solid #ddd; border-right:1px solid #eee; }
 .tabel-absensi tr:hover { background:#f7fbff; }
 
 /* ===== Info ===== */
 .kotak-info{ padding:10px 12px; border-radius:8px; margin:8px 0; }
-.info-berhasil{ background:#ecfeff; border:1px solid #67e8f9; color:#075985; }
-.info-peringatan{ background:#fff7ed; border:1px solid #fdba74; color:#7c2d12; }
+.info-berhasil{  color: #333; }
+.info-peringatan{  color: #333; }
 
 /* ===== Aksi (radio) ===== */
 .kolom-aksi{ display:flex; gap:8px; justify-content:center; }
@@ -221,10 +253,37 @@ if ($sedang_jadwal && isset($shiftIdToMkId[$sedang_jadwal])) {
 .lencana input{ display:none; }
 .lencana.active{ background:#e0f2fe; border-color:#38bdf8; }
 
+/* ====== Panel Filter (MK & Shift) ====== */
+.filter-panel{
+  background:#fff; border:1px solid #e5e7eb; border-radius:12px; padding:14px 16px;
+  box-shadow:0 2px 6px rgba(0,0,0,.06);
+  display:flex; gap:12px; flex-wrap:wrap; align-items:flex-end;
+}
+.field{ display:flex; flex-direction:column; gap:6px; }
+.field label{ font-weight:700; color:#111827; font-size:14px; }
+
+/* Select */
+.select-styled{
+  appearance:none; background:#fff; border:1px solid #cbd5e1; border-radius:10px;
+  padding:10px 42px 10px 12px; font-size:14px; line-height:1.2; min-width:240px; outline:none;
+  transition:border-color .2s, box-shadow .2s;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 20 20' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 8 10 12 14 8'/></svg>");
+  background-repeat:no-repeat; background-position:right 12px center;
+}
+.select-styled:hover{ border-color:#94a3b8; }
+.select-styled:focus{ border-color:#60a5fa; box-shadow:0 0 0 4px rgba(96,165,250,.2); }
+
+.filter-panel .tombol-umum{ border-radius:10px; font-size:13px; padding:10px 16px; display:inline-flex; gap:8px; align-items:center; }
+
 /* ===== Responsif ===== */
 @media screen and (max-width: 768px) {
   .area-utama { margin-left:0; padding:20px; width:100%; text-align:center; }
   .area-utama h2 { text-align:center; }
+  .filter-panel{ flex-direction:column; align-items:stretch; gap:10px; }
+  .field{ width:100%; }
+  .select-styled{ min-width:unset; width:100%; }
+  .filter-panel .tombol-umum{ width:100%; justify-content:center; }
+
   .tabel-absensi, thead, tbody, th, td, tr { display:block; }
   thead tr { display:none; }
   tr { margin-bottom:15px; border-bottom:2px solid #000; }
@@ -246,13 +305,13 @@ if ($sedang_jadwal && isset($shiftIdToMkId[$sedang_jadwal])) {
   <?php flash_show(); ?>
 
   <!-- ===== Pilih MK -> Shift + Mulai ===== -->
-  <form method="post" class="bar" autocomplete="off" style="display:flex; gap:10px; align-items:flex-end; flex-wrap:wrap;">
+  <form method="post" class="bar filter-panel" autocomplete="off">
     <input type="hidden" name="aksi" value="mulai">
     <input type="hidden" name="csrf" value="<?= e($CSRF) ?>">
 
-    <div style="display:flex; flex-direction:column;">
+    <div class="field">
       <label for="mk_id"><b>Pilih Mata Kuliah</b></label>
-      <select id="mk_id" <?= $sedang_sesi ? 'disabled' : '' ?> style="min-width:220px;">
+      <select id="mk_id" <?= $sedang_sesi ? 'disabled' : '' ?> class="select-styled">
         <option value="">-- pilih MK --</option>
         <?php foreach($mkList as $mk_id=>$nm): ?>
           <option value="<?= (int)$mk_id ?>" <?= ($preselect_mk_id===(int)$mk_id ? 'selected':'') ?>><?= e($nm) ?></option>
@@ -260,9 +319,9 @@ if ($sedang_jadwal && isset($shiftIdToMkId[$sedang_jadwal])) {
       </select>
     </div>
 
-    <div style="display:flex; flex-direction:column;">
+    <div class="field">
       <label for="id_jadwal"><b>Pilih Shift</b></label>
-      <select name="id_jadwal" id="id_jadwal" <?= $sedang_sesi ? 'disabled' : '' ?> required style="min-width:260px;">
+      <select name="id_jadwal" id="id_jadwal" <?= $sedang_sesi ? 'disabled' : '' ?> required class="select-styled">
         <option value="">-- pilih shift --</option>
         <!-- opsi diisi via JS berdasarkan MK -->
       </select>
@@ -352,12 +411,12 @@ if ($sedang_jadwal && isset($shiftIdToMkId[$sedang_jadwal])) {
 
 <script>
 // ===== Perapihan URL (hindari re-submit) =====
-window.history.replaceState({}, document.title, window.location.pathname);
+if (window.history.replaceState) {
+  window.history.replaceState({}, document.title, window.location.pathname);
+}
 
 // ===== Data MK & Shift dari PHP =====
-const SHIFTS_BY_MK = <?=
-  json_encode($shiftsByMk, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES)
-?>;
+const SHIFTS_BY_MK = <?= json_encode($shiftsByMk, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES) ?>;
 const PRESELECT_MK_ID = <?= (int)$preselect_mk_id ?>;
 const PRESELECT_SHIFT_ID = <?= (int)$sedang_jadwal ?>;
 
@@ -381,16 +440,12 @@ function renderShiftOptions(mkId){
 // Inisialisasi pilihan MK & Shift
 (function initSelects(){
   const mkSel = document.getElementById('mk_id');
-  const shiftSel = document.getElementById('id_jadwal');
-
-  // bila ada preselect MK, render shift-nya
   if (mkSel && mkSel.value) {
     renderShiftOptions(parseInt(mkSel.value,10));
   } else if (PRESELECT_MK_ID) {
     mkSel.value = String(PRESELECT_MK_ID);
     renderShiftOptions(PRESELECT_MK_ID);
   }
-
   mkSel?.addEventListener('change', (e)=>{
     const mkId = parseInt(e.target.value || '0', 10);
     renderShiftOptions(mkId);

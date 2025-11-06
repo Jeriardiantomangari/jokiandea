@@ -9,7 +9,7 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] != 'mahasiswa') {
     exit;
 }
 
-// ✅ gunakan mhs_id (ID dari tabel `mahasiswa`), bukan id_user (users.id)
+//  gunakan mhs_id 
 $id_mahasiswa = (int)($_SESSION['mhs_id'] ?? 0);
 $id_jadwal    = (int)($_POST['id_jadwal'] ?? 0);
 

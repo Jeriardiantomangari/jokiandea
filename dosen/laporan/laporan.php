@@ -183,19 +183,82 @@ if ($shiftValid) {
 
 /* Info */
 .kotak-info{ padding:10px 12px; border-radius:8px; margin:8px 0; }
-.info-berhasil{ background:#ecfeff; border:1px solid #67e8f9; color:#075985; }
-.info-peringatan{ background:#fff7ed; border:1px solid #fdba74; color:#7c2d12; }
+.info-berhasil{ color: #333 }
+.info-peringatan{  color: #333  }
+
+
 
 /* Tabel */
 .tabel-laporan-absensi { width:100%; border-collapse:collapse; background:#fff; border-radius:10px; overflow:hidden; box-shadow:0 2px 6px rgba(0,0,0,0.1); table-layout:fixed; }
-.tabel-laporan-absensi th { background:#8bc9ff; color:#333; text-align:left; padding:12px 15px; white-space:nowrap; }
+.tabel-laporan-absensi th { background: #00AEEF; color:#333; text-align:left; padding:12px 15px; white-space:nowrap; }
 .tabel-laporan-absensi td { padding:12px 15px; border-bottom:1px solid #ddd; }
 
-/* Responsif */
+/* ====== TAMBAHAN: Panel Filter (MK & Shift) ====== */
+.filter-panel{
+  background:#fff;
+  border:1px solid #e5e7eb;           /* slate-200 */
+  border-radius:12px;
+  padding:14px 16px;
+  box-shadow:0 2px 6px rgba(0,0,0,.06);
+  display:flex; gap:12px; flex-wrap:wrap; align-items:flex-end;
+}
+
+.field{ display:flex; flex-direction:column; gap:6px; }
+.field label{ font-weight:700; color:#111827; font-size:14px; }
+
+.select-styled{
+  appearance:none; -webkit-appearance:none; -moz-appearance:none;
+  background:#fff;
+  border:1px solid #cbd5e1;           /* slate-300 */
+  border-radius:10px;
+  padding:10px 42px 10px 12px;
+  font-size:14px; line-height:1.2;
+  min-width:240px;
+  outline:none;
+  transition:border-color .2s, box-shadow .2s;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 20 20' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 8 10 12 14 8'/></svg>");
+  background-repeat:no-repeat;
+  background-position:right 12px center;
+}
+.select-styled:hover{ border-color:#94a3b8; }          /* slate-400 */
+.select-styled:focus{
+  border-color:#60a5fa;                                 /* blue-400 */
+  box-shadow:0 0 0 4px rgba(96,165,250,.2);             /* focus ring */
+}
+.filter-panel .tombol-cetak{
+  padding:10px 16px;
+  border-radius:10px;
+  font-size:13px;
+  display:inline-flex; gap:8px; align-items:center;
+}
+
+/* ====== Responsif */
 @media screen and (max-width: 768px) {
-  .area-utama { margin-left:0; padding:20px; text-align:center; }
-  .area-utama h2 { text-align:center; }
-  .tabel-laporan-absensi, thead, tbody, th, td, tr { display:block; }
+  /* Area utama */
+  .area-utama {
+    margin-left: 0;
+    padding: 20px;
+    text-align: center;
+  }
+  .area-utama h2 {
+    text-align: center;
+    margin-bottom: 12px;
+  }
+
+  /* Panel filter jadi vertikal, full width */
+  .filter-panel {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+  .field { width: 100%; }
+  .select-styled { min-width: unset; width: 100%; }
+  .filter-panel .tombol-cetak { width: 100%; justify-content: center; }
+
+  /* Tabel responsif — dibatasi ke .tabel-laporan-absensi agar tidak merusak tabel lain */
+   
+.tabel-laporan-absensi, thead, tbody, th, td, tr { display:block; }
   thead tr { display:none; }
   tr { margin-bottom:15px; border-bottom:2px solid #000; }
   td { text-align:right; padding-left:50%; position:relative; }
@@ -214,19 +277,19 @@ if ($shiftValid) {
   <?php endif; ?>
 
   <!-- Pilih MK -> Shift + tombol cetak -->
-  <form method="get" id="form-shift" style="display:flex; gap:10px; align-items:end; flex-wrap:wrap; margin:10px 0 14px;">
-    <div style="display:flex; flex-direction:column;">
+  <form method="get" id="form-shift" class="filter-panel" style="margin:10px 0 14px;">
+    <div class="field">
       <label for="mk_id"><b>Pilih Mata Kuliah</b></label>
-      <select name="mk_id" id="mk_id" <?= empty($mkList) ? 'disabled' : '' ?> required>
+      <select name="mk_id" id="mk_id" class="select-styled" <?= empty($mkList) ? 'disabled' : '' ?> required>
         <?php foreach($mkList as $mk_id => $nm): ?>
           <option value="<?= (int)$mk_id ?>" <?= $mk_id_pilih===(int)$mk_id ? 'selected' : '' ?>><?= e($nm) ?></option>
         <?php endforeach; ?>
       </select>
     </div>
 
-    <div style="display:flex; flex-direction:column;">
+    <div class="field">
       <label for="id_jadwal"><b>Pilih Shift</b></label>
-      <select name="id_jadwal" id="id_jadwal" <?= (empty($shiftsByMk[$mk_id_pilih]) ? 'disabled' : '') ?> required>
+      <select name="id_jadwal" id="id_jadwal" class="select-styled" <?= (empty($shiftsByMk[$mk_id_pilih]) ? 'disabled' : '') ?> required>
         <?php
           foreach($shiftsByMk[$mk_id_pilih] ?? [] as $s){
             $label = $s['hari'].' '.$s['mulai'].' - '.$s['selesai'].($s['ruangan'] ? ' | '.$s['ruangan'] : '');
@@ -250,7 +313,7 @@ if ($shiftValid) {
       <?php if(empty($tanggalSesi)): ?>&nbsp;Belum ada sesi absensi tersimpan.<?php endif; ?>
     </div>
   <?php elseif($id_semester_aktif && empty($mkList)): ?>
-    <div class="kotak-info info-peringatan">Belum ada jadwal untuk akun Anda pada semester ini.</div>
+    <div class="kotak-info info-peringatan">Belum ada jadwal pada semester ini.</div>
   <?php endif; ?>
 
   <!-- Tabel -->

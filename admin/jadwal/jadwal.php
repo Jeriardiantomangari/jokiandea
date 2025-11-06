@@ -33,20 +33,20 @@ $id_semester_aktif = $semAktif['id'] ?? null;
   .konten-utama { margin-left:250px; margin-top:60px; padding:30px; min-height:calc(100vh - 60px); background:#f9f9f9; font-family:Arial,sans-serif; }
   .konten-utama h2 { margin-bottom:10px; color:#333; }
   .info-sem { margin-bottom:15px; padding:10px 12px; border-radius:6px; }
-  .info-aktif { background:#e7f7e9; color:#096a2e; border:1px solid #bde5c8; }
-  .info-none { background:#fff3cd; color:#7a5b00; border:1px solid #ffe08a; }
+  .info-aktif { color: #333 }
+  .info-none { color: #333}
 
   .tombol { border:none; border-radius:5px; cursor:pointer; color:white; font-size:12px; transition:0.3s; }
   .tombol:hover { opacity:0.9; }
   .tombol[disabled] { opacity:0.5; cursor:not-allowed; }
-  .tombol-edit { background:#007bff; width:60px; margin-bottom:3px; padding:6px 10px; }
-  .tombol-hapus { background:#dc3545; width:60px; padding:6px 10px; }
+  .tombol-edit { background:#007bff; width:70px; margin-bottom:5px; padding:6px 10px; }
+  .tombol-hapus { background:#dc3545; width:70px; padding:6px 10px; }
   .tombol-tambah { background:#00b4ff; margin-bottom:10px; padding:8px 15px; }
 
   .dataTables_wrapper .dataTables_filter input,
   .dataTables_wrapper .dataTables_length select { padding:6px 10px; border-radius:5px; border:1px solid #ccc; font-size:14px; margin-bottom:5px; }
   .tabel-jadwal { width:100%; border-collapse:collapse; background:white; border-radius:10px; overflow:hidden; box-shadow:0 2px 6px rgba(0,0,0,0.1); table-layout:fixed; }
-  .tabel-jadwal th { background:#8bc9ff; color:#333; text-align:left; padding:12px 15px; }
+  .tabel-jadwal th { background:#00AEEF; color:#333; text-align:left; padding:12px 15px; }
   .tabel-jadwal td { padding:12px 15px; border-bottom:1px solid #ddd; border-right:1px solid #ddd; }
   .tabel-jadwal tr:hover { background:#f1f1f1; }
 

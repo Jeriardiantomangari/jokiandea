@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Nov 06, 2025 at 08:59 AM
+-- Generation Time: Nov 06, 2025 at 05:35 PM
 -- Server version: 8.4.3
 -- PHP Version: 8.3.26
 
@@ -40,15 +40,7 @@ CREATE TABLE `absensi_detail` (
 --
 
 INSERT INTO `absensi_detail` (`id`, `id_sesi`, `id_mahasiswa`, `status`, `dicatat_pada`) VALUES
-(18, 19, 7, 'Hadir', '2025-11-06 01:52:22'),
-(19, 19, 6, 'Alpha', '2025-11-06 01:52:22'),
-(20, 19, 8, 'Izin', '2025-11-06 01:52:22'),
-(21, 20, 7, 'Izin', '2025-11-06 01:53:15'),
-(22, 20, 6, 'Alpha', '2025-11-06 01:53:15'),
-(23, 20, 8, 'Hadir', '2025-11-06 01:53:15'),
-(24, 21, 7, 'Alpha', '2025-11-06 01:54:50'),
-(25, 21, 6, 'Hadir', '2025-11-06 01:54:50'),
-(26, 21, 8, 'Alpha', '2025-11-06 01:54:50');
+(53, 32, 6, 'Hadir', '2025-11-07 00:44:58');
 
 -- --------------------------------------------------------
 
@@ -70,9 +62,7 @@ CREATE TABLE `absensi_sesi` (
 --
 
 INSERT INTO `absensi_sesi` (`id`, `id_jadwal`, `id_dosen`, `mulai_at`, `selesai_at`, `keterangan`) VALUES
-(19, 36, 10, '2025-11-06 01:52:15', '2025-11-06 01:52:22', NULL),
-(20, 35, 11, '2025-11-06 01:53:07', '2025-11-06 01:53:15', NULL),
-(21, 37, 12, '2025-11-06 01:53:53', '2025-11-06 01:54:50', NULL);
+(32, 41, 10, '2025-11-07 00:44:56', '2025-11-07 00:44:58', NULL);
 
 -- --------------------------------------------------------
 
@@ -125,10 +115,7 @@ CREATE TABLE `jadwal_praktikum` (
 --
 
 INSERT INTO `jadwal_praktikum` (`id`, `id_mk`, `id_dosen`, `id_ruangan`, `id_semester`, `hari`, `jam_mulai`, `jam_selesai`, `kuota`, `kuota_awal`, `peserta`) VALUES
-(35, 27, 11, 5, 5, 'Senin', '02:20:00', '02:30:00', 15, 20, 0),
-(36, 26, 10, 4, 5, 'Selasa', '02:20:00', '02:30:00', 15, 20, 0),
-(37, 25, 12, 3, 5, 'Rabu', '02:20:00', '02:30:00', 25, 30, 0),
-(39, 27, 11, 5, 5, 'Senin', '03:20:00', '04:30:00', 20, 20, 0);
+(41, 27, 10, 5, 5, 'Senin', '02:20:00', '02:30:00', 19, 20, 0);
 
 -- --------------------------------------------------------
 
@@ -154,9 +141,7 @@ CREATE TABLE `kontrak_mk` (
 --
 
 INSERT INTO `kontrak_mk` (`id`, `id_mahasiswa`, `id_semester`, `nim`, `nama`, `no_hp`, `mk_dikontrak`, `bukti_pembayaran`, `status`, `created_at`) VALUES
-(13, 7, 5, '22421008', 'Jago', '080008006755', 'Kerangka Manusia,Organ Dalam Manusia,Organ Tubuh manusia', '1762361181_Jeri_Ardianto_Mangari_22421007_Manajemen_Jaringan_Komputer.pdf', 'Disetujui', '2025-11-05 16:46:21'),
-(14, 8, 5, '22421009', 'Mullet', '080008006744', 'Kerangka Manusia,Organ Dalam Manusia,Organ Tubuh manusia', '1762361204_Jeri_Ardianto_Mangari_22421007_Manajemen_Jaringan_Komputer.pdf', 'Disetujui', '2025-11-05 16:46:44'),
-(15, 6, 5, '22421007', 'Kaneji', '080008006766', 'Kerangka Manusia,Organ Dalam Manusia,Organ Tubuh manusia', '1762414110_Jeri_Ardianto_Mangari_22421007_Manajemen_Jaringan_Komputer.pdf', 'Disetujui', '2025-11-06 07:28:30');
+(16, 6, 5, '22421007', 'Kaneji', '080008006766', 'Kerangka Manusia,Organ Dalam Manusia,Organ Tubuh manusia', '1762443148_Jeri_Ardianto_Mangari_22421007_Manajemen_Jaringan_Komputer.pdf', 'Disetujui', '2025-11-06 15:32:28');
 
 -- --------------------------------------------------------
 
@@ -230,15 +215,7 @@ CREATE TABLE `pilihan_jadwal` (
 --
 
 INSERT INTO `pilihan_jadwal` (`id`, `id_mahasiswa`, `id_kontrak`, `id_jadwal`, `id_mk`, `id_semester`, `tanggal_daftar`) VALUES
-(12, 7, 13, 35, 27, 5, '2025-11-05 16:49:00'),
-(13, 7, 13, 36, 26, 5, '2025-11-05 16:49:04'),
-(14, 7, 13, 37, 25, 5, '2025-11-05 16:49:07'),
-(15, 8, 14, 35, 27, 5, '2025-11-05 16:49:28'),
-(16, 8, 14, 36, 26, 5, '2025-11-05 16:49:31'),
-(17, 8, 14, 37, 25, 5, '2025-11-05 16:49:35'),
-(21, 6, 15, 35, 27, 5, '2025-11-06 08:21:54'),
-(22, 6, 15, 36, 26, 5, '2025-11-06 08:21:58'),
-(23, 6, 15, 37, 25, 5, '2025-11-06 08:22:00');
+(24, 6, 16, 41, 27, 5, '2025-11-06 15:42:13');
 
 -- --------------------------------------------------------
 
@@ -304,11 +281,11 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `nama`, `username`, `password`, `role`, `created_at`, `updated_at`) VALUES
-(4, 'Administrator', 'admin', 'admin123', 'Admin', '2025-11-05 23:18:05', '2025-11-06 15:45:28'),
-(5, 'Jeri', '22421001', '22421001', 'Dosen', '2025-11-06 01:35:45', '2025-11-06 15:45:27'),
+(4, 'Administrator', 'admin', 'admin321', 'Admin', '2025-11-05 23:18:05', '2025-11-07 02:19:08'),
+(5, 'Jeri', '22421001', '22421001', 'Dosen', '2025-11-06 01:35:45', '2025-11-06 22:29:45'),
 (6, 'abdul ', '22421002', '22421002', 'Dosen', '2025-11-06 01:36:21', '2025-11-06 15:45:27'),
 (7, 'Putri', '22421003', '22421003', 'Dosen', '2025-11-06 01:37:08', '2025-11-06 15:45:27'),
-(8, 'Kaneji', '22421007', '22421007', 'Mahasiswa', '2025-11-06 01:37:39', '2025-11-06 15:45:27'),
+(8, 'Kaneji', '22421007', '22421007', 'Mahasiswa', '2025-11-06 01:37:39', '2025-11-06 22:13:47'),
 (9, 'Jago', '22421008', '22421008', 'Mahasiswa', '2025-11-06 01:38:24', '2025-11-06 15:45:27'),
 (10, 'Mullet', '22421009', '22421009', 'Mahasiswa', '2025-11-06 01:38:51', '2025-11-06 15:45:27');
 
@@ -416,13 +393,13 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `absensi_detail`
 --
 ALTER TABLE `absensi_detail`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=54;
 
 --
 -- AUTO_INCREMENT for table `absensi_sesi`
 --
 ALTER TABLE `absensi_sesi`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=33;
 
 --
 -- AUTO_INCREMENT for table `dosen`
@@ -434,13 +411,13 @@ ALTER TABLE `dosen`
 -- AUTO_INCREMENT for table `jadwal_praktikum`
 --
 ALTER TABLE `jadwal_praktikum`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=40;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=42;
 
 --
 -- AUTO_INCREMENT for table `kontrak_mk`
 --
 ALTER TABLE `kontrak_mk`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
 -- AUTO_INCREMENT for table `mahasiswa`
@@ -458,7 +435,7 @@ ALTER TABLE `matakuliah_praktikum`
 -- AUTO_INCREMENT for table `pilihan_jadwal`
 --
 ALTER TABLE `pilihan_jadwal`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
 
 --
 -- AUTO_INCREMENT for table `ruangan`
