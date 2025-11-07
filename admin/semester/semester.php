@@ -190,8 +190,8 @@ if(!isset($_SESSION['role']) || $_SESSION['role'] != 'admin'){
         <td data-label="Tahun Ajaran"><?php echo htmlspecialchars($row['tahun_ajaran']); ?></td>
         <td data-label="Status"><?php echo htmlspecialchars($row['status']); ?></td>
         <td data-label="Aksi">
-           <button class="tombol tombol-edit" onclick="editDosen(<?php echo $row['id']; ?>)"><i class="fa-solid fa-pen-to-square"></i> Edit</button>
-          <button class="tombol tombol-hapus" onclick="hapusDosen(<?php echo $row['id']; ?>)"><i class="fa-solid fa-trash"></i> Hapus</button>
+           <button class="tombol tombol-edit" onclick="editSemester(<?php echo $row['id']; ?>)"><i class="fa-solid fa-pen-to-square"></i> Edit</button>
+          <button class="tombol tombol-hapus" onclick="hapusSemester(<?php echo $row['id']; ?>)"><i class="fa-solid fa-trash"></i> Hapus</button>
         </td>
       </tr>
       <?php } ?>

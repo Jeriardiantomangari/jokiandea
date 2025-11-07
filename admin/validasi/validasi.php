@@ -81,7 +81,7 @@ $id_semester_aktif = $semAktif['id'] ?? null;
 
    <?php if($id_semester_aktif): ?>
     <div class="info-sem info-aktif">
-      Semester Aktif: <b><?= e($semAktif['nama_semester']) ?></b> — <b><?= e($semAktif['tahun_ajaran']) ?></b>
+      Semester Aktif: <b><?= e($semAktif['nama_semester']) ?></b><b>/</b><b><?= e($semAktif['tahun_ajaran']) ?></b>
     </div>
   <?php else: ?>
     <div class="info-sem info-none">
