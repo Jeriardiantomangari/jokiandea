@@ -243,7 +243,7 @@ if ($sedang_jadwal && isset($shiftIdToMkId[$sedang_jadwal])) {
 .tabel-absensi tr:hover { background:#f7fbff; }
 
 /* ===== Info ===== */
-.kotak-info{ padding:10px 12px; border-radius:8px; margin:8px 0; }
+.kotak-info{ padding:10px 12px; border-radius:8px; margin:8px 0; background:#fff; border:1px solid #e5e7eb; }
 .info-berhasil{  color: #333; }
 .info-peringatan{  color: #333; }
 

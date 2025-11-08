@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Nov 06, 2025 at 05:35 PM
+-- Generation Time: Nov 08, 2025 at 05:47 AM
 -- Server version: 8.4.3
 -- PHP Version: 8.3.26
 
@@ -40,7 +40,8 @@ CREATE TABLE `absensi_detail` (
 --
 
 INSERT INTO `absensi_detail` (`id`, `id_sesi`, `id_mahasiswa`, `status`, `dicatat_pada`) VALUES
-(53, 32, 6, 'Hadir', '2025-11-07 00:44:58');
+(53, 32, 6, 'Hadir', '2025-11-07 00:44:58'),
+(55, 34, 6, 'Izin', '2025-11-08 13:01:58');
 
 -- --------------------------------------------------------
 
@@ -62,7 +63,9 @@ CREATE TABLE `absensi_sesi` (
 --
 
 INSERT INTO `absensi_sesi` (`id`, `id_jadwal`, `id_dosen`, `mulai_at`, `selesai_at`, `keterangan`) VALUES
-(32, 41, 10, '2025-11-07 00:44:56', '2025-11-07 00:44:58', NULL);
+(32, 41, 10, '2025-11-07 00:44:56', '2025-11-07 00:44:58', NULL),
+(33, 41, 10, '2025-11-07 12:36:37', '2025-11-07 12:36:50', NULL),
+(34, 41, 10, '2025-11-08 13:01:53', '2025-11-08 13:01:58', NULL);
 
 -- --------------------------------------------------------
 
@@ -88,7 +91,8 @@ CREATE TABLE `dosen` (
 INSERT INTO `dosen` (`id`, `nidn`, `nama`, `prodi`, `jenis_kelamin`, `alamat`, `no_hp`, `user_id`) VALUES
 (10, '22421001', 'Jeri', 'Farmasi', 'Laki-laki', 'jayapura papua ', '080008006799', 5),
 (11, '22421002', 'abdul ', 'Analis Kesehatan', 'Laki-laki', 'jayapura papua ', '080008006788', 6),
-(12, '22421003', 'Putri', 'Farmasi', 'Perempuan', 'jayapura papua ', '080008006777', 7);
+(12, '22421003', 'Putri', 'Farmasi', 'Perempuan', 'jayapura papua ', '080008006777', 7),
+(13, '1234562233', 'abdul ', 'Farmasi', 'Laki-laki', 'jln. yoka Kompleks Eks.APDN', '080008006766', 11);
 
 -- --------------------------------------------------------
 
@@ -281,13 +285,14 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `nama`, `username`, `password`, `role`, `created_at`, `updated_at`) VALUES
-(4, 'Administrator', 'admin', 'admin321', 'Admin', '2025-11-05 23:18:05', '2025-11-07 02:19:08'),
+(4, 'Administrator', 'admin', 'admin123', 'Admin', '2025-11-05 23:18:05', '2025-11-08 14:35:48'),
 (5, 'Jeri', '22421001', '22421001', 'Dosen', '2025-11-06 01:35:45', '2025-11-06 22:29:45'),
 (6, 'abdul ', '22421002', '22421002', 'Dosen', '2025-11-06 01:36:21', '2025-11-06 15:45:27'),
 (7, 'Putri', '22421003', '22421003', 'Dosen', '2025-11-06 01:37:08', '2025-11-06 15:45:27'),
 (8, 'Kaneji', '22421007', '22421007', 'Mahasiswa', '2025-11-06 01:37:39', '2025-11-06 22:13:47'),
 (9, 'Jago', '22421008', '22421008', 'Mahasiswa', '2025-11-06 01:38:24', '2025-11-06 15:45:27'),
-(10, 'Mullet', '22421009', '22421009', 'Mahasiswa', '2025-11-06 01:38:51', '2025-11-06 15:45:27');
+(10, 'Mullet', '22421009', '22421009', 'Mahasiswa', '2025-11-06 01:38:51', '2025-11-06 15:45:27'),
+(11, 'abdul ', '1234562233', '1234562233', 'Dosen', '2025-11-07 12:34:20', NULL);
 
 --
 -- Indexes for dumped tables
@@ -393,19 +398,19 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `absensi_detail`
 --
 ALTER TABLE `absensi_detail`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=54;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=56;
 
 --
 -- AUTO_INCREMENT for table `absensi_sesi`
 --
 ALTER TABLE `absensi_sesi`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=33;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=35;
 
 --
 -- AUTO_INCREMENT for table `dosen`
 --
 ALTER TABLE `dosen`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- AUTO_INCREMENT for table `jadwal_praktikum`
@@ -447,13 +452,13 @@ ALTER TABLE `ruangan`
 -- AUTO_INCREMENT for table `semester`
 --
 ALTER TABLE `semester`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- Constraints for dumped tables

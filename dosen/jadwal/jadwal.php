@@ -49,11 +49,7 @@ $id_semester_aktif = $semAktif['id'] ?? null;
       color: #333;
     }
 
-    .kotak-info {
-      margin: 10px 0 15px 0;
-      padding: 10px 12px;
-      border-radius: 6px;
-    }
+       .kotak-info{ padding:10px 12px; border-radius:8px; margin:8px 0; background:#fff; border:1px solid #e5e7eb; }
 
     .info-berhasil {
       color: #333;

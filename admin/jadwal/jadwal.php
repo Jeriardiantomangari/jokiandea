@@ -32,7 +32,7 @@ $id_semester_aktif = $semAktif['id'] ?? null;
   <style>
   .konten-utama { margin-left:250px; margin-top:60px; padding:30px; min-height:calc(100vh - 60px); background:#f9f9f9; font-family:Arial,sans-serif; }
   .konten-utama h2 { margin-bottom:10px; color:#333; }
-  .info-sem { margin-bottom:15px; padding:10px 12px; border-radius:6px; }
+  .info-sem{ padding:10px 12px; border-radius:8px; margin:8px 0; background:#fff; border:1px solid #e5e7eb; }
   .info-aktif { color: #333 }
   .info-none { color: #333}
 

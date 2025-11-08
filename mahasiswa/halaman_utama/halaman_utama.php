@@ -112,7 +112,8 @@ if ($id_mhs > 0 && $id_sem_aktif > 0) {
     body { margin:0; font-family: Arial, sans-serif; background:#f5f6fa }
     .bungkus { margin-left:250px; margin-top:60px; padding:20px; min-height:calc(100vh - 60px) }
     h2 { margin:0 0 8px; color:#333 }
-    .halus { color:#555; margin:0 0 16px }
+     .halus{ padding:10px 12px; border-radius:8px; margin:0 0 8px; color:#333 ; background:#fff; border:1px solid #e5e7eb; }
+  
     .baris { display:flex; gap:12px; flex-wrap:wrap; margin-top:8px; }
     .kartu { background:#fff; border-radius:10px; box-shadow:0 2px 8px rgba(0,0,0,.06); padding:16px; }
     .kartu h4 { margin:0 0 8px; font-size:16px; color:#111 }

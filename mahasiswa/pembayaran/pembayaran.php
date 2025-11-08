@@ -58,7 +58,7 @@ if ($id_semester_aktif) {
   .konten_utama h2 { margin-bottom:10px; color:#333; }
 
   /* Info semester */
-  .kotak_info { margin-bottom:15px; padding:10px 12px; border-radius:6px; }
+.kotak_info{ padding:10px 12px; border-radius:8px; margin:8px 0; background:#fff; border:1px solid #e5e7eb; }
   .info_sukses { color:#333  }
   .info_peringatan { color :#ff5252;}
 

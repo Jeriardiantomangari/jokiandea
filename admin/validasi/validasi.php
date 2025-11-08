@@ -30,7 +30,7 @@ $id_semester_aktif = $semAktif['id'] ?? null;
 .tombol { border:none; border-radius:5px; cursor:pointer; color:white; font-size:12px; transition:0.3s; padding:6px 10px; }
 .tombol:hover { opacity:0.85; }
 
- .info-sem { margin-bottom:15px; padding:10px 12px; border-radius:6px; }
+  .info-sem{ padding:10px 12px; border-radius:8px; margin:8px 0; background:#fff; border:1px solid #e5e7eb; }
   .info-aktif { color: #333 }
   .info-none { color: #333}
 
