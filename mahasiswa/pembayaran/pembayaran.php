@@ -58,7 +58,7 @@ if ($id_semester_aktif) {
   .konten_utama h2 { margin-bottom:10px; color:#333; }
 
   /* Info semester */
-.kotak_info{ padding:10px 12px; border-radius:8px; margin:8px 0; background:#fff; border:1px solid #e5e7eb; }
+  .kotak_info{ padding:10px 12px; border-radius:8px; margin:8px 0; background:#fff; border:1px solid #e5e7eb; }
   .info_sukses { color:#333  }
   .info_peringatan { color :#ff5252;}
 
@@ -86,6 +86,17 @@ if ($id_semester_aktif) {
   .tabel_data th { background:#00AEEF; color:#333; text-align:left; padding:12px 15px; }
   .tabel_data td { padding:12px 15px; border-bottom:1px solid #ddd; border-right:1px solid #ddd; }
   .tabel_data tr:hover { background:#f1f1f1; }
+
+  /* ===== EDIT: Kolom MK agar wrap & rapi ===== */
+  .tabel_data td.col-mk{
+    max-width:260px;
+    white-space:normal;
+    word-break:break-word;
+  }
+  /* ========================================== */
+.col-mk .mk-item { display: inline; }
+.col-mk .mk-item::after { content: ", "; }
+.col-mk .mk-item:last-child::after { content: ""; }
 
   /* Modal */
   .kotak_modal { display:none; position:fixed; z-index:300; left:0; top:0; width:100%; height:100vh; background:rgba(0,0,0,0.6); justify-content:center; align-items:center; }
@@ -122,7 +133,16 @@ if ($id_semester_aktif) {
     td { text-align:right; padding-left:50%; position:relative; }
     td::before { content: attr(data-label); position:absolute; left:15px; width:45%; font-weight:bold; text-align:left; }
     .sel_pembayaran { text-align:right; }
+   
+     .tabel_data td.col-mk { 
+    padding-left: 40%;
+    text-align: right;
+     }
+     .col-mk .mk-item { display: block; }
+  .col-mk .mk-item::after { content: ""; }       
   }
+
+  
   </style>
 </head>
 <body>
@@ -150,7 +170,7 @@ if ($id_semester_aktif) {
       <p class="pesan_selesai">Anda telah mengirimkan kontrak & bukti pembayaran untuk semester aktif ini.</p>
     </div>
   <?php else: ?>
-    <div class="wadah_tombol" style="justify-content:flex-start;">
+    <div class="wadah_tombol" style="justify-content:flex-start%;">
       <button class="tombol_tambah" disabled>
         <i class="fa-solid fa-plus"></i> Tambah
       </button>
@@ -190,7 +210,18 @@ if ($id_semester_aktif) {
         <td data-label="NIM"><?= e($row['nim']); ?></td>
         <td data-label="Nama"><?= e($row['nama']); ?></td>
         <td data-label="No HP"><?= e($row['no_hp']); ?></td>
-        <td data-label="MK Dikontrak"><?= e(str_replace(',', ', ', $row['mk_dikontrak'])); ?></td>
+
+     <td data-label="MK Dikontrak" class="col-mk">
+  <?php
+    $mkList = array_filter(array_map('trim', explode(',', (string)($row['mk_dikontrak'] ?? ''))));
+    foreach ($mkList as $mk) {
+      echo '<span class="mk-item">'.e($mk).'</span>';
+    }
+  ?>
+</td>
+
+  
+
         <td data-label="Status">
           <?php 
             if ($row['status'] == 'Disetujui') echo "<span style='color:green; font-weight:bold;'>Disetujui</span>";

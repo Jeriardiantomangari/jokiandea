@@ -74,7 +74,7 @@ if (isset($_POST['role'], $_POST['username'], $_POST['password'])) {
         }
 
         if ($role_in === 'admin') {
-            header("Location: admin/dosen/dosen.php");
+              header("Location: admin/halaman_utama/halaman_utama.php");
             exit;
         }
     }

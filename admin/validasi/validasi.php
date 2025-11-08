@@ -30,19 +30,19 @@ $id_semester_aktif = $semAktif['id'] ?? null;
 .tombol { border:none; border-radius:5px; cursor:pointer; color:white; font-size:12px; transition:0.3s; padding:6px 10px; }
 .tombol:hover { opacity:0.85; }
 
-  .info-sem{ padding:10px 12px; border-radius:8px; margin:8px 0; background:#fff; border:1px solid #e5e7eb; }
-  .info-aktif { color: #333 }
-  .info-none { color: #333}
+.info-sem{ padding:10px 12px; border-radius:8px; margin:8px 0; background:#fff; border:1px solid #e5e7eb; }
+.info-aktif { color: #333 }
+.info-none { color: #333}
 
-  .tombol-setujui {
-    background-color: #28a745;
-    margin-bottom: 10px;
-    padding: 8px 15px;
-  }
-  .tombol-tolak {
+.tombol-setujui {
+  background-color: #28a745;
+  margin-bottom: 10px;
+  padding: 8px 15px;
+}
+.tombol-tolak {
   background-color: #dc3545; 
   padding: 6px 10px;
-   width: 80px;
+  width: 80px;
 }
 .dataTables_wrapper .dataTables_filter input,
 .dataTables_wrapper .dataTables_length select { padding:6px 10px; border-radius:5px; border:1px solid #ccc; font-size:14px; margin-bottom:5px; }
@@ -52,12 +52,20 @@ $id_semester_aktif = $semAktif['id'] ?? null;
 .tabel-data td { padding:12px 15px; border-bottom:1px solid #ddd; border-right:1px solid #ddd; }
 .tabel-data tr:hover { background:#f1f1f1; }
 
-.pembayaran-cell {
-    text-align: center;
+/* ====== Tambahan khusus kolom MK dikontrak (desktop & mobile) ====== */
+.tabel-data td.col-mk{
+  max-width:260px;         /* cegah kolom melebar */
+  white-space:normal;
+  word-break:break-word;
 }
-.pembayaran-cell a i {
-    font-size: 30px !important;
-}
+/* Desktop: inline dengan koma */
+.col-mk .mk-item{ display:inline; }
+.col-mk .mk-item::after{ content:", "; }
+.col-mk .mk-item:last-child::after{ content:""; }
+/* ================================================================ */
+
+.pembayaran-cell { text-align: center; }
+.pembayaran-cell a i { font-size: 30px !important; }
 
 @media screen and (max-width: 768px) {
   .konten-utama { margin-left:0; padding:20px; width:100%; background-color:#f9f9f9; text-align:center; }
@@ -69,17 +77,22 @@ $id_semester_aktif = $semAktif['id'] ?? null;
   td { text-align:right; padding-left:50%; position:relative; }
   td::before { content: attr(data-label); position:absolute; left:15px; width:45%; font-weight:bold; text-align:left; }
   .tombol-edit, .tombol-hapus { width:auto; padding:6px 10px; display:inline-block; margin:3px 2px; }
-   .pembayaran-cell {
-        text-align: right;        
-    }
+  .pembayaran-cell { text-align: right; }
+
+  /* Mobile: rapatkan label-isi & tampil per baris, tanpa koma */
+  .tabel-data td.col-mk{ 
+    padding-left:40%;     /* rapatkan dari 50% -> 40% (ubah sesuai selera) */
+    text-align:right;
+  }
+  .col-mk .mk-item{ display:block; }     /* per baris */
+  .col-mk .mk-item::after{ content:""; } /* hilangkan koma */
 }
- 
 </style>
 
 <div class="konten-utama">
   <h2>Validasi Pendaftaran Praktikum</h2>
 
-   <?php if($id_semester_aktif): ?>
+  <?php if($id_semester_aktif): ?>
     <div class="info-sem info-aktif">
       Semester Aktif: <b><?= e($semAktif['nama_semester']) ?></b><b>/</b><b><?= e($semAktif['tahun_ajaran']) ?></b>
     </div>
@@ -113,16 +126,26 @@ $id_semester_aktif = $semAktif['id'] ?? null;
         <td data-label="Nim"><?= htmlspecialchars($row['nim']); ?></td>
         <td data-label="Nama"><?= htmlspecialchars($row['nama']); ?></td>
         <td data-label="Nomor Hp"><?= htmlspecialchars($row['no_hp']); ?></td>
-        <td data-label="MK dikontrak"><?= htmlspecialchars($row['mk_dikontrak']); ?></td>
-        <td data-label="Bukti Pembayaran" class="pembayaran-cell">
-         <?php if (!empty($row['bukti_pembayaran'])) { ?>
-  <a href='../../uploads/<?= $row['bukti_pembayaran']; ?>' target='_blank' title="Lihat Bukti">
-    <i class="fa-solid fa-file-arrow-down" style="font-size:20px; color:#dc3545;"></i>
-  </a>
-<?php } else { ?>
-  <span style="color:#aaa;">Belum upload</span>
-<?php } ?>
 
+        <!-- === UBAH HANYA BAGIAN INI: MK dikontrak (inline koma di desktop, per baris di mobile) === -->
+        <td data-label="MK dikontrak" class="col-mk">
+          <?php
+            $mkList = array_filter(array_map('trim', explode(',', (string)($row['mk_dikontrak'] ?? ''))));
+            foreach ($mkList as $mk) {
+              echo '<span class="mk-item">'.e($mk).'</span>';
+            }
+          ?>
+        </td>
+        <!-- ==================================================================== -->
+
+        <td data-label="Bukti Pembayaran" class="pembayaran-cell">
+          <?php if (!empty($row['bukti_pembayaran'])) { ?>
+            <a href='../../uploads/<?= $row['bukti_pembayaran']; ?>' target='_blank' title="Lihat Bukti">
+              <i class="fa-solid fa-file-arrow-down" style="font-size:20px; color:#dc3545;"></i>
+            </a>
+          <?php } else { ?>
+            <span style="color:#aaa;">Belum upload</span>
+          <?php } ?>
         </td>
         <td data-label="Status" >
           <?php 
@@ -148,32 +171,25 @@ $id_semester_aktif = $semAktif['id'] ?? null;
 <script>
 // DataTables
 $(document).ready(function () {
-    $('#tabel-validasi').DataTable({
-      "pageLength": 10,
-      "lengthMenu": [5, 10, 25, 50],
-      "columnDefs": [{
-        "orderable": false,"targets": 7 }],
-      "language": {
-        "decimal": "",
-        "emptyTable": "Tidak ada data tersedia",
-        "info": "Menampilkan _START_ sampai _END_ dari _TOTAL_ data",
-        "infoEmpty": "Menampilkan 0 sampai 0 dari 0 data",
-        "infoFiltered": "(disaring dari _MAX_ data total)",
-        "lengthMenu": "Tampilkan _MENU_ data",
-        "loadingRecords": "Memuat...",
-        "processing": "Sedang diproses...",
-        "search": "Cari:",
-        "zeroRecords": "Tidak ditemukan data yang sesuai",
-        "paginate": {
-          "first": "Pertama",
-          "last": "Terakhir",
-          "next": "Berikutnya",
-          "previous": "Sebelumnya"
-        }
-      }
-    });
+  $('#tabel-validasi').DataTable({
+    "pageLength": 10,
+    "lengthMenu": [5, 10, 25, 50],
+    "columnDefs": [{"orderable": false,"targets": 7 }],
+    "language": {
+      "decimal": "",
+      "emptyTable": "Tidak ada data tersedia",
+      "info": "Menampilkan _START_ sampai _END_ dari _TOTAL_ data",
+      "infoEmpty": "Menampilkan 0 sampai 0 dari 0 data",
+      "infoFiltered": "(disaring dari _MAX_ data total)",
+      "lengthMenu": "Tampilkan _MENU_ data",
+      "loadingRecords": "Memuat...",
+      "processing": "Sedang diproses...",
+      "search": "Cari:",
+      "zeroRecords": "Tidak ditemukan data yang sesuai",
+      "paginate": { "first": "Pertama","last": "Terakhir","next": "Berikutnya","previous": "Sebelumnya" }
+    }
   });
-
+});
 
 function ubahStatus(id, aksi){
   let pesan = (aksi == 'setujui') ? 'Apakah Anda yakin ingin menyetujui pendaftaran ini?' : 'Apakah Anda yakin ingin menolak pendaftaran ini?';
