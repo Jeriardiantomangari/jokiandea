@@ -28,7 +28,7 @@ function flash_show(){
 
 // ===== Akses: hanya dosen =====
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'dosen') {
-  header("Location: ../login.php", true, 303); exit;
+  header("Location: ../index.php", true, 303); exit;
 }
 
 // ===== Data dosen & semester aktif =====

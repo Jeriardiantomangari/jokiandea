@@ -5,7 +5,7 @@ include '../../koneksi/koneksi.php';
 
 // Cek role admin
 if(!isset($_SESSION['role']) || strtolower($_SESSION['role']) != 'admin'){
-  header("Location: ../login.php"); exit;
+   header("Location: ../index.php"); exit;
 }
 
 // Helper agar aman tampilkan teks
@@ -147,7 +147,7 @@ function e($v){ return htmlspecialchars((string)($v ?? ''), ENT_QUOTES, 'UTF-8')
         <input type="password" name="password" id="password" placeholder="••••••••">
         <i id="togglePassword" class="fa-solid fa-eye"></i>
       </div>
-      <div class="tip">Klik ikon mata untuk melihat / menyembunyikan password.</div>
+    
 
       <label><b>Role</b></label>
       <select name="role" id="role" required>

@@ -5,10 +5,8 @@ include '../../koneksi/sidebar.php';
 
 // Cek role
 if(!isset($_SESSION['role']) || $_SESSION['role'] != 'admin'){
-    header("Location: ../login.php");
-    exit;
+   header("Location: ../index.php"); exit;
 }
-
 // helper aman untuk echo
 function e($v){ return htmlspecialchars((string)($v ?? ''), ENT_QUOTES, 'UTF-8'); }
 
@@ -240,31 +238,43 @@ function tambahJadwal() {
   $('#modalJadwal').css('display','flex');
 }
 
+// === PERBAIKAN MINIMAL DI SINI ===
 function editJadwal(id) {
-  $.post('proses_jadwal.php', {aksi:'ambil',id:id}, function(data){
-    let obj = {};
-    try { obj = JSON.parse(data); } catch(e){ alert('Gagal memuat data'); return; }
+  $.ajax({
+    url: 'proses_jadwal.php',
+    type: 'POST',
+    dataType: 'json',
+    data: { aksi:'ambil', id:id },
+    success: function(obj){
+      if (obj && obj.error) {
+        alert(obj.error);
+        return;
+      }
+      $('#judulModal').text('Edit Jadwal Praktikum');
+      $('#idJadwal').val(obj.id || '');
+      $('#idMK').val(obj.id_mk || '');
+      $('#idDosen').val(obj.id_dosen || '');
+      $('#idRuangan').val(obj.id_ruangan || '');
 
-    $('#judulModal').text('Edit Jadwal Praktikum');
-    $('#idJadwal').val(obj.id);
-    $('#idMK').val(obj.id_mk);
-    $('#idDosen').val(obj.id_dosen);
-    $('#idRuangan').val(obj.id_ruangan);
+      const mapHari = {
+        'senin':'Senin','selasa':'Selasa','rabu':'Rabu','kamis':'Kamis',
+        'jumat':'Jumat',"jum'at":'Jumat','sabtu':'Sabtu','minggu':'Minggu'
+      };
+      const hariNorm = (obj.hari || '').toString().trim().toLowerCase();
+      $('#hari').val(mapHari[hariNorm] || obj.hari || '');
 
-    const mapHari = {
-      'senin':'Senin','selasa':'Selasa','rabu':'Rabu','kamis':'Kamis',
-      'jumat':'Jumat',"jum'at":'Jumat','sabtu':'Sabtu','minggu':'Minggu'
-    };
-    const hariNorm = (obj.hari || '').toString().trim().toLowerCase();
-    $('#hari').val(mapHari[hariNorm] || obj.hari || '');
+      if (obj.jam_mulai)  $('#jamMulai').val(obj.jam_mulai.substring(0,5));
+      if (obj.jam_selesai)$('#jamSelesai').val(obj.jam_selesai.substring(0,5));
 
-    if (obj.jam_mulai)  $('#jamMulai').val(obj.jam_mulai.substring(0,5));
-    if (obj.jam_selesai)$('#jamSelesai').val(obj.jam_selesai.substring(0,5));
-
-    $('#kuota').val(obj.kuota_awal); 
-    $('#modalJadwal').css('display','flex');
+      $('#kuota').val(obj.kuota_awal || obj.kuota || 1); 
+      $('#modalJadwal').css('display','flex');
+    },
+    error: function(){
+      alert('Gagal memuat data');
+    }
   });
 }
+// === AKHIR PERBAIKAN ===
 
 function hapusJadwal(id){
   if(confirm('Apakah Anda yakin ingin menghapus data ini?')){

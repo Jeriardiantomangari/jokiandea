@@ -6,7 +6,7 @@ include '../../koneksi/koneksi.php';
 
 // Validasi role (dosen)
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'dosen') {
-  header("Location: ../login.php"); exit;
+  header("Location: ../index.php"); exit;
 }
 
 // Helper escape HTML

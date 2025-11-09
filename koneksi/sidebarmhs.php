@@ -218,7 +218,7 @@ $halaman = basename($_SERVER['PHP_SELF']);
    document.getElementById("keluar").addEventListener("click", () => {
     const yakin = confirm("Apakah Anda yakin ingin keluar ?");
     if (yakin) {
-      window.location.href = "../../login.html";
+      window.location.href = "../../index.php";
     }
   });
   </script>

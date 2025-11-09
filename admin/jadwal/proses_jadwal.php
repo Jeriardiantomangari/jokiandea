@@ -2,25 +2,30 @@
 session_start();
 include '../../koneksi/koneksi.php';
 
-header('Content-Type: text/plain; charset=utf-8');
+// === PERBAIKAN MINIMAL: HAPUS header text/plain GLOBAL ===
+// header('Content-Type: text/plain; charset=utf-8');
 
 if(!isset($_SESSION['role']) || $_SESSION['role'] != 'admin'){
-    echo "error|Akses ditolak!";
+    // === PERBAIKAN: balas JSON agar AJAX dataType:'json' tidak gagal ===
+    header('Content-Type: application/json; charset=utf-8');
+    echo json_encode(["error" => "Akses ditolak!"]);
     exit;
 }
 
 $aksi = $_POST['aksi'] ?? '';
 
 if($aksi === 'ambil') {
+    // === PERBAIKAN: pastikan kirim JSON murni ===
+    header('Content-Type: application/json; charset=utf-8');
     $id = (int)($_POST['id'] ?? 0);
     $q = mysqli_query($conn,"SELECT * FROM jadwal_praktikum WHERE id='$id'");
-    $data = mysqli_fetch_assoc($q);
-    header('Content-Type: application/json');
-    echo json_encode($data ?: []);
+    $data = $q ? mysqli_fetch_assoc($q) : null;
+    echo json_encode($data ?: (object)[]);
     exit;
 }
 
 if($aksi === 'hapus') {
+    header('Content-Type: text/plain; charset=utf-8');
     $id = (int)($_POST['id'] ?? 0);
     if(!$id){ echo "error|ID tidak valid"; exit; }
 
@@ -31,6 +36,7 @@ if($aksi === 'hapus') {
 }
 
 // default: simpan (insert/update)
+header('Content-Type: text/plain; charset=utf-8');
 $id         = (int)($_POST['id'] ?? 0);
 $id_mk      = (int)($_POST['id_mk'] ?? 0);
 $id_dosen   = (int)($_POST['id_dosen'] ?? 0);

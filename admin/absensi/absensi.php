@@ -6,7 +6,7 @@ include '../../koneksi/koneksi.php';
 
 // ====== Validasi role: Admin (case-insensitive) ======
 if (!isset($_SESSION['role']) || strcasecmp($_SESSION['role'], 'Admin') !== 0) {
-  header("Location: ../login.php"); exit;
+  header("Location: ../index.php"); exit;
 }
 
 // ====== Helper escape HTML ======

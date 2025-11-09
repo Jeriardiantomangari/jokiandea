@@ -5,7 +5,7 @@ include '../../koneksi/sidebardosen.php';
 include '../../koneksi/koneksi.php';
 
 // Akses: hanya dosen
-if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'dosen') { header("Location: ../login.php"); exit; }
+if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'dosen') { header("Location: ../index.php"); exit; }
 function e($v){ return htmlspecialchars((string)($v ?? ''), ENT_QUOTES, 'UTF-8'); }
 
 // ✅ gunakan ID dari tabel `dosen`, bukan `users`

@@ -5,7 +5,7 @@ include '../../koneksi/koneksi.php';
 
 // Validasi role pengguna (mahasiswa)
 if(!isset($_SESSION['role']) || $_SESSION['role'] != 'mahasiswa'){
-    header("Location: ../login.php");
+    header("Location: ../index.php");
     exit;
 }
 

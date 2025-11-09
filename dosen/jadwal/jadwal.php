@@ -5,7 +5,7 @@ include '../../koneksi/sidebardosen.php';
 include '../../koneksi/koneksi.php';
 
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'dosen') {
-  header("Location: ../login.php"); exit;
+  header("Location: ../index.php"); exit;
 }
 
 

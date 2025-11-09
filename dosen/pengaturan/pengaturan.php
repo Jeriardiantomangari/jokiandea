@@ -5,7 +5,7 @@ include '../../koneksi/koneksi.php';
 
 // Wajib: hanya dosen
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'dosen') {
-  header("Location: ../login.php"); exit;
+  header("Location: ../index.php"); exit;
 }
 
 function e($v){ return htmlspecialchars((string)($v ?? ''), ENT_QUOTES, 'UTF-8'); }

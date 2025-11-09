@@ -5,8 +5,7 @@ include '../../koneksi/sidebar.php';
 
 // Cek role
 if(!isset($_SESSION['role']) || $_SESSION['role'] != 'admin'){
-    header("Location: ../login.php");
-    exit;
+  header("Location: ../index.php"); exit;
 }
 
 // helper aman untuk echo

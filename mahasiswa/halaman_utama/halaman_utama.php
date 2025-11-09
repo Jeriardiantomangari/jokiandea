@@ -4,7 +4,7 @@ include '../../koneksi/sidebarmhs.php';
 include '../../koneksi/koneksi.php';
 
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'mahasiswa') {
-  header("Location: ../login.php"); exit;
+  header("Location: ../index.php"); exit;
 }
 
 function e($v){ return htmlspecialchars((string)($v ?? ''), ENT_QUOTES, 'UTF-8'); }
