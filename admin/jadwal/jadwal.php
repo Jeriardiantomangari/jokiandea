@@ -28,44 +28,180 @@ $id_semester_aktif = $semAktif['id'] ?? null;
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
   <style>
-  .konten-utama { margin-left:250px; margin-top:60px; padding:30px; min-height:calc(100vh - 60px); background:#f9f9f9; font-family:Arial,sans-serif; }
-  .konten-utama h2 { margin-bottom:10px; color:#333; }
-  .info-sem{ padding:10px 12px; border-radius:8px; margin:8px 0; background:#fff; border:1px solid #e5e7eb; }
-  .info-aktif { color: #333 }
-  .info-none { color: #333}
+  .konten-utama {
+     margin-left:250px; 
+     margin-top:60px; 
+     padding:30px; 
+     min-height:calc(100vh - 60px); 
+     background:#f9f9f9; 
+     font-family:Arial,sans-serif; }
 
-  .tombol { border:none; border-radius:5px; cursor:pointer; color:white; font-size:12px; transition:0.3s; }
-  .tombol:hover { opacity:0.9; }
-  .tombol[disabled] { opacity:0.5; cursor:not-allowed; }
-  .tombol-edit { background:#007bff; width:70px; margin-bottom:5px; padding:6px 10px; }
-  .tombol-hapus { background:#dc3545; width:70px; padding:6px 10px; }
-  .tombol-tambah { background:#00b4ff; margin-bottom:10px; padding:8px 15px; }
+  .konten-utama h2 {
+     margin-bottom:10px; 
+     color:#333; }
+  .info-sem{ 
+    padding:10px 12px; 
+    border-radius:8px; 
+    margin:8px 0; 
+    background:#fff; 
+    border:1px solid #e5e7eb; }
+
+  .info-aktif { 
+    color: #333 }
+  .info-none { 
+    color: #333}
+
+  .tombol { 
+    border:none; 
+    border-radius:5px; 
+    cursor:pointer; 
+    color:white; 
+    font-size:12px; 
+    transition:0.3s; }
+
+  .tombol:hover { 
+    opacity:0.9; }
+
+  .tombol[disabled] { 
+    opacity:0.5; 
+    cursor:not-allowed; }
+
+  .tombol-edit { 
+    background:#007bff;
+    width:70px; 
+    margin-bottom:5px; 
+    padding:6px 10px; }
+
+  .tombol-hapus { 
+    background:#dc3545; 
+    width:70px; 
+    padding:6px 10px; }
+
+  .tombol-tambah { 
+    background:#00b4ff; 
+    margin-bottom:10px; 
+    padding:8px 15px; }
 
   .dataTables_wrapper .dataTables_filter input,
-  .dataTables_wrapper .dataTables_length select { padding:6px 10px; border-radius:5px; border:1px solid #ccc; font-size:14px; margin-bottom:5px; }
-  .tabel-jadwal { width:100%; border-collapse:collapse; background:white; border-radius:10px; overflow:hidden; box-shadow:0 2px 6px rgba(0,0,0,0.1); table-layout:fixed; }
-  .tabel-jadwal th { background:#00AEEF; color:#333; text-align:left; padding:12px 15px; }
-  .tabel-jadwal td { padding:12px 15px; border-bottom:1px solid #ddd; border-right:1px solid #ddd; }
-  .tabel-jadwal tr:hover { background:#f1f1f1; }
+  .dataTables_wrapper .dataTables_length select { 
+    padding:6px 10px; 
+    border-radius:5px; 
+    border:1px solid #ccc; 
+    font-size:14px; 
+    margin-bottom:5px; }
 
-  .kotak-modal { display:none; position:fixed; z-index:300; left:0; top:0; width:100%; height:100vh; background:rgba(0,0,0,0.6); justify-content:center; align-items:center; }
-  .isi-modal { background:white; padding:25px; border-radius:10px; width:450px; max-width:90%; box-shadow:0 5px 15px rgba(0,0,0,.3); text-align:center; position:relative; }
-  .isi-modal h3 { margin-bottom:20px; }
-  .isi-modal input, .isi-modal select { width:100%; padding:10px; margin:5px 0; border:1px solid #ccc; border-radius:6px; }
-  .isi-modal button { width:100%; padding:10px; border:none; border-radius:6px; background:#007bff; color:white; font-weight:600; cursor:pointer; margin-top:10px; }
-  .isi-modal button:hover { background:#005fc3; }
-  .tutup-modal { position:absolute; top:15px; right:15px; cursor:pointer; font-size:18px; color:#666; }
-  .tutup-modal:hover { color:black; }
+  .tabel-jadwal { 
+    width:100%; 
+    border-collapse:collapse; 
+    background:white; 
+    border-radius:10px; 
+    overflow:hidden; 
+    box-shadow:0 2px 6px rgba(0,0,0,0.1); 
+    table-layout:fixed; }
+
+  .tabel-jadwal th { 
+    background:#00AEEF; 
+    color:#333; 
+    text-align:left; 
+    padding:12px 15px; }
+
+  .tabel-jadwal td { 
+    padding:12px 15px; 
+    border-bottom:1px solid #ddd;
+    border-right:1px solid #ddd; }
+
+  .tabel-jadwal tr:hover { 
+    background:#f1f1f1; }
+
+  .kotak-modal { 
+    display:none; 
+    position:fixed; 
+    z-index:300; 
+    left:0; 
+    top:0; 
+    width:100%; 
+    height:100vh; 
+    background:rgba(0,0,0,0.6); 
+    justify-content:center; 
+    align-items:center; }
+
+  .isi-modal { 
+    background:white; 
+    padding:25px; 
+    border-radius:10px; 
+    width:450px; 
+    max-width:90%; 
+    box-shadow:0 5px 15px rgba(0,0,0,.3); 
+    text-align:center; 
+    position:relative; }
+
+  .isi-modal h3 { 
+    margin-bottom:20px; }
+
+  .isi-modal input, .isi-modal select { 
+    width:100%; 
+    padding:10px; 
+    margin:5px 0; 
+    border:1px solid #ccc; 
+    border-radius:6px; }
+
+  .isi-modal button { 
+    width:100%; 
+    padding:10px; 
+    border:none; 
+    border-radius:6px; 
+    background:#007bff; 
+    color:white; 
+    font-weight:600; 
+    cursor:pointer; 
+    margin-top:10px; }
+
+  .isi-modal button:hover { 
+    background:#005fc3; }
+  .tutup-modal { 
+    position:absolute; 
+    top:15px; 
+    right:15px; 
+    cursor:pointer; 
+    font-size:18px; 
+    color:#666; }
+  .tutup-modal:hover {
+    color:black; }
 
   @media screen and (max-width: 768px) {
-      .konten-utama { margin-left:0; padding:20px; width:100%; text-align:center; }
-      .konten-utama h2 { text-align:center; }
-      .tabel-data, thead, tbody, th, td, tr { display:block; }
-      thead tr { display:none; }
-      tr { margin-bottom:15px; border-bottom:2px solid #000; }
-      td { text-align:right; padding-left:50%; position:relative; }
-      td::before { content: attr(data-label); position:absolute; left:15px; width:45%; font-weight:bold; text-align:left; }
-      .tombol-tambah { width:auto; padding:6px 10px; display:inline-block; margin:3px 2px; }
+      .konten-utama { 
+        margin-left:0; 
+        padding:20px; 
+        width:100%; 
+        text-align:center; }
+
+      .konten-utama h2 { 
+        text-align:center; }
+      .tabel-data, thead, tbody, th, td, tr { 
+        display:block; }
+      thead tr { 
+        display:none; }
+      tr { 
+        margin-bottom:15px; 
+        border-bottom:2px solid #000; }
+
+      td { 
+        text-align:right; 
+        padding-left:50%; 
+        position:relative; }
+
+      td::before { 
+        content: attr(data-label); 
+        position:absolute; 
+        left:15px; width:45%; 
+        font-weight:bold; 
+        text-align:left; }
+
+      .tombol-tambah { 
+        width:auto; 
+        padding:6px 10px; 
+        display:inline-block; 
+        margin:3px 2px; }
   }
   </style>
 </head>
@@ -238,7 +374,6 @@ function tambahJadwal() {
   $('#modalJadwal').css('display','flex');
 }
 
-// === PERBAIKAN MINIMAL DI SINI ===
 function editJadwal(id) {
   $.ajax({
     url: 'proses_jadwal.php',
@@ -274,7 +409,6 @@ function editJadwal(id) {
     }
   });
 }
-// === AKHIR PERBAIKAN ===
 
 function hapusJadwal(id){
   if(confirm('Apakah Anda yakin ingin menghapus data ini?')){

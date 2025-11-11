@@ -8,7 +8,6 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'dosen') {
   header("Location: ../index.php"); exit;
 }
 
-
 function e($v){ return htmlspecialchars((string)($v ?? ''), ENT_QUOTES, 'UTF-8'); }
 
 // Identitas dosen 
@@ -49,7 +48,12 @@ $id_semester_aktif = $semAktif['id'] ?? null;
       color: #333;
     }
 
-       .kotak-info{ padding:10px 12px; border-radius:8px; margin:8px 0; background:#fff; border:1px solid #e5e7eb; }
+    .kotak-info{ 
+      padding:10px 12px; 
+      border-radius:8px; 
+      margin:8px 0; 
+      background:#fff; 
+      border:1px solid #e5e7eb; }
 
     .info-berhasil {
       color: #333;

@@ -8,10 +8,9 @@ if(!isset($_SESSION['role']) || $_SESSION['role'] != 'admin'){
   header("Location: ../index.php"); exit;
 }
 
-// helper aman untuk echo
 function e($v){ return htmlspecialchars((string)($v ?? ''), ENT_QUOTES, 'UTF-8'); }
 
-// Ambil ID semester aktif (jika ada)
+// Ambil ID semester aktif 
 $rsSem = mysqli_query($conn, "SELECT id, nama_semester, tahun_ajaran FROM semester WHERE status='Aktif' LIMIT 1");
 $semAktif = mysqli_fetch_assoc($rsSem);
 $id_semester_aktif = $semAktif['id'] ?? null;
@@ -25,13 +24,35 @@ $id_semester_aktif = $semAktif['id'] ?? null;
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
 <style>
-.konten-utama { margin-left:250px; margin-top:60px; padding:30px; background:#f9f9f9; font-family:Arial,sans-serif; }
-.tombol { border:none; border-radius:5px; cursor:pointer; color:white; font-size:12px; transition:0.3s; padding:6px 10px; }
-.tombol:hover { opacity:0.85; }
+.konten-utama {
+   margin-left:250px; 
+   margin-top:60px; 
+   padding:30px; 
+   background:#f9f9f9; 
+   font-family:Arial,sans-serif; }
 
-.info-sem{ padding:10px 12px; border-radius:8px; margin:8px 0; background:#fff; border:1px solid #e5e7eb; }
-.info-aktif { color: #333 }
-.info-none { color: #333}
+.tombol { 
+  border:none; 
+  border-radius:5px; 
+  cursor:pointer; 
+  color:white; 
+  font-size:12px; 
+  transition:0.3s; 
+  padding:6px 10px; }
+.tombol:hover { 
+  opacity:0.85; }
+
+.info-sem{ 
+  padding:10px 12px; 
+  border-radius:8px; 
+  margin:8px 0; 
+  background:#fff; 
+  border:1px solid #e5e7eb; }
+
+.info-aktif { 
+  color: #333 }
+.info-none { 
+  color: #333}
 
 .tombol-setujui {
   background-color: #28a745;
@@ -44,24 +65,47 @@ $id_semester_aktif = $semAktif['id'] ?? null;
   width: 80px;
 }
 .dataTables_wrapper .dataTables_filter input,
-.dataTables_wrapper .dataTables_length select { padding:6px 10px; border-radius:5px; border:1px solid #ccc; font-size:14px; margin-bottom:5px; }
+.dataTables_wrapper .dataTables_length select { 
+  padding:6px 10px; 
+  border-radius:5px; 
+  border:1px solid #ccc; 
+  font-size:14px; 
+  margin-bottom:5px; }
 
-.tabel-data { width:100%; border-collapse:collapse; background:white; border-radius:10px; overflow:hidden; box-shadow:0 2px 6px rgba(0,0,0,0.1); table-layout:fixed; }
-.tabel-data th { background:#00AEEF; color:#333; text-align:left; padding:12px 15px; }
-.tabel-data td { padding:12px 15px; border-bottom:1px solid #ddd; border-right:1px solid #ddd; }
-.tabel-data tr:hover { background:#f1f1f1; }
+.tabel-data { 
+  width:100%; 
+  border-collapse:collapse; 
+  background:white; 
+  border-radius:10px; 
+  overflow:hidden; 
+  box-shadow:0 2px 6px rgba(0,0,0,0.1); 
+  table-layout:fixed; }
 
-/* ====== Tambahan khusus kolom MK dikontrak (desktop & mobile) ====== */
+.tabel-data th { 
+  background:#00AEEF; 
+  color:#333; 
+  text-align:left; 
+  padding:12px 15px; }
+
+.tabel-data td { 
+  padding:12px 15px; 
+  border-bottom:1px solid #ddd; 
+  border-right:1px solid #ddd; }
+
+.tabel-data tr:hover { 
+  background:#f1f1f1; }
+
 .tabel-data td.col-mk{
-  max-width:260px;         /* cegah kolom melebar */
+  max-width:260px;         
   white-space:normal;
   word-break:break-word;
 }
-/* Desktop: inline dengan koma */
-.col-mk .mk-item{ display:inline; }
-.col-mk .mk-item::after{ content:", "; }
-.col-mk .mk-item:last-child::after{ content:""; }
-/* ================================================================ */
+.col-mk .mk-item{ 
+  display:inline; }
+.col-mk .mk-item::after{ 
+  content:", "; }
+.col-mk .mk-item:last-child::after{ 
+  content:""; }
 
 .pembayaran-cell { text-align: center; }
 .pembayaran-cell a i { font-size: 30px !important; }
@@ -78,13 +122,15 @@ $id_semester_aktif = $semAktif['id'] ?? null;
   .tombol-edit, .tombol-hapus { width:auto; padding:6px 10px; display:inline-block; margin:3px 2px; }
   .pembayaran-cell { text-align: right; }
 
-  /* Mobile: rapatkan label-isi & tampil per baris, tanpa koma */
+
   .tabel-data td.col-mk{ 
-    padding-left:40%;     /* rapatkan dari 50% -> 40% (ubah sesuai selera) */
+    padding-left:40%;    
     text-align:right;
   }
-  .col-mk .mk-item{ display:block; }     /* per baris */
-  .col-mk .mk-item::after{ content:""; } /* hilangkan koma */
+  .col-mk .mk-item{ 
+    display:block; }      
+  .col-mk .mk-item::after{ 
+    content:""; } 
 }
 </style>
 
@@ -126,7 +172,6 @@ $id_semester_aktif = $semAktif['id'] ?? null;
         <td data-label="Nama"><?= htmlspecialchars($row['nama']); ?></td>
         <td data-label="Nomor Hp"><?= htmlspecialchars($row['no_hp']); ?></td>
 
-        <!-- === UBAH HANYA BAGIAN INI: MK dikontrak (inline koma di desktop, per baris di mobile) === -->
         <td data-label="MK dikontrak" class="col-mk">
           <?php
             $mkList = array_filter(array_map('trim', explode(',', (string)($row['mk_dikontrak'] ?? ''))));
@@ -135,7 +180,6 @@ $id_semester_aktif = $semAktif['id'] ?? null;
             }
           ?>
         </td>
-        <!-- ==================================================================== -->
 
         <td data-label="Bukti Pembayaran" class="pembayaran-cell">
           <?php if (!empty($row['bukti_pembayaran'])) { ?>

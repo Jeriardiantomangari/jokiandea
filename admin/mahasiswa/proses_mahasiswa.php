@@ -12,15 +12,13 @@ if ($aksi == 'ambil') {
 elseif ($aksi == 'hapus') {
     $id = intval($_POST['id']);
     mysqli_query($conn, "DELETE FROM mahasiswa WHERE id=$id");
-    // (Opsional) jika ingin hapus user terkait juga, aktifkan ini:
-    // mysqli_query($conn, "DELETE u FROM users u JOIN mahasiswa m ON m.user_id = u.id WHERE m.id=$id");
     exit;
 }
 else {
     $id            = intval($_POST['id']);
     $nim           = mysqli_real_escape_string($conn, $_POST['nim']);
     $nama          = mysqli_real_escape_string($conn, $_POST['nama']);
-    $jurusan       = mysqli_real_escape_string($conn, $_POST['jurusan']); // Farmasi / Analis Kesehatan
+    $jurusan       = mysqli_real_escape_string($conn, $_POST['jurusan']);
     $jenis_kelamin = mysqli_real_escape_string($conn, $_POST['jenis_kelamin']);
     $alamat        = mysqli_real_escape_string($conn, $_POST['alamat']);
     $no_hp         = mysqli_real_escape_string($conn, $_POST['no_hp']);

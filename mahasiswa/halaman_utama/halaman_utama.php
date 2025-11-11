@@ -109,42 +109,189 @@ if ($id_mhs > 0 && $id_sem_aktif > 0) {
   <title>Beranda Mahasiswa</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <style>
-    body { margin:0; font-family: Arial, sans-serif; background:#f5f6fa }
-    .bungkus { margin-left:250px; margin-top:60px; padding:20px; min-height:calc(100vh - 60px) }
-    h2 { margin:0 0 8px; color:#333 }
-     .halus{ padding:10px 12px; border-radius:8px; margin:0 0 8px; color:#333 ; background:#fff; border:1px solid #e5e7eb; }
+    body { 
+      margin:0; 
+      font-family: Arial, sans-serif; 
+      background:#f5f6fa }
+
+    .bungkus { 
+      margin-left:250px; 
+      margin-top:60px; 
+      padding:20px; 
+      min-height:calc(100vh - 60px) }
+
+    h2 { 
+      margin:0 0 8px; 
+      color:#333 }
+      
+     .halus{ 
+      padding:10px 12px; 
+      border-radius:8px; 
+      margin:0 0 8px; 
+      color:#333 ; 
+      background:#fff; 
+      border:1px solid #e5e7eb; }
   
-    .baris { display:flex; gap:12px; flex-wrap:wrap; margin-top:8px; }
-    .kartu { background:#fff; border-radius:10px; box-shadow:0 2px 8px rgba(0,0,0,.06); padding:16px; }
-    .kartu h4 { margin:0 0 8px; font-size:16px; color:#111 }
-    .aksi-cepat { display:flex; gap:8px; flex-wrap:wrap; }
-    .tombol { display:inline-flex; align-items:center; gap:8px; padding:10px 14px; border-radius:8px; color:black; text-decoration:none; font-weight:600 }
-    .biru { background:#00AEEF } .hijau { background:#10b981 } .kuning { background:#f59e0b }
-    .indikator { display:flex; align-items:center; gap:10px }
-    .indikator .ikon { width:36px; height:36px; border-radius:10px; background:#e6f4ff; display:flex; align-items:center; justify-content:center }
-    .indikator .nilai { font-size:20px; font-weight:800 }
-    .daftar-mini { margin:0; padding:0; list-style:none }
-    .daftar-mini li { padding:8px 0; border-bottom:1px dashed #e2e8f0 }
-    .langkah-langkah { display:grid; grid-template-columns:repeat(5,1fr); gap:10px; counter-reset:stp }
-    .langkah { background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:12px; position:relative }
-    .langkah:before { counter-increment:stp; content:counter(stp); position:absolute; top:-10px; left:-10px; background:#0ea5e9; color:#fff; width:24px; height:24px; border-radius:999px; display:flex; align-items:center; justify-content:center; font-size:12px }
-    .langkah b { display:block; margin-bottom:6px }
+    .baris { 
+      display:flex; 
+      gap:12px; 
+      flex-wrap:wrap; 
+      margin-top:8px; }
+
+    .kartu { 
+      background:#fff; 
+      border-radius:10px; 
+      box-shadow:0 2px 8px rgba(0,0,0,.06); 
+      padding:16px; }
+
+    .kartu h4 { 
+      margin:0 0 8px; 
+      font-size:16px; 
+      color:#111 }
+
+    .aksi-cepat { 
+      display:flex; 
+      gap:8px; 
+      flex-wrap:wrap; }
+
+    .tombol { 
+      display:inline-flex; 
+      align-items:center; 
+      gap:8px; 
+      padding:10px 14px; 
+      border-radius:8px; 
+      color:black; 
+      text-decoration:none; 
+      font-weight:600 }
+
+    .biru { 
+      background:#00AEEF } 
+    .hijau { 
+      background:#10b981 } 
+    .kuning { 
+      background:#f59e0b }
+
+    .indikator { 
+      display:flex; 
+      align-items:center; 
+      gap:10px }
+
+    .indikator .ikon { 
+      width:36px; 
+      height:36px; 
+      border-radius:10px; 
+      background:#e6f4ff; 
+      display:flex; 
+      align-items:center; 
+      justify-content:center }
+
+    .indikator .nilai { 
+      font-size:20px; 
+      font-weight:800 }
+
+    .daftar-mini { 
+      margin:0; 
+      padding:0; 
+      list-style:none }
+
+    .daftar-mini li { 
+      padding:8px 0; 
+      border-bottom:1px dashed #e2e8f0 }
+
+    .langkah-langkah { 
+      display:grid; 
+      grid-template-columns:repeat(5,1fr); 
+      gap:10px; 
+      counter-reset:stp }
+
+    .langkah { 
+      background:#f8fafc; 
+      border:1px solid #e2e8f0; 
+      border-radius:10px; 
+      padding:12px; 
+      position:relative }
+
+    .langkah:before {
+       counter-increment:stp; 
+       content:counter(stp); 
+       position:absolute; 
+       top:-10px; 
+       left:-10px; 
+       background:#0ea5e9; 
+       color:#fff; 
+       width:24px; 
+       height:24px; 
+       border-radius:999px; 
+       display:flex; 
+       align-items:center; 
+       justify-content:center; 
+       font-size:12px }
+
+    .langkah b { 
+      display:block; 
+      margin-bottom:6px }
+
     @media screen and (max-width:768px){
-      html,body{ width:100%; overflow-x:hidden; }
+      html,body{ 
+        width:100%; 
+        overflow-x:hidden; }
+
       *{ box-sizing:border-box; }
-      .bungkus{ margin-left:0; padding:16px; min-height:calc(100vh - 60px); }
-      h2{ font-size:20px; }
-      .baris{ flex-direction:column; gap:10px; }
-      .baris>.kartu{ min-width:0!important; width:100%!important; flex:1 1 auto; }
-      .kartu{ padding:12px; border-radius:12px; }
-      .aksi-cepat{ flex-direction:column; gap:10px; }
-      .aksi-cepat .tombol{ width:100%; justify-content:center; padding:12px; font-size:14px; }
-      .indikator{ gap:8px; }
-      .indikator .ikon{ width:32px; height:32px; }
-      .indikator .nilai{ font-size:18px; }
-      .langkah-langkah{ grid-template-columns:1fr; gap:8px; }
-      .langkah{ padding:12px; }
-      .langkah:before{ top:-8px; left:-8px; width:22px; height:22px; font-size:11px; }
+
+      .bungkus{ 
+        margin-left:0; 
+        padding:16px; 
+        min-height:calc(100vh - 60px); }
+
+      h2{ 
+        font-size:20px; }
+
+      .baris{ 
+        flex-direction:column; 
+        gap:10px; }
+
+      .baris>.kartu{ 
+        min-width:0!important; 
+        width:100%!important; 
+        flex:1 1 auto; }
+
+      .kartu{ 
+        padding:12px;
+         border-radius:12px; }
+
+      .aksi-cepat{ 
+        flex-direction:column; 
+        gap:10px; }
+
+      .aksi-cepat .tombol{ 
+        width:100%; 
+        justify-content:center; 
+        padding:12px; 
+        font-size:14px; }
+
+      .indikator{ 
+        gap:8px; }
+
+      .indikator .ikon{
+         width:32px; 
+         height:32px; }
+
+      .indikator .nilai{ 
+        font-size:18px; }
+
+      .langkah-langkah{ 
+        grid-template-columns:1fr; 
+        gap:8px; }
+
+      .langkah{ 
+        padding:12px; }
+
+      .langkah:before{ 
+        top:-8px; 
+        left:-8px; 
+        width:22px; 
+        height:22px; 
+        font-size:11px; }
     }
   </style>
 </head>

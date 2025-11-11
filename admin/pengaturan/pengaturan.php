@@ -8,7 +8,6 @@ if(!isset($_SESSION['role']) || strtolower($_SESSION['role']) != 'admin'){
    header("Location: ../index.php"); exit;
 }
 
-// Helper agar aman tampilkan teks
 function e($v){ return htmlspecialchars((string)($v ?? ''), ENT_QUOTES, 'UTF-8'); }
 
 ?>
@@ -25,66 +24,182 @@ function e($v){ return htmlspecialchars((string)($v ?? ''), ENT_QUOTES, 'UTF-8')
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
 
 <style>
-/* ====== CSS DARI HALAMAN DOSEN (DITERAPKAN KE USERS) ====== */
-.konten-utama { margin-left:250px; margin-top:60px; padding:30px; min-height:calc(100vh - 60px); background:#f9f9f9; font-family:Arial,sans-serif; }
-.konten-utama h2 { margin-bottom:20px; color:#333; }
+.konten-utama { 
+  margin-left:250px; 
+  margin-top:60px; 
+  padding:30px; 
+  min-height:calc(100vh - 60px); 
+  background:#f9f9f9; 
+  font-family:Arial,sans-serif; }
 
-.tombol { border:none; border-radius:5px; cursor:pointer; color:white; font-size:10px; transition:0.3s; }
-.tombol:hover { opacity:0.85; }
+.konten-utama h2 {
+  margin-bottom:20px;
+  color:#333; }
+
+.tombol { 
+  border:none; 
+  border-radius:5px; 
+  cursor:pointer; 
+  color:white; 
+  font-size:10px; 
+  transition:0.3s; }
+
+.tombol:hover { 
+  opacity:0.85; }
 .tombol-edit {
   background:#007bff;
   width:60px;
   padding:6px 10px;
-  margin:3px auto;     /* center */
-  display:block;       /* supaya margin auto bekerja */
-  text-align:center;   /* ikon + teks rapi */
+  margin:3px auto;     
+  display:block;       
+  text-align:center;  
 }
 
 .dataTables_wrapper .dataTables_filter input,
-.dataTables_wrapper .dataTables_length select { padding:6px 10px; border-radius:5px; border:1px solid #ccc; font-size:14px; margin-bottom:5px; }
+.dataTables_wrapper .dataTables_length select { 
+  padding:6px 10px; 
+  border-radius:5px; 
+  border:1px solid #ccc; 
+  font-size:14px; 
+  margin-bottom:5px; }
 
-.tabel-dosen { width:100%; border-collapse:collapse; background:white; border-radius:10px; overflow:hidden; box-shadow:0 2px 6px rgba(0,0,0,0.1); table-layout:fixed; }
-.tabel-dosen th { background:#00AEEF; color:#333; text-align:left; padding:12px 15px; }
-.tabel-dosen td { padding:12px 15px; border-bottom:1px solid #ddd; border-right:1px solid #ddd; }
-.tabel-dosen tr:hover { background:#f1f1f1; }
+.tabel-dosen { 
+  width:100%; 
+  border-collapse:collapse; 
+  background:white; 
+  border-radius:10px; 
+  overflow:hidden; 
+  box-shadow:0 2px 6px rgba(0,0,0,0.1); 
+  table-layout:fixed; }
 
-/* Modal (tetap simple seperti versi dosen) */
-.kotak-modal { display:none; position:fixed; z-index:300; left:0; top:0; width:100%; height:100vh; background:rgba(0,0,0,0.6); justify-content:center; align-items:center; }
-.isi-modal { background:white; padding:25px; border-radius:10px; width:400px; max-width:90%; box-shadow:0 5px 15px rgba(0,0,0,.3); position:relative; text-align:center; }
-.isi-modal h3 { margin-bottom:20px; }
-.isi-modal input, .isi-modal select { width:100%; padding:10px; margin:5px 0; border:1px solid #ccc; border-radius:6px; }
-.isi-modal button { width:100%; padding:10px; border:none; border-radius:6px; background:#007bff; color:white; font-weight:600; cursor:pointer; margin-top:10px; }
-.isi-modal button:hover { background:#005fc3; }
-.tutup-modal { position:absolute; top:15px; right:15px; cursor:pointer; font-size:18px; color:#666; }
-.tutup-modal:hover { color:black; }
+.tabel-dosen th { 
+  background:#00AEEF; 
+  color:#333; 
+  text-align:left; 
+  padding:12px 15px; }
 
-/* Tambahan kecil untuk ikon mata di input password (supaya rapi) */
-.password-wrapper { position:relative; }
-.password-wrapper input { padding-right:40px; }
+.tabel-dosen td { 
+  padding:12px 15px; 
+  border-bottom:1px solid #ddd; 
+  border-right:1px solid #ddd; }
+.tabel-dosen tr:hover { 
+  background:#f1f1f1; }
+
+.kotak-modal { 
+  display:none; 
+  position:fixed; 
+  z-index:300; 
+  left:0; 
+  top:0; 
+  width:100%; 
+  height:100vh; 
+  background:rgba(0,0,0,0.6); 
+  justify-content:center; 
+  align-items:center; }
+
+.isi-modal { 
+  background:white; 
+  padding:25px; 
+  border-radius:10px; 
+  width:400px; 
+  max-width:90%; 
+  box-shadow:0 5px 15px rgba(0,0,0,.3); 
+  position:relative; 
+  text-align:center; }
+
+.isi-modal h3 { 
+  margin-bottom:20px; }
+
+.isi-modal input, .isi-modal select { 
+  width:100%; 
+  padding:10px; 
+  margin:5px 0; 
+  border:1px solid #ccc; 
+  border-radius:6px; }
+
+.isi-modal button { 
+  width:100%; 
+  padding:10px; 
+  border:none; 
+  border-radius:6px; 
+  background:#007bff; 
+  color:white; 
+  font-weight:600; 
+  cursor:pointer; 
+  margin-top:10px; }
+
+.isi-modal button:hover { 
+  background:#005fc3; }
+
+.tutup-modal { 
+  position:absolute; 
+  top:15px; 
+  right:15px; 
+  cursor:pointer; 
+  font-size:18px; 
+  color:#666; }
+.tutup-modal:hover { 
+  color:black; }
+
+.password-wrapper { 
+  position:relative; }
+.password-wrapper input { 
+  padding-right:40px; }
 .password-wrapper i {
-  position:absolute; right:12px; top:50%; transform:translateY(-50%);
-  cursor:pointer; color:#666; transition:0.3s;
+  position:absolute;
+  right:12px; 
+  top:50%; 
+  transform:translateY(-50%);
+  cursor:pointer; 
+  color:#666; 
+  transition:0.3s;
+
 }
-.password-wrapper i:hover { color:#007bff; }
+.password-wrapper i:hover { 
+  color:#007bff; }
 
-/* ====== Responsive sama seperti halaman dosen ====== */
+
 @media screen and (max-width: 768px) {
-  .konten-utama { margin-left:0; padding:20px; width:100%; background-color:#f9f9f9; text-align:center; }
-  .konten-utama h2 { text-align:center; }
+  .konten-utama { 
+    margin-left:0; 
+    padding:20px;
+    width:100%; 
+    background-color:#f9f9f9; 
+    text-align:center; }
 
-  .tabel-dosen, thead, tbody, th, td, tr { display:block; }
-  thead tr { display:none; }
+  .konten-utama h2 { 
+    text-align:center; }
 
-  tr { margin-bottom:15px; border-bottom:2px solid #000; }
-  td { text-align:right; padding-left:50%; position:relative; }
-  td::before { content: attr(data-label); position:absolute; left:15px; width:45%; font-weight:bold; text-align:left; }
+  .tabel-dosen, thead, tbody, th, td, tr { 
+    display:block; }
+  thead tr { 
+    display:none; }
+
+  tr { 
+    margin-bottom:15px; 
+    border-bottom:2px solid #000; }
+
+  td { 
+    text-align:right; 
+    padding-left:50%; 
+    position:relative; }
+
+  td::before { 
+    content: attr(data-label); 
+    position:absolute; 
+    left:15px; 
+    width:45%; 
+    font-weight:bold; 
+    text-align:left; }
 
   .tombol-edit {
-    width:auto; padding:6px 10px; display:inline-block; margin:3px 2px; /* seperti dosen */
+    width:auto; 
+    padding:6px 10px; 
+    display:inline-block; 
+    margin:3px 2px; 
   }
 }
 </style>
-
 <div class="konten-utama">
   <h2>Data Pengguna</h2>
 

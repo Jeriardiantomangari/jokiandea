@@ -7,8 +7,6 @@ include '../../koneksi/sidebar.php';
 if (!isset($_SESSION['role']) || strcasecmp($_SESSION['role'], 'Admin') !== 0) {
   header("Location: ../index.php"); exit;
 }
-
-// helper aman untuk echo
 function e($v){ return htmlspecialchars((string)($v ?? ''), ENT_QUOTES, 'UTF-8'); }
 
 // Ambil semester aktif (opsional)
@@ -20,7 +18,7 @@ $semAktif = mysqli_fetch_assoc(
 <html lang="id">
 <head>
   <meta charset="utf-8">
-  <title>Admin - Data Praktikum</title>
+  <title>Data Praktikum</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <!-- DataTables + jQuery -->
@@ -36,59 +34,156 @@ $semAktif = mysqli_fetch_assoc(
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
 
   <style>
-    /* ====== Global & Layout (seragam dgn halaman laporan) ====== */
-    body { font-family: Arial, sans-serif; background:#f9f9f9; }
-    .konten-utama { margin-left:250px; margin-top:60px; padding:30px; min-height:calc(100vh - 60px); background:#f9f9f9; }
-    .konten-utama h2 { margin-bottom:10px; color:#333; }
+    body { 
+      font-family: Arial, sans-serif; 
+      background:#f9f9f9; }
 
-    /* Info box */
-    .kotak-info{ padding:10px 12px; border-radius:8px; margin:8px 0; background:#fff; border:1px solid #e5e7eb; color:#333; }
+    .konten-utama { 
+      margin-left:250px; 
+      margin-top:60px; 
+      padding:30px; 
+      min-height:calc(100vh - 60px); 
+      background:#f9f9f9; }
 
-    /* ====== Panel Filter (seragam) ====== */
+    .konten-utama h2 { 
+      margin-bottom:10px; 
+      color:#333; }
+
+    .kotak-info{ 
+      padding:10px 12px; 
+      border-radius:8px; 
+      margin:8px 0; 
+      background:#fff; 
+      border:1px solid #e5e7eb; 
+      color:#333; }
+
     .filter-panel{
-      background:#fff; border:1px solid #e5e7eb; border-radius:12px;
-      padding:14px 16px; box-shadow:0 2px 6px rgba(0,0,0,.06);
-      display:flex; gap:12px; flex-wrap:wrap; align-items:flex-end; margin:10px 0 14px;
+      background:#fff; 
+      border:1px solid #e5e7eb; 
+      border-radius:12px;
+      padding:14px 16px; 
+      box-shadow:0 2px 6px rgba(0,0,0,.06);
+      display:flex;
+      gap:12px; 
+      flex-wrap:wrap; 
+      align-items:flex-end;
+      margin:10px 0 14px;
     }
-    .field{ display:flex; flex-direction:column; gap:6px; }
-    .field label{ font-weight:700; color:#111827; font-size:14px; }
+    .field{ 
+      display:flex; 
+      flex-direction:column; 
+      gap:6px; }
+    .field label{ 
+      font-weight:700; 
+      color:#111827; 
+      font-size:14px; }
     .select-styled{
-      appearance:none; -webkit-appearance:none; -moz-appearance:none;
-      background:#fff; border:1px solid #cbd5e1; border-radius:10px;
-      padding:10px 42px 10px 12px; font-size:14px; line-height:1.2; min-width:240px; outline:none;
+      appearance:none; 
+      -webkit-appearance:none; 
+      -moz-appearance:none;
+      background:#fff; 
+      border:1px solid #cbd5e1; 
+      border-radius:10px;
+      padding:10px 42px 10px 12px; 
+      font-size:14px; 
+      line-height:1.2; 
+      min-width:240px; 
+      outline:none;
     }
-    .select-styled:hover{ border-color:#94a3b8; }
-    .select-styled:focus{ border-color:#60a5fa; box-shadow:0 0 0 4px rgba(96,165,250,.2); }
+    .select-styled:hover{ 
+      border-color:#94a3b8; }
+    .select-styled:focus{ 
+      border-color:#60a5fa; 
+      box-shadow:0 0 0 4px rgba(96,165,250,.2); }
 
-    .tombol-umum { border:none; border-radius:10px; cursor:pointer; color:white; font-size:13px; transition:.3s; padding:10px 16px; display:inline-flex; gap:8px; align-items:center; }
-    .tombol-umum:hover { opacity:.9; }
-    .tombol-cetak { background:#28a745; }
-    .tombol-umum:disabled { opacity:.6; cursor:not-allowed; }
+    .tombol-umum { 
+      border:none; 
+      border-radius:10px; 
+      cursor:pointer; 
+      color:white; 
+      font-size:13px; 
+      transition:.3s; 
+      padding:10px 16px; 
+      display:inline-flex; 
+      gap:8px; 
+      align-items:center; }
 
-    /* ====== Tabel (seragam) ====== */
-    .tabel-praktikum { width:100%; border-collapse:collapse; background:#fff; border-radius:10px; overflow:hidden; box-shadow:0 2px 6px rgba(0,0,0,0.1); table-layout:fixed; }
-    .tabel-praktikum th { background:#00AEEF; color:#333; text-align:left; padding:12px 15px; white-space:nowrap; }
-    .tabel-praktikum td { padding:12px 15px; border-bottom:1px solid #ddd; }
+    .tombol-umum:hover { 
+      opacity:.9; }
+    .tombol-cetak { 
+      background:#28a745; }
+    .tombol-umum:disabled { 
+      opacity:.6; 
+      cursor:not-allowed; }
 
-    /* DataTables inputs */
+    .tabel-praktikum {
+      width:100%; 
+      border-collapse:collapse; 
+      background:#fff; 
+      border-radius:10px; 
+      overflow:hidden; 
+      box-shadow:0 2px 6px rgba(0,0,0,0.1); 
+      table-layout:fixed; }
+
+    .tabel-praktikum th { 
+      background:#00AEEF; 
+      color:#333; 
+      text-align:left; 
+      padding:12px 15px; 
+      white-space:nowrap; }
+
+    .tabel-praktikum td { 
+      padding:12px 15px; 
+      border-bottom:1px solid #ddd; }
+
     .dataTables_wrapper .dataTables_filter input,
     .dataTables_wrapper .dataTables_length select {
-      padding:6px 10px; border-radius:5px; border:1px solid #ccc; font-size:14px; margin-bottom:5px;
+      padding:6px 10px; 
+      border-radius:5px; 
+      border:1px solid #ccc; 
+      font-size:14px; 
+      margin-bottom:5px;
     }
 
-      /* Responsif */
     @media screen and (max-width: 768px) {
-      .konten-utama { margin-left:0; padding:20px; text-align:center; }
-      .filter-panel { flex-direction:column; align-items:stretch; gap:10px; }
-      .field{ width:100%; }
-      .select-styled{ min-width:unset; width:100%; }
-      .tombol-umum{ width:100%; justify-content:center; }
+      .konten-utama { 
+        margin-left:0; 
+        padding:20px; 
+        text-align:center; }
 
-      .tabel-laporan-absensi, thead, tbody, th, td, tr { display:block; }
-      thead tr { display:none; }
-      tr { margin-bottom:15px; border-bottom:2px solid #000; }
-      td { text-align:right; padding-left:50%; position:relative; }
-      td::before { content: attr(data-label); position:absolute; left:15px; width:45%; font-weight:bold; text-align:left; }
+      .filter-panel { 
+        flex-direction:column; 
+        align-items:stretch; 
+        gap:10px; }
+      .field{ 
+        width:100%; }
+      .select-styled{ 
+        min-width:unset; 
+        width:100%; }
+      .tombol-umum{ 
+        width:100%; 
+        justify-content:center; }
+
+      .tabel-laporan-absensi, thead, tbody, th, td, tr { 
+        display:block; }
+      thead tr { 
+        display:none; }
+      tr { 
+        margin-bottom:15px; 
+        border-bottom:2px solid #000; }
+
+      td { 
+        text-align:right; 
+        padding-left:50%; 
+        position:relative; }
+
+      td::before { 
+        content: attr(data-label); 
+        position:absolute; 
+        left:15px; 
+        width:45%; 
+        font-weight:bold; 
+        text-align:left; }
     }
   </style>
 </head>
@@ -157,8 +252,6 @@ $semAktif = mysqli_fetch_assoc(
   <script>
     // Util waktu
     const hhmm = s => (s||'').toString().slice(0,5);
-
-    // DataTable handle
     let dt;
 
     $(function(){

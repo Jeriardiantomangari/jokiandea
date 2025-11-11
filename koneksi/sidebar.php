@@ -13,7 +13,6 @@ $halaman = basename($_SERVER['PHP_SELF']);
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
   <style>
-  /* === Reset & Font Global === */
 * {
   margin: 0;
   padding: 0;
@@ -28,10 +27,9 @@ body {
   overflow-x: hidden;
 }
 
-/* === MENU SAMPING (gaya dari snippet 1) === */
 .menu-samping {
   width: 250px;
-  background: #00AEEF;           /* biru seperti snippet 1 */
+  background: #00AEEF;          
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -43,68 +41,88 @@ body {
   transition: transform 0.3s ease;
   box-shadow: 0 2px 8px rgba(0,0,0,.25);
 }
-.menu-samping.hidden { transform: translateX(-100%); }
+.menu-samping.hidden { 
+  transform: translateX(-100%); }
 
-/* Foto/logo */
 .bagian-foto {
   width: 100%;
   display: flex;
   flex-direction: column;
-  justify-content: center; align-items: center;
+  justify-content: center; 
+  align-items: center;
   margin-bottom: 30px;
   cursor: pointer;
-  position: relative; text-align: center;
+  position: relative; 
+  text-align: center;
 }
+
 .bagian-foto img {
   width: 100px; height: 100px;
   border-radius: 50%;
   object-fit: cover;
-  display: block; margin: 0 auto;
+  display: block; 
+  margin: 0 auto;
   transition: .3s;
   box-shadow: 0 4px 10px rgba(0,0,0,.25);
 }
 
-/* Daftar menu */
+
 .daftar-menu {
-  display: flex; flex-direction: column;
+  display: flex; 
+  flex-direction: column;
   width: 100%;
   padding-left: 20px;
 }
 .daftar-menu a,
 .menu-item {
-  display: flex; align-items: center; justify-content: flex-start;
+  display: flex; 
+  align-items: center; 
+  justify-content: flex-start;
   text-decoration: none;
-  color: black;                    /* seperti snippet 1 */
+  color: black;                   
   font-weight: bold;
-  font-size: 17px;                 /* seperti snippet 1 */
+  font-size: 17px;               
   padding: 10px 0;
   transition: all .3s ease;
   cursor: pointer;
 }
 .daftar-menu a i,
-.menu-item i:first-child { margin-right: 10px; width: 20px; text-align: center; }
+.menu-item i:first-child { 
+  margin-right: 10px;
+   width: 20px; 
+   text-align: center; }
 
 .daftar-menu a:hover,
 .daftar-menu a.active,
 .menu-item:hover,
 .menu-item.active span {
-  color: #fff;                     /* hover/active putih seperti snippet 1 */
+  color: #fff;                    
   font-weight: bold;
 }
 
-/* Submenu (tetap ada, hanya warna disesuaikan agar kontras) */
-.submenu { display: none; flex-direction: column; margin-left: 30px; }
+.submenu { 
+  display: none; 
+  flex-direction: column; 
+  margin-left: 30px; }
 .submenu a {
-  color: black;                  /* lebih kontras di biru */
-  font-weight: bold; font-size: 14px;
-  padding: 8px 0; text-decoration: none; transition: .3s;
+  color: black;                  
+  font-weight: bold; 
+  font-size: 14px;
+  padding: 8px 0; 
+  text-decoration: none; 
+  transition: .3s;
 }
-.submenu a:hover, .submenu a.active { color: #ffffff; }
-.submenu.active { display: flex; }
-.menu-item .arrow { margin-left: auto; margin-right: 20px; transition: transform .3s; }
-.menu-item.active .arrow { transform: rotate(90deg); }
+.submenu a:hover, .submenu a.active { 
+  color: #ffffff; }
+.submenu.active { 
+  display: flex; }
+.menu-item .arrow { 
+  margin-left: auto; 
+  margin-right: 20px; 
+  transition: transform .3s; }
+.menu-item.active .arrow { 
+  transform: rotate(90deg); }
 
-/* === MENU ATAS (gaya dari snippet 1) === */
 .menu-atas {
       position: fixed;
       top: 0;
@@ -145,7 +163,6 @@ body {
   cursor: pointer;
 }
 
-/* === RESPONSIVE seperti snippet 1 === */
 @media (max-width: 768px) {
   .menu-samping { transform: translateX(-100%); width: 250px; }
   .bagian-foto { margin-top: 80px; margin-bottom: 20px; }

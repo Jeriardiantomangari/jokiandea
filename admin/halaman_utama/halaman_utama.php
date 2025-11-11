@@ -10,7 +10,6 @@ if (!isset($_SESSION['role']) || strcasecmp($_SESSION['role'], 'Admin') !== 0) {
 
 function e($v){ return htmlspecialchars((string)($v ?? ''), ENT_QUOTES, 'UTF-8'); }
 
-// ===================== SEMESTER AKTIF (opsional) =====================
 $semAktif = mysqli_fetch_assoc(
   mysqli_query($conn, "SELECT id, nama_semester, tahun_ajaran FROM semester WHERE status='Aktif' LIMIT 1")
 );
@@ -67,7 +66,7 @@ $mhs_prodi_values   = array_map(fn($k)=>$mhs_by_prodi[$k],   $prodi_labels);
 <html lang="id">
 <head>
   <meta charset="utf-8">
-  <title>Admin - Dashboard</title>
+  <title>Beranda</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <!-- FontAwesome -->
@@ -76,43 +75,121 @@ $mhs_prodi_values   = array_map(fn($k)=>$mhs_by_prodi[$k],   $prodi_labels);
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 
   <style>
-    /* ===================== DASAR ===================== */
-    body { font-family: Arial, sans-serif; background:#f9f9f9; }
-    .konten-utama { margin-left:250px; margin-top:60px; padding:30px; min-height:calc(100vh - 60px); background:#f9f9f9; width:100%; }
-    h2 { margin:0 0 8px; color:#333; }
-    .kotak-info{ padding:10px 12px; border-radius:8px; margin:8px 0 16px; background:#fff; border:1px solid #e5e7eb; color:#333; }
+    body { 
+      font-family: Arial, sans-serif; 
+      background:#f9f9f9; }
 
-    /* ===================== GRID KPI ===================== */
-    .kpi-grid{ display:grid; grid-template-columns: repeat(6, minmax(0,1fr)); gap:12px; margin-bottom:16px; }
+    .konten-utama { 
+      margin-left:250px; 
+      margin-top:60px; 
+      padding:30px; 
+      min-height:calc(100vh - 60px); 
+      background:#f9f9f9; 
+      width:100%; }
 
-    /* Kartu KPI (ikon + teks) */
+    h2 { 
+      margin:0 0 8px; 
+      color:#333; }
+
+    .kotak-info{ 
+      padding:10px 12px; 
+      border-radius:8px; 
+      margin:8px 0 16px; 
+      background:#fff; 
+      border:1px solid #e5e7eb; 
+      color:#333; }
+
+    .kpi-grid{ 
+      display:grid; 
+      grid-template-columns: repeat(6, minmax(0,1fr)); 
+      gap:12px; 
+      margin-bottom:16px; }
+
     .kartu-kpi{
-      background:#fff; border:1px solid #e5e7eb; border-radius:12px; padding:14px; box-shadow:0 2px 6px rgba(0,0,0,.06);
-      display:flex; align-items:center; gap:12px;
+      background:#fff; 
+      border:1px solid #e5e7eb; 
+      border-radius:12px; 
+      padding:14px; 
+      box-shadow:0 2px 6px rgba(0,0,0,.06);
+      display:flex; 
+      align-items:center; 
+      gap:12px;
     }
+
     .ikon-kpi{
-      width:40px; height:40px; display:grid; place-items:center; border-radius:10px;
-      background:#eef2ff; font-size:18px; color:#1f2937; flex:0 0 auto;
+      width:40px; 
+      height:40px; 
+      display:grid; 
+      place-items:center; 
+      border-radius:10px;
+      background:#eef2ff; 
+      font-size:18px; 
+      color:#1f2937; 
+      flex:0 0 auto;
     }
-    .info-kpi{ display:flex; flex-direction:column; }
-    .label-kpi{ color:#6b7280; font-size:12px; }
-    .nilai-kpi{ font-size:22px; font-weight:700; margin-top:2px; color:#111827; }
 
-    /* ===================== PANEL & GRID GRAFIK ===================== */
-    .panel{ background:#fff; border:1px solid #e5e7eb; border-radius:12px; padding:14px; box-shadow:0 2px 6px rgba(0,0,0,.06); }
-    .panel h3{ margin:0 0 10px; font-size:16px; color:#111827; }
-    .grid-grafik{ display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin:6px 0 18px; }
+    .info-kpi{ 
+      display:flex; 
+      flex-direction:column; }
 
-    /* ===================== AKSI CEPAT ===================== */
-    .grid-aksi-cepat{ display:grid; grid-template-columns: repeat(5, minmax(0,1fr)); gap:12px; }
+    .label-kpi{ 
+      color:#6b7280; 
+      font-size:12px; }
+
+    .nilai-kpi{ 
+      font-size:22px; 
+      font-weight:700; 
+      margin-top:2px; 
+      color:#111827; }
+
+    .panel{ 
+      background:#fff; 
+      border:1px solid #e5e7eb; 
+      border-radius:12px;
+      padding:14px; 
+      box-shadow:0 2px 6px rgba(0,0,0,.06); }
+
+    .panel h3{ 
+      margin:0 0 10px; 
+      font-size:16px; 
+      color:#111827; }
+
+    .grid-grafik{ 
+      display:grid; 
+      grid-template-columns: 1fr 1fr; 
+      gap:12px; 
+      margin:6px 0 18px; }
+
+    .grid-aksi-cepat{ 
+      display:grid; 
+      grid-template-columns: repeat(5, minmax(0,1fr)); 
+      gap:12px; }
+
     .tautan-aksi{
-      display:flex; gap:10px; align-items:center; padding:12px; border-radius:12px; border:1px solid #e5e7eb; background:#fff;
-      box-shadow:0 2px 6px rgba(0,0,0,.06); text-decoration:none; color:#111827; transition:.2s;
+      display:flex; 
+      gap:10px; 
+      align-items:center; 
+      padding:12px; 
+      border-radius:12px; 
+      border:1px solid #e5e7eb; 
+      background:#fff;
+      box-shadow:0 2px 6px rgba(0,0,0,.06); 
+      text-decoration:none; 
+      color:#111827; 
+      transition:.2s;
     }
-    .tautan-aksi:hover{ transform: translateY(-2px); }
-    .tautan-aksi i{ width:36px; height:36px; display:grid; place-items:center; background:#eff6ff; border-radius:8px; font-size:16px; }
+    .tautan-aksi:hover{ 
+      transform: translateY(-2px); }
 
-    /* ===================== RESPONSIF (MOBILE) ===================== */
+    .tautan-aksi i{ 
+      width:36px; 
+      height:36px; 
+      display:grid; 
+      place-items:center; 
+      background:#eff6ff; 
+      border-radius:8px; 
+      font-size:16px; }
+
     @media (max-width: 768px){
       .konten-utama{
         margin-left: 0;
@@ -124,30 +201,25 @@ $mhs_prodi_values   = array_map(fn($k)=>$mhs_by_prodi[$k],   $prodi_labels);
 
       }
 
-      .sidebar{ display: none !important; } /* jika ada sidebar fixed */
+      .sidebar{ display: none !important; } 
 
-      /* KPI: 2 kolom */
       .kpi-grid{
         grid-template-columns: repeat(2, 1fr);
         min-width: 0;
       }
 
-      /* Grafik: 1 kolom */
       .grid-grafik{
         grid-template-columns: 1fr;
         min-width: 0;
       }
 
-      /* Aksi cepat: 2 kolom */
       .grid-aksi-cepat{
         grid-template-columns: repeat(2, 1fr);
         min-width: 0;
       }
 
-      /* Pastikan elemen tidak melebar */
       .panel, .kartu-kpi, .tautan-aksi{ min-width: 0; }
 
-      /* Chart responsive */
       .panel canvas, canvas{
         display: block;
         width: 100% !important;
@@ -158,7 +230,7 @@ $mhs_prodi_values   = array_map(fn($k)=>$mhs_by_prodi[$k],   $prodi_labels);
 </head>
 <body>
   <div class="konten-utama">
-    <h2>Dashboard</h2>
+    <h2>Beranda</h2>
 
     <?php if($semAktif): ?>
       <div class="kotak-info">

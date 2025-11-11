@@ -86,7 +86,13 @@ if ($id_semester){
       color: #333;
     }
 
-    .kotak_info{ padding:10px 12px; border-radius:8px; margin:8px 0; background:#fff; border:1px solid #e5e7eb; }
+    .kotak_info{ 
+     padding:10px 12px;
+     border-radius:8px; 
+     margin:8px 0; 
+     background:#fff; 
+     border:1px solid #e5e7eb; 
+    }
 
     .info_sukses {
       color: #333

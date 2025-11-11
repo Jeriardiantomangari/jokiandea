@@ -12,7 +12,7 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'dosen') {
 // Helper escape HTML
 function e($v){ return htmlspecialchars((string)($v ?? ''), ENT_QUOTES, 'UTF-8'); }
 
-// ✅ Ambil identitas dosen dari session (ID tabel `dosen`)
+// Ambil identitas dosen dari session (ID tabel `dosen`)
 $id_dosen = (int)($_SESSION['dosen_id'] ?? 0);
 
 // Semester aktif
@@ -168,73 +168,124 @@ if ($shiftValid) {
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
 
 <style>
-/* Tata letak utama */
-.area-utama { margin-left:250px; margin-top:60px; padding:30px; min-height:calc(100vh - 60px); background:#f9f9f9; font-family:Arial,sans-serif; }
-.area-utama h2 { margin-bottom:10px; color:#333; }
+.area-utama { 
+  margin-left:250px;
+  margin-top:60px; 
+  padding:30px; 
+  min-height:calc(100vh - 60px); 
+  background:#f9f9f9; 
+  font-family:Arial,sans-serif; }
 
-/* Tombol */
-.tombol-umum { border:none; border-radius:5px; cursor:pointer; color:white; font-size:10px; transition:0.3s; }
-.tombol-umum:hover { opacity:0.85; }
-.tombol-cetak { background:#28a745; padding:8px 15px; }
+.area-utama h2 { 
+  margin-bottom:10px; 
+  color:#333; }
 
-/* Komponen DataTables (biarkan kelasnya) */
+.tombol-umum { 
+  border:none; 
+  border-radius:5px; 
+  cursor:pointer; 
+  color:white; 
+  font-size:10px; 
+  transition:0.3s; }
+
+.tombol-umum:hover { 
+  opacity:0.85; }
+.tombol-cetak { 
+  background:#28a745; 
+  padding:8px 15px; }
+
 .dataTables_wrapper .dataTables_filter input,
-.dataTables_wrapper .dataTables_length select { padding:6px 10px; border-radius:5px; border:1px solid #ccc; font-size:14px; margin-bottom:5px; }
+.dataTables_wrapper .dataTables_length select {
+  padding:6px 10px; 
+  border-radius:5px; 
+  border:1px solid #ccc; 
+  font-size:14px; 
+  margin-bottom:5px; }
 
-/* Info */
-.kotak-info{ padding:10px 12px; border-radius:8px; margin:8px 0; background:#fff; border:1px solid #e5e7eb; }
-.info-berhasil{ color: #333 }
-.info-peringatan{  color: #333  }
+.kotak-info{ 
+  padding:10px 12px; 
+  border-radius:8px; 
+  margin:8px 0; 
+  background:#fff; 
+  border:1px solid #e5e7eb; }
 
+.info-berhasil{ 
+  color: #333 }
+.info-peringatan{  
+  color: #333  }
 
+.tabel-laporan-absensi { 
+  width:100%; 
+  border-collapse:collapse; 
+  background:#fff; 
+  border-radius:10px; 
+  overflow:hidden; 
+  box-shadow:0 2px 6px rgba(0,0,0,0.1); 
+  table-layout:fixed; }
 
-/* Tabel */
-.tabel-laporan-absensi { width:100%; border-collapse:collapse; background:#fff; border-radius:10px; overflow:hidden; box-shadow:0 2px 6px rgba(0,0,0,0.1); table-layout:fixed; }
-.tabel-laporan-absensi th { background: #00AEEF; color:#333; text-align:left; padding:12px 15px; white-space:nowrap; }
-.tabel-laporan-absensi td { padding:12px 15px; border-bottom:1px solid #ddd; }
+.tabel-laporan-absensi th { 
+  background: #00AEEF; 
+  color:#333; 
+  text-align:left; 
+  padding:12px 15px; 
+  white-space:nowrap; }
 
-/* ====== TAMBAHAN: Panel Filter (MK & Shift) ====== */
+.tabel-laporan-absensi td { 
+  padding:12px 15px; 
+  border-bottom:1px solid #ddd; }
+
 .filter-panel{
   background:#fff;
-  border:1px solid #e5e7eb;           /* slate-200 */
+  border:1px solid #e5e7eb;        
   border-radius:12px;
   padding:14px 16px;
   box-shadow:0 2px 6px rgba(0,0,0,.06);
-  display:flex; gap:12px; flex-wrap:wrap; align-items:flex-end;
+  display:flex; 
+  gap:12px; 
+  flex-wrap:wrap; 
+  align-items:flex-end;
 }
 
-.field{ display:flex; flex-direction:column; gap:6px; }
-.field label{ font-weight:700; color:#111827; font-size:14px; }
+.field{ 
+  display:flex; 
+  flex-direction:column; 
+  gap:6px; }
+
+.field label{ 
+  font-weight:700; 
+  color:#111827; 
+  font-size:14px; }
 
 .select-styled{
-  appearance:none; -webkit-appearance:none; -moz-appearance:none;
+  appearance:none; 
+  -webkit-appearance:none; 
+  -moz-appearance:none;
   background:#fff;
-  border:1px solid #cbd5e1;           /* slate-300 */
+  border:1px solid #cbd5e1;         
   border-radius:10px;
   padding:10px 42px 10px 12px;
   font-size:14px; line-height:1.2;
   min-width:240px;
   outline:none;
   transition:border-color .2s, box-shadow .2s;
-  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 20 20' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 8 10 12 14 8'/></svg>");
-  background-repeat:no-repeat;
   background-position:right 12px center;
 }
-.select-styled:hover{ border-color:#94a3b8; }          /* slate-400 */
+.select-styled:hover{
+  border-color:#94a3b8; }         
 .select-styled:focus{
-  border-color:#60a5fa;                                 /* blue-400 */
-  box-shadow:0 0 0 4px rgba(96,165,250,.2);             /* focus ring */
+  border-color:#60a5fa;                               
+  box-shadow:0 0 0 4px rgba(96,165,250,.2);            
 }
 .filter-panel .tombol-cetak{
   padding:10px 16px;
   border-radius:10px;
   font-size:13px;
-  display:inline-flex; gap:8px; align-items:center;
+  display:inline-flex; 
+  gap:8px; 
+  align-items:center;
 }
 
-/* ====== Responsif */
 @media screen and (max-width: 768px) {
-  /* Area utama */
   .area-utama {
     margin-left: 0;
     padding: 20px;
@@ -245,24 +296,39 @@ if ($shiftValid) {
     margin-bottom: 12px;
   }
 
-  /* Panel filter jadi vertikal, full width */
   .filter-panel {
     display: flex;
     flex-direction: column;
     align-items: stretch;
     gap: 10px;
   }
-  .field { width: 100%; }
-  .select-styled { min-width: unset; width: 100%; }
-  .filter-panel .tombol-cetak { width: 100%; justify-content: center; }
-
-  /* Tabel responsif — dibatasi ke .tabel-laporan-absensi agar tidak merusak tabel lain */
+  .field { 
+    width: 100%; }
+  .select-styled { 
+    min-width: unset; 
+    width: 100%; }
+  .filter-panel .tombol-cetak { 
+    width: 100%; 
+    justify-content: center; }
    
-.tabel-laporan-absensi, thead, tbody, th, td, tr { display:block; }
-  thead tr { display:none; }
-  tr { margin-bottom:15px; border-bottom:2px solid #000; }
-  td { text-align:right; padding-left:50%; position:relative; }
-  td::before { content: attr(data-label); position:absolute; left:15px; width:45%; font-weight:bold; text-align:left; }
+.tabel-laporan-absensi, thead, tbody, th, td, tr {
+  display:block; }
+  thead tr { 
+    display:none; }
+  tr { 
+    margin-bottom:15px; 
+    border-bottom:2px solid #000; }
+
+  td { 
+    text-align:right; 
+    padding-left:50%; 
+    position:relative; }
+
+  td::before { 
+    content: attr(data-label); 
+    position:absolute; left:15px; 
+    width:45%; font-weight:bold; 
+    text-align:left; }
 }
 </style>
 </head>

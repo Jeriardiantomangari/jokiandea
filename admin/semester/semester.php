@@ -26,18 +26,53 @@ if(!isset($_SESSION['role']) || $_SESSION['role'] != 'admin'){
   background:#f9f9f9;
   font-family:Arial,sans-serif;
 }
-.konten-utama h2 { margin-bottom:20px; color:#333; }
+.konten-utama h2 { 
+  margin-bottom:20px; 
+  color:#333; }
 
-.tombol { border:none; border-radius:5px; cursor:pointer; color:white; font-size:10px; transition:0.3s; }
-.tombol:hover { opacity:0.85; }
-.tombol-edit { background:#007bff; width:60px; margin-bottom:3px; padding:6px 10px; }
-.tombol-hapus { background:#dc3545; width:60px; padding:6px 10px; }
-.tombol-tambah { background:#00b4ff; margin-bottom:10px; padding:8px 15px; }
+.tombol { 
+  border:none; 
+  border-radius:5px; 
+  cursor:pointer; 
+  color:white; 
+  font-size:10px; 
+  transition:0.3s; }
+
+.tombol:hover {
+   opacity:0.85; }
+.tombol-edit { 
+  background:#007bff; 
+  width:60px; 
+  margin-bottom:3px; 
+  padding:6px 10px; }
+
+.tombol-hapus { 
+  background:#dc3545; 
+  width:60px; 
+  padding:6px 10px; }
+
+.tombol-tambah { 
+  background:#00b4ff;
+  margin-bottom:10px; 
+  padding:8px 15px; }
 
 .dataTables_wrapper .dataTables_filter input,
-.dataTables_wrapper .dataTables_length select { padding:6px 10px; border-radius:5px; border:1px solid #ccc; font-size:14px; margin-bottom:5px; }
+.dataTables_wrapper .dataTables_length select { 
+  padding:6px 10px; 
+  border-radius:5px; 
+  border:1px solid #ccc; 
+  font-size:14px; 
+  margin-bottom:5px; }
 
-.tabel-semester { width:100%; border-collapse:collapse; background:white; border-radius:10px; overflow:hidden; box-shadow:0 2px 6px rgba(0,0,0,0.1); table-layout:fixed; }
+.tabel-semester { 
+  width:100%; 
+  border-collapse:collapse; 
+  background:white; 
+  border-radius:10px; 
+  overflow:hidden; 
+  box-shadow:0 2px 6px rgba(0,0,0,0.1); 
+  table-layout:fixed; }
+
 .tabel-semester th {
   background:#00AEEF;
   color:#333;
@@ -68,7 +103,8 @@ if(!isset($_SESSION['role']) || $_SESSION['role'] != 'admin'){
   text-align:center;
   position:relative;
 }
-.isi-modal h3 { margin-bottom:20px; }
+.isi-modal h3 { 
+  margin-bottom:20px; }
 .isi-modal input, .isi-modal select {
   width:100%;
   padding:10px;
@@ -87,7 +123,8 @@ if(!isset($_SESSION['role']) || $_SESSION['role'] != 'admin'){
   cursor:pointer;
   margin-top:10px;
 }
-.isi-modal button:hover { background:#005fc3; }
+.isi-modal button:hover { 
+  background:#005fc3; }
 .tutup-modal {
   position:absolute;
   top:15px;
@@ -98,7 +135,6 @@ if(!isset($_SESSION['role']) || $_SESSION['role'] != 'admin'){
 }
 .tutup-modal:hover { color:black; }
 
-/* Responsive untuk mobile */
   @media screen and (max-width: 768px) {
     .konten-utama {
       margin-left: 0;

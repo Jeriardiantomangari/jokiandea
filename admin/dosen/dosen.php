@@ -7,10 +7,7 @@ if(!isset($_SESSION['role']) || $_SESSION['role'] != 'admin'){
     header("Location: ../index.php"); exit;
 }
 
-
 ?>
-
-
 <!-- CDN jQuery dan DataTables -->
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
@@ -24,34 +21,138 @@ if(!isset($_SESSION['role']) || $_SESSION['role'] != 'admin'){
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
 
 <style>
-/* Styling tetap sama */
-.konten-utama { margin-left:250px; margin-top:60px; padding:30px; min-height:calc(100vh - 60px); background:#f9f9f9; font-family:Arial,sans-serif; }
-.konten-utama h2 { margin-bottom:20px; color:#333; }
-.tombol { border:none; border-radius:5px; cursor:pointer; color:white; font-size:10px; transition:0.3s; }
-.tombol:hover { opacity:0.85; }
-.tombol-edit { background:#007bff; width:60px; margin-bottom:3px; padding:6px 10px; }
-.tombol-hapus { background:#dc3545; width:60px; padding:6px 10px; }
-.tombol-cetak { background:#28a745; margin-right:10px; padding:8px 15px; }
-.tombol-tambah { background:#00b4ff; margin-bottom:10px; padding:8px 15px; }
+.konten-utama { 
+  margin-left:250px; 
+  margin-top:60px; 
+  padding:30px; 
+  min-height:calc(100vh - 60px); 
+  background:#f9f9f9; 
+  font-family:Arial,sans-serif; }
+
+.konten-utama h2 { 
+  margin-bottom:20px; 
+  color:#333; }
+
+.tombol { 
+  border:none; 
+  border-radius:5px; 
+  cursor:pointer; 
+  color:white; 
+  font-size:10px; 
+  transition:0.3s; }
+
+.tombol:hover { 
+  opacity:0.85; }
+
+.tombol-edit { 
+  background:#007bff; 
+  width:60px; 
+  margin-bottom:3px; 
+  padding:6px 10px; }
+
+.tombol-hapus { 
+  background:#dc3545; 
+  width:60px; 
+  padding:6px 10px; }
+
+.tombol-cetak { 
+  background:#28a745; 
+  margin-right:10px; 
+  padding:8px 15px; }
+
+.tombol-tambah { 
+  background:#00b4ff; 
+  margin-bottom:10px; 
+  padding:8px 15px; }
 
 .dataTables_wrapper .dataTables_filter input,
-.dataTables_wrapper .dataTables_length select { padding:6px 10px; border-radius:5px; border:1px solid #ccc; font-size:14px; margin-bottom:5px; }
+.dataTables_wrapper .dataTables_length select { 
+  padding:6px 10px; 
+  border-radius:5px; 
+  border:1px solid #ccc; 
+  font-size:14px; 
+  margin-bottom:5px; }
 
-.tabel-dosen { width:100%; border-collapse:collapse; background:white; border-radius:10px; overflow:hidden; box-shadow:0 2px 6px rgba(0,0,0,0.1); table-layout:fixed; }
-.tabel-dosen th { background:#00AEEF; color:#333; text-align:left; padding:12px 15px; }
-.tabel-dosen td { padding:12px 15px; border-bottom:1px solid #ddd; border-right:1px solid #ddd; }
-.tabel-dosen tr:hover { background:#f1f1f1; }
+.tabel-dosen { 
+  width:100%; 
+  border-collapse:collapse; 
+  background:white; 
+  border-radius:10px; 
+  overflow:hidden; 
+  box-shadow:0 2px 6px rgba(0,0,0,0.1); 
+  table-layout:fixed; }
 
-.kotak-modal { display:none; position:fixed; z-index:300; left:0; top:0; width:100%; height:100vh; background:rgba(0,0,0,0.6); justify-content:center; align-items:center; }
-.isi-modal { background:white; padding:25px; border-radius:10px; width:400px; max-width:90%; box-shadow:0 5px 15px rgba(0,0,0,.3); text-align:center; position:relative; }
-.isi-modal h3 { margin-bottom:20px; }
-.isi-modal input, .isi-modal select { width:100%; padding:10px; margin:5px 0; border:1px solid #ccc; border-radius:6px; }
-.isi-modal button { width:100%; padding:10px; border:none; border-radius:6px; background:#007bff; color:white; font-weight:600; cursor:pointer; margin-top:10px; }
-.isi-modal button:hover { background:#005fc3; }
-.tutup-modal { position:absolute; top:15px; right:15px; cursor:pointer; font-size:18px; color:#666; }
-.tutup-modal:hover { color:black; }
+.tabel-dosen th { 
+  background:#00AEEF; 
+  color:#333; 
+  text-align:left; 
+  padding:12px 15px; }
 
-/* Responsive untuk mobile */
+.tabel-dosen td { 
+  padding:12px 15px; 
+  border-bottom:1px solid #ddd; 
+  border-right:1px solid #ddd; }
+
+.tabel-dosen tr:hover { 
+  background:#f1f1f1; }
+
+.kotak-modal { 
+  display:none; 
+  position:fixed; 
+  z-index:300; 
+  left:0; 
+  top:0; 
+  width:100%; 
+  height:100vh; 
+  background:rgba(0,0,0,0.6); 
+  justify-content:center; 
+  align-items:center; }
+
+.isi-modal { 
+  background:white; 
+  padding:25px; 
+  border-radius:10px; 
+  width:400px; 
+  max-width:90%; 
+  box-shadow:0 5px 15px rgba(0,0,0,.3); 
+  text-align:center; 
+  position:relative; }
+
+.isi-modal h3 { 
+  margin-bottom:20px; }
+
+.isi-modal input, .isi-modal select { 
+  width:100%; 
+  padding:10px; 
+  margin:5px 0; 
+  border:1px solid #ccc; 
+  border-radius:6px; }
+
+.isi-modal button { 
+  width:100%; 
+  padding:10px; 
+  border:none; 
+  border-radius:6px; 
+  background:#007bff; 
+  color:white; 
+  font-weight:600; 
+  cursor:pointer; 
+  margin-top:10px; }
+
+.isi-modal button:hover { 
+  background:#005fc3; }
+
+.tutup-modal { 
+  position:absolute; 
+  top:15px; 
+  right:15px; 
+  cursor:pointer; 
+  font-size:18px; 
+  color:#666; }
+
+.tutup-modal:hover { 
+  color:black; }
+
   @media screen and (max-width: 768px) {
     .konten-utama {
       margin-left: 0;
@@ -194,7 +295,7 @@ if(!isset($_SESSION['role']) || $_SESSION['role'] != 'admin'){
       "pageLength": 10,
       "lengthMenu": [5, 10, 25, 50],
       "columnDefs": [{
-        "orderable": false,"targets": 7 }], // indeks aksi disesuaikan (sebelumnya 8)
+        "orderable": false,"targets": 7 }],
       "language": {
         "decimal": "",
         "emptyTable": "Tidak ada data tersedia",

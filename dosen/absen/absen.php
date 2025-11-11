@@ -1,19 +1,15 @@
 <?php
-// ===== Sesi & Koneksi (URUTAN PENTING) =====
 session_start();
-include '../../koneksi/koneksi.php'; // koneksi aman (tidak output HTML)
+include '../../koneksi/koneksi.php'; 
 
-// ===== Util HTML escape =====
 function e($v){ return htmlspecialchars((string)($v ?? ''), ENT_QUOTES, 'UTF-8'); }
 
-// ===== CSRF =====
 if (empty($_SESSION['csrf'])) $_SESSION['csrf'] = bin2hex(random_bytes(16));
 $CSRF = $_SESSION['csrf'];
 function verify_csrf(){
   return isset($_POST['csrf']) && hash_equals($_SESSION['csrf'] ?? '', $_POST['csrf']);
 }
 
-// ===== Flash message =====
 function flash_add($type, $msg){ $_SESSION['flash'][$type][] = $msg; }
 function flash_show(){
   if (empty($_SESSION['flash'])) return;
@@ -32,7 +28,6 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'dosen') {
 }
 
 // ===== Data dosen & semester aktif =====
-// ✅ gunakan ID tabel `dosen`, bukan `users`
 $id_dosen = (int)($_SESSION['dosen_id'] ?? 0);
 
 $semAktif = mysqli_fetch_assoc(
@@ -222,73 +217,185 @@ if ($sedang_jadwal && isset($shiftIdToMkId[$sedang_jadwal])) {
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
 <style>
-/* ===== Tata letak utama ===== */
-.area-utama { margin-left:250px; margin-top:60px; padding:30px; min-height:calc(100vh - 60px); background:#f9f9f9; font-family:Arial,sans-serif; }
-.area-utama h2 { margin-bottom:10px; color:#333; }
+.area-utama { 
+  margin-left:250px; 
+  margin-top:60px; 
+  padding:30px; 
+  min-height:calc(100vh - 60px); 
+  background:#f9f9f9; 
+  font-family:Arial,sans-serif; }
 
-/* ===== Tombol ===== */
-.tombol-umum { border:none; border-radius:6px; cursor:pointer; color:white; font-size:12px; transition:.2s; padding:8px 12px; }
-.tombol-umum:hover { opacity:.9; }
-.tombol-mulai { background: #00AEEF; }
-.tombol-selesai { background:#10b981; }
+.area-utama h2 {
+  margin-bottom:10px; 
+  color:#333; }
 
-/* ===== Kontrol DataTables ===== */
+.tombol-umum { 
+  border:none; 
+  border-radius:6px; 
+  cursor:pointer; 
+  color:white; 
+  font-size:12px; 
+  transition:.2s; 
+  padding:8px 12px; }
+
+.tombol-umum:hover { 
+  opacity:.9; }
+.tombol-mulai { 
+  background: #00AEEF; }
+.tombol-selesai { 
+  background:#10b981; }
+
 .dataTables_wrapper .dataTables_filter input,
-.dataTables_wrapper .dataTables_length select { padding:6px 10px; border-radius:5px; border:1px solid #ccc; font-size:14px; margin-bottom:5px; margin-top:5px;}
+.dataTables_wrapper .dataTables_length select { 
+  padding:6px 10px; 
+  border-radius:5px; 
+  border:1px solid #ccc; 
+  font-size:14px; 
+  margin-bottom:5px; 
+  margin-top:5px;}
 
-/* ===== Tabel absensi ===== */
-.tabel-absensi { width:100%; border-collapse:collapse; background:#fff; border-radius:10px; overflow:hidden; box-shadow:0 2px 6px rgba(0,0,0,.08); table-layout:fixed; }
-.tabel-absensi th { background: #00AEEF; color:#333; text-align:left; padding:12px 15px; }
-.tabel-absensi td { padding:12px 15px; border-bottom:1px solid #ddd; border-right:1px solid #eee; }
-.tabel-absensi tr:hover { background:#f7fbff; }
+.tabel-absensi { 
+  width:100%; 
+  border-collapse:collapse; 
+  background:#fff; 
+  border-radius:10px; 
+  overflow:hidden; 
+  box-shadow:0 2px 6px rgba(0,0,0,.08); 
+  table-layout:fixed; }
 
-/* ===== Info ===== */
-.kotak-info{ padding:10px 12px; border-radius:8px; margin:8px 0; background:#fff; border:1px solid #e5e7eb; }
-.info-berhasil{  color: #333; }
-.info-peringatan{  color: #333; }
+.tabel-absensi th { 
+  background: #00AEEF; 
+  color:#333; 
+  text-align:left; 
+  padding:12px 15px; }
 
-/* ===== Aksi (radio) ===== */
-.kolom-aksi{ display:flex; gap:8px; justify-content:center; }
-.lencana{ display:inline-block; border-radius:5px; padding:3px 6px; font-size:12px; border:1px solid #cbd5e1; background:#f8fafc; cursor:pointer; user-select:none;}
-.lencana input{ display:none; }
-.lencana.active{ background:#e0f2fe; border-color:#38bdf8; }
+.tabel-absensi td { 
+  padding:12px 15px; 
+  border-bottom:1px solid #ddd; 
+  border-right:1px solid #eee; }
 
-/* ====== Panel Filter (MK & Shift) ====== */
+.tabel-absensi tr:hover { 
+  background:#f7fbff; }
+
+.kotak-info{ 
+  padding:10px 12px; 
+  border-radius:8px; 
+  margin:8px 0; 
+  background:#fff; 
+border:1px solid #e5e7eb; }
+.info-berhasil{  
+  color: #333; }
+.info-peringatan{  
+  color: #333; }
+
+.kolom-aksi{ 
+  display:flex; 
+  gap:8px; 
+  justify-content:center; }
+
+.lencana{ 
+  display:inline-block;
+  border-radius:5px;
+  padding:3px 6px;
+  font-size:12px; 
+  border:1px solid #cbd5e1; 
+  background:#f8fafc; cursor:pointer; 
+  user-select:none;}
+
+.lencana input{ 
+  display:none; }
+.lencana.active{ 
+  background:#e0f2fe; border-color:#38bdf8; }
+
 .filter-panel{
-  background:#fff; border:1px solid #e5e7eb; border-radius:12px; padding:14px 16px;
+  background:#fff; 
+  border:1px solid #e5e7eb;
+  border-radius:12px; 
+  padding:14px 16px;
   box-shadow:0 2px 6px rgba(0,0,0,.06);
-  display:flex; gap:12px; flex-wrap:wrap; align-items:flex-end;
+  display:flex;
+  gap:12px; 
+  flex-wrap:wrap; 
+  align-items:flex-end;
 }
-.field{ display:flex; flex-direction:column; gap:6px; }
-.field label{ font-weight:700; color:#111827; font-size:14px; }
+.field{ 
+  display:flex; 
+  flex-direction:column; 
+  gap:6px; }
+.field label{ 
+  font-weight:700; 
+  color:#111827; 
+  font-size:14px; }
 
-/* Select */
 .select-styled{
-  appearance:none; background:#fff; border:1px solid #cbd5e1; border-radius:10px;
-  padding:10px 42px 10px 12px; font-size:14px; line-height:1.2; min-width:240px; outline:none;
+  appearance:none; 
+  background:#fff; 
+  border:1px solid #cbd5e1; 
+  border-radius:10px;
+  padding:10px 42px 10px 12px;
+  font-size:14px; 
+  line-height:1.2; 
+  min-width:240px; 
+  outline:none;
   transition:border-color .2s, box-shadow .2s;
-  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 20 20' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 8 10 12 14 8'/></svg>");
-  background-repeat:no-repeat; background-position:right 12px center;
 }
-.select-styled:hover{ border-color:#94a3b8; }
-.select-styled:focus{ border-color:#60a5fa; box-shadow:0 0 0 4px rgba(96,165,250,.2); }
+.select-styled:hover{
+  border-color:#94a3b8; }
+.select-styled:focus{ 
+  border-color:#60a5fa; 
+  box-shadow:0 0 0 4px rgba(96,165,250,.2); }
 
-.filter-panel .tombol-umum{ border-radius:10px; font-size:13px; padding:10px 16px; display:inline-flex; gap:8px; align-items:center; }
+.filter-panel .tombol-umum{ 
+  border-radius:10px; 
+  font-size:13px; 
+  padding:10px 16px; 
+  display:inline-flex; 
+  gap:8px; 
+  align-items:center; }
 
-/* ===== Responsif ===== */
 @media screen and (max-width: 768px) {
-  .area-utama { margin-left:0; padding:20px; width:100%; text-align:center; }
-  .area-utama h2 { text-align:center; }
-  .filter-panel{ flex-direction:column; align-items:stretch; gap:10px; }
-  .field{ width:100%; }
-  .select-styled{ min-width:unset; width:100%; }
-  .filter-panel .tombol-umum{ width:100%; justify-content:center; }
+  .area-utama { 
+    margin-left:0; 
+    padding:20px; 
+    width:100%; 
+    text-align:center; }
 
-  .tabel-absensi, thead, tbody, th, td, tr { display:block; }
-  thead tr { display:none; }
-  tr { margin-bottom:15px; border-bottom:2px solid #000; }
-  td { text-align:right; padding-left:50%; position:relative; }
-  td::before { content: attr(data-label); position:absolute; left:15px; width:45%; font-weight:bold; text-align:left; }
+  .area-utama h2 { 
+    text-align:center; }
+
+  .filter-panel{ 
+    flex-direction:column; 
+    align-items:stretch; 
+    gap:10px; }
+
+  .field{ 
+    width:100%; }
+  .select-styled{ 
+    min-width:unset; 
+    width:100%; }
+  .filter-panel .tombol-umum{ 
+    width:100%; 
+    justify-content:center; }
+
+  .tabel-absensi, thead, tbody, th, td, tr { 
+    display:block; }
+  thead tr { 
+    display:none; }
+  tr { 
+    margin-bottom:15px; 
+    border-bottom:2px solid #000; }
+
+  td { 
+    text-align:right; 
+    padding-left:50%; 
+    position:relative; }
+  td::before { 
+    content: attr(data-label); 
+    position:absolute; 
+    left:15px; 
+    width:45%; 
+    font-weight:bold; 
+    text-align:left; }
 }
 </style>
 </head>

@@ -13,10 +13,9 @@ if(!isset($_SESSION['role']) || $_SESSION['role'] != 'mahasiswa'){
 // Helper aman untuk escape output HTML
 function e($v){ return htmlspecialchars((string)($v ?? ''), ENT_QUOTES, 'UTF-8'); }
 
-// ✅ PAKAI mhs_id (bukan id_user)
 $id_mahasiswa = (int)($_SESSION['mhs_id'] ?? 0);
 
-// ✅ Ambil data mahasiswa berdasarkan id mahasiswa yang login
+//  Ambil data mahasiswa  yang login
 $mahasiswa = mysqli_query($conn, "SELECT * FROM mahasiswa WHERE id='$id_mahasiswa'");
 $data_mahasiswa = mysqli_fetch_assoc($mahasiswa) ?: [];
 
@@ -53,101 +52,267 @@ if ($id_semester_aktif) {
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
   <style>
-  /* Area konten utama */
-  .konten_utama { margin-left:250px; margin-top:60px; padding:30px; min-height:calc(100vh - 60px); background:#f9f9f9; font-family:Arial,sans-serif; }
-  .konten_utama h2 { margin-bottom:10px; color:#333; }
 
-  /* Info semester */
-  .kotak_info{ padding:10px 12px; border-radius:8px; margin:8px 0; background:#fff; border:1px solid #e5e7eb; }
-  .info_sukses { color:#333  }
-  .info_peringatan { color :#ff5252;}
+  .konten_utama { 
+    margin-left:250px; 
+    margin-top:60px; 
+    padding:30px; 
+    min-height:calc(100vh - 60px); 
+    background:#f9f9f9; 
+    font-family:Arial,sans-serif; }
 
-  /* Wadah tombol atas */
-  .wadah_tombol { display:flex; width:100%; margin-bottom: 15px; }
-  .tombol_tambah { background:#00b4ff; color:white; border:none; padding:8px 15px; border-radius:5px; cursor:pointer; display:inline-flex; align-items:center; gap:6px; transition:0.3s; }
-  .tombol_tambah:hover { background:#0096d6; }
-  .tombol_tambah[disabled]{ opacity:.5; cursor:not-allowed; }
+  .konten_utama h2 { 
+    margin-bottom:10px; 
+    color:#333; }
 
-  /* Pesan selesai */
-  .pesan_selesai { color:#333; font-size:15px; text-align:center; margin:0 auto; }
+  .kotak_info{ 
+    padding:10px 12px; 
+    border-radius:8px; 
+    margin:8px 0; 
+    background:#fff; 
+    border:1px solid #e5e7eb; }
 
-  /* Tombol aksi di tabel */
-  .tombol_umum { border:none; border-radius:5px; cursor:pointer; color:white; font-size:10px; transition:0.3s; }
-  .tombol_umum:hover { opacity:0.85; }
-  .tombol_edit { background:#007bff; width:60px; margin-bottom:3px; padding:6px 10px; }
-  .tombol_hapus { background:#dc3545; width:60px; padding:6px 10px; }
+  .info_sukses { 
+    color:#333  }
 
-  /* Kontrol bawaan DataTables */
+  .info_peringatan { 
+    color :#ff5252;}
+
+  .wadah_tombol { 
+    display:flex; 
+    width:100%; 
+    margin-bottom: 15px; }
+
+  .tombol_tambah { 
+    background:#00b4ff; 
+    color:white; border:none; 
+    padding:8px 15px; 
+    border-radius:5px; 
+    cursor:pointer; 
+    display:inline-flex; 
+    align-items:center; 
+    gap:6px; 
+    transition:0.3s; }
+
+  .tombol_tambah:hover { 
+    background:#0096d6; }
+
+  .tombol_tambah[disabled]{ 
+    opacity:.5; 
+    cursor:not-allowed; }
+
+  .pesan_selesai { 
+    color:#333; 
+    font-size:15px; 
+    text-align:center; 
+    margin:0 auto; }
+
+  .tombol_umum { 
+    border:none; 
+    border-radius:5px; 
+    cursor:pointer; 
+    color:white; 
+    font-size:10px; 
+    transition:0.3s; }
+
+  .tombol_umum:hover { 
+    opacity:0.85; }
+
+  .tombol_edit { 
+    background:#007bff; 
+    width:60px; 
+    margin-bottom:3px; 
+    padding:6px 10px; }
+
+  .tombol_hapus { 
+    background:#dc3545; 
+    width:60px; 
+    padding:6px 10px; }
+
   .dataTables_wrapper .dataTables_filter input,
-  .dataTables_wrapper .dataTables_length select { padding:6px 10px; border-radius:5px; border:1px solid #ccc; font-size:14px; margin-bottom:5px; }
+  .dataTables_wrapper .dataTables_length select { 
+    padding:6px 10px; 
+    border-radius:5px; 
+    border:1px solid #ccc; 
+    font-size:14px; 
+    margin-bottom:5px; }
 
-  /* Tabel data */
-  .tabel_data { width:100%; border-collapse:collapse; background:white; border-radius:10px; overflow:hidden; box-shadow:0 2px 6px rgba(0,0,0,0.1); table-layout:fixed; }
-  .tabel_data th { background:#00AEEF; color:#333; text-align:left; padding:12px 15px; }
-  .tabel_data td { padding:12px 15px; border-bottom:1px solid #ddd; border-right:1px solid #ddd; }
-  .tabel_data tr:hover { background:#f1f1f1; }
+  .tabel_data { 
+    width:100%; 
+    border-collapse:collapse; 
+    background:white; 
+    border-radius:10px; 
+    overflow:hidden; 
+    box-shadow:0 2px 6px rgba(0,0,0,0.1); 
+    table-layout:fixed; }
 
-  /* ===== EDIT: Kolom MK agar wrap & rapi ===== */
+  .tabel_data th { 
+    background:#00AEEF; 
+    color:#333; 
+    text-align:left; 
+    padding:12px 15px; }
+
+  .tabel_data td { 
+    padding:12px 15px; 
+    border-bottom:1px solid #ddd; 
+    border-right:1px solid #ddd; }
+
+  .tabel_data tr:hover { 
+    background:#f1f1f1; }
+
   .tabel_data td.col-mk{
     max-width:260px;
     white-space:normal;
     word-break:break-word;
   }
-  /* ========================================== */
-.col-mk .mk-item { display: inline; }
-.col-mk .mk-item::after { content: ", "; }
-.col-mk .mk-item:last-child::after { content: ""; }
+.col-mk .mk-item { 
+  display: inline; }
+.col-mk .mk-item::after { 
+  content: ", "; }
+.col-mk .mk-item:last-child::after { 
+  content: ""; }
 
-  /* Modal */
-  .kotak_modal { display:none; position:fixed; z-index:300; left:0; top:0; width:100%; height:100vh; background:rgba(0,0,0,0.6); justify-content:center; align-items:center; }
-  .isi_modal { background:white; padding:25px; border-radius:10px; width:420px; max-width:90%; box-shadow:0 5px 15px rgba(0,0,0,.3); text-align:left; position:relative; }
-  .isi_modal h3 { margin:0 0 12px 0; text-align:center; }
-  .isi_modal input, .isi_modal select { width:100%; padding:10px; margin:5px 0; border:1px solid #ccc; border-radius:6px; }
-  .isi_modal button { width:100%; padding:10px; border:none; border-radius:6px; background:#007bff; color:white; font-weight:600; cursor:pointer; margin-top:10px; }
-  .isi_modal button:hover { background:#005fc3; }
-  .tutup_modal { position:absolute; top:15px; right:15px; cursor:pointer; font-size:18px; color:#666; }
-  .tutup_modal:hover { color:black; }
+  .kotak_modal { 
+    display:none; 
+    position:fixed; 
+    z-index:300; 
+    left:0; 
+    top:0; 
+    width:100%; 
+    height:100vh; 
+    background:rgba(0,0,0,0.6); 
+    justify-content:center; 
+    align-items:center; }
 
-  /* Checkbox daftar MK */
-  .wadah_checkbox { max-height: 250px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; border-radius: 8px; background-color: #fff; }
-  .item_checkbox { display: flex; align-items: center; gap: 8px; padding: 4px 0; cursor: pointer; transition: background-color 0.2s ease; }
-  .item_checkbox input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; accent-color: #007bff; }
+  .isi_modal { 
+    background:white; 
+    padding:25px; 
+    border-radius:10px; 
+    width:420px; 
+    max-width:90%; 
+    box-shadow:0 5px 15px rgba(0,0,0,.3); 
+    text-align:left; 
+    position:relative; }
 
-  /* Scrollbar custom */
-  .wadah_checkbox::-webkit-scrollbar { width: 8px; }
-  .wadah_checkbox::-webkit-scrollbar-track { background: #f9f9f9; }
-  .wadah_checkbox::-webkit-scrollbar-thumb { background-color: #ccc; border-radius: 8px; }
-  .wadah_checkbox::-webkit-scrollbar-thumb:hover { background-color: #aaa; }
+  .isi_modal h3 { 
+    margin:0 0 12px 0; 
+    text-align:center; }
 
-  /* Sel ikon pembayaran */
-  .sel_pembayaran { text-align:center; }
-  .sel_pembayaran a i { font-size:30px !important; color:#dc3545; }
+  .isi_modal input, .isi_modal select { 
+    width:100%; 
+    padding:10px; 
+    margin:5px 0; 
+    border:1px solid #ccc; 
+    border-radius:6px; }
 
-  /* Responsif mobile */
+  .isi_modal button { 
+    width:100%; 
+    padding:10px; 
+    border:none; 
+    border-radius:6px; 
+    background:#007bff; 
+    color:white; 
+    font-weight:600; 
+    cursor:pointer; 
+    margin-top:10px; }
+
+  .isi_modal button:hover { 
+    background:#005fc3; }
+
+  .tutup_modal { 
+    position:absolute; 
+    top:15px; right:15px; 
+    cursor:pointer; 
+    font-size:18px; 
+    color:#666; }
+
+  .tutup_modal:hover { 
+    color:black; }
+
+  .wadah_checkbox { 
+    max-height: 250px; 
+    overflow-y: auto; 
+    border: 1px solid #ddd; 
+    padding: 10px; 
+    border-radius: 8px; 
+    background-color: #fff; }
+
+  .item_checkbox { 
+    display: flex; 
+    align-items: center; 
+    gap: 8px; 
+    padding: 4px 0; 
+    cursor: pointer; transition: background-color 0.2s ease; }
+
+  .item_checkbox input[type="checkbox"] { 
+    width: 18px; 
+    height: 18px;
+     cursor: pointer; 
+     accent-color: #007bff; }
+
+  .wadah_checkbox::-webkit-scrollbar { 
+    width: 8px; }
+  .wadah_checkbox::-webkit-scrollbar-track { 
+    background: #f9f9f9; }
+  .wadah_checkbox::-webkit-scrollbar-thumb { 
+    background-color: #ccc; border-radius: 8px; }
+  .wadah_checkbox::-webkit-scrollbar-thumb:hover { 
+    background-color: #aaa; }
+
+  .sel_pembayaran { 
+    text-align:center; }
+  .sel_pembayaran a i { 
+    font-size:30px !important; color:#dc3545; }
+
   @media screen and (max-width: 768px) {
-    .konten_utama { margin-left:0; padding:20px; width:100%; text-align:center; }
-    .konten_utama h2 { text-align:center; }
-    .tabel_data, thead, tbody, th, td, tr { display:block; }
-    thead tr { display:none; }
-    tr { margin-bottom:15px; border-bottom:2px solid #000; }
-    td { text-align:right; padding-left:50%; position:relative; }
-    td::before { content: attr(data-label); position:absolute; left:15px; width:45%; font-weight:bold; text-align:left; }
-    .sel_pembayaran { text-align:right; }
+    .konten_utama { 
+      margin-left:0; 
+      padding:20px; 
+      width:100%; 
+      text-align:center; }
+
+    .konten_utama h2 { 
+      text-align:center; }
+
+    .tabel_data, thead, tbody, th, td, tr { 
+      display:block; }
+
+    thead tr { 
+      display:none; }
+
+    tr { 
+      margin-bottom:15px; 
+      border-bottom:2px solid #000; }
+
+    td { text-align:right; 
+      padding-left:50%; 
+      position:relative; }
+
+    td::before { 
+      content: attr(data-label); 
+      position:absolute; 
+      left:15px; width:45%; 
+      font-weight:bold; 
+      text-align:left; }
+
+    .sel_pembayaran { 
+      text-align:right; }
    
      .tabel_data td.col-mk { 
     padding-left: 40%;
     text-align: right;
      }
-     .col-mk .mk-item { display: block; }
-  .col-mk .mk-item::after { content: ""; }       
+     .col-mk .mk-item { 
+      display: block; }
+  .col-mk .mk-item::after { 
+    content: ""; }       
   }
 
-  
   </style>
 </head>
 <body>
 <div class="konten_utama">
-  <h2>Pendaftaran Praktikum</h2>
+  <h2>Kirim Bukti Pembayaran Praktikum</h2>
 
   <?php if($id_semester_aktif): ?>
     <div class="kotak_info info_sukses">

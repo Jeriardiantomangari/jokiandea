@@ -8,14 +8,14 @@ include '../../koneksi/koneksi.php';
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'dosen') { header("Location: ../index.php"); exit; }
 function e($v){ return htmlspecialchars((string)($v ?? ''), ENT_QUOTES, 'UTF-8'); }
 
-// ✅ gunakan ID dari tabel `dosen`, bukan `users`
+// gunakan ID dari tabel `dosen`, 
 $id_dosen = (int)($_SESSION['dosen_id'] ?? 0);
 
 // Semester aktif
 $semAktif = mysqli_fetch_assoc(mysqli_query($conn, "SELECT id, nama_semester, tahun_ajaran FROM semester WHERE status='Aktif' LIMIT 1"));
 $id_semester_aktif = (int)($semAktif['id'] ?? 0);
 
-/* === [BARU] Ambil NIDN & Nama dosen untuk header === */
+/* Ambil NIDN & Nama dosen untuk header === */
 $dosenInfo = ['nidn'=>'-','nama'=>'-'];
 if ($id_dosen) {
   $tmp = mysqli_fetch_assoc(mysqli_query($conn, "SELECT nidn, nama FROM dosen WHERE id = $id_dosen LIMIT 1"));
@@ -73,59 +73,105 @@ if ($id_semester_aktif && $id_dosen) {
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
-/* Area konten utama (tetap) */
-.konten-utama{ margin-left:250px; margin-top:60px; padding:30px; min-height:calc(100vh - 60px); background:#f9f9f9; font-family:Arial,sans-serif; width:100%; }
-.konten-utama h2{ margin-bottom:30px; color:#333; text-align:center; }
+.konten-utama{ 
+  margin-left:250px; 
+  margin-top:60px; 
+  padding:30px; 
+  min-height:calc(100vh - 60px); 
+  background:#f9f9f9; 
+  font-family:Arial,sans-serif; 
+  width:100%; }
 
-/* Kartu dashboard */
-.kartu-dashboard{ display:flex; flex-wrap:wrap; justify-content:center; }
+.konten-utama h2{ 
+  margin-bottom:30px; 
+  color:#333; 
+  text-align:center; }
+
+.kartu-dashboard{ 
+  display:flex; 
+  flex-wrap:wrap; 
+  justify-content:center; }
+
 .kartu{
-  flex:1 1 calc(50% - 30px); max-width:100%; min-width:250px;
-  padding:25px; background:#fff; border-radius:12px; box-shadow:0 4px 10px rgba(0,0,0,0.1);
-  text-align:center; transition:transform .3s, box-shadow .3s; margin-bottom:20px; margin-right:20px;
+  flex:1 1 calc(50% - 30px); 
+  max-width:100%; 
+  min-width:250px;
+  padding:25px; 
+  background:#fff;
+  border-radius:12px; 
+  box-shadow:0 4px 10px rgba(0,0,0,0.1);
+  text-align:center; 
+  transition:transform .3s, box-shadow .3s; 
+  margin-bottom:20px; 
+  margin-right:20px;
 }
-.kartu:hover{ transform:translateY(-6px); box-shadow:0 6px 14px rgba(0,0,0,0.15); }
-.kartu h3{ margin-bottom:15px; color:#555; font-size:20px; }
-.kartu p{ font-size:22px; font-weight:bold; color:#007bff; margin-bottom:12px; }
-.kartu i{ font-size:32px; color:#888; }
+.kartu:hover{ 
+  transform:translateY(-6px); 
+  box-shadow:0 6px 14px rgba(0,0,0,0.15); }
 
-/* Aksi cepat */
-.aksi-cepat{ display:flex; gap:10px; flex-wrap:wrap; justify-content:center; margin-top:8px; }
+.kartu h3{ 
+  margin-bottom:15px; 
+  color:#555; 
+  font-size:20px; }
+
+.kartu p{ 
+  font-size:22px; 
+  font-weight:bold; 
+  color:#007bff; 
+  margin-bottom:12px; }
+
+.kartu i{ 
+  font-size:32px; 
+  color:#888; }
+
+.aksi-cepat{ 
+  display:flex; 
+  gap:10px; 
+  flex-wrap:wrap; 
+  justify-content:center; 
+  margin-top:8px; }
+
 .aksi-cepat a{
-  text-decoration:none; display:inline-flex; align-items:center; gap:8px;
-  padding:10px 14px; border-radius:8px; color:#fff; font-weight:600;
+  text-decoration:none; 
+  display:inline-flex; 
+  align-items:center; 
+  gap:8px;
+  padding:10px 14px; 
+  border-radius:8px; 
+  color:#fff; 
+  font-weight:600;
 }
-.tombol-biru{ background:#0ea5e9; }
-.tombol-hijau{ background:#10b981; }
-.tombol-kuning{ background:#f59e0b; }
-
-/* Wadah grafik */
+.tombol-biru{
+   background:#0ea5e9; }
+.tombol-hijau{ 
+  background:#10b981; }
+.tombol-kuning{ 
+  background:#f59e0b; }
+  
 .wadah-grafik{
-  width:100%; max-width:700px; margin:0 auto 60px auto; background:#fff; padding:25px;
-  border-radius:12px; box-shadow:0 4px 10px rgba(0,0,0,0.1);
+  width:100%; 
+  max-width:700px; 
+  margin:0 auto 60px auto; 
+  background:#fff; 
+  padding:25px;
+  border-radius:12px; b
+  ox-shadow:0 4px 10px rgba(0,0,0,0.1);
 }
 
-/* ========================= */
-/* ====== RESPONSIVE ======= */
-/* ========================= */
-
-/* Tablet landscape & layar sedang */
-@media screen and (max-width: 1024px){
-  .konten-utama{ margin-left:0; padding:24px; overflow-x:hidden; }
-  .konten-utama h2{ font-size:20px; margin-bottom:22px; }
-  .kartu-dashboard{ justify-content:center; gap:20px; }
-  .kartu{
-    flex:1 1 calc(50% - 20px);
-    margin-right:0;
-  }
-  .wadah-grafik{ width:92%; }
-}
-
-/* Ponsel / Tablet kecil */
 @media screen and (max-width:768px){
-  .konten-utama{ margin-left:0; padding:20px; width:100%; text-align:center; overflow-x:hidden; }
-  .konten-utama h2{ font-size:18px; margin-bottom:18px; }
-  .kartu-dashboard{ gap:16px; }
+  .konten-utama{ 
+    margin-left:0; 
+    padding:20px; 
+    width:100%; 
+    text-align:center; 
+    overflow-x:hidden; }
+
+  .konten-utama h2{ 
+    font-size:18px; 
+    margin-bottom:18px; }
+
+  .kartu-dashboard{ 
+    gap:16px; }
   .kartu{
     flex:1 1 100%;
     max-width:none;
@@ -134,15 +180,20 @@ if ($id_semester_aktif && $id_dosen) {
     margin-right:0;
     padding:20px;
   }
-  .kartu h3{ font-size:18px; }
-  .kartu p{ font-size:20px; }
+  .kartu h3{ 
+    font-size:18px; }
+  .kartu p{ 
+    font-size:20px; }
 
-  .wadah-grafik{ width:95%; padding:18px; }
-  /* Pastikan chart terlihat proporsional di mobile */
-  .wadah-grafik canvas{ width:100% !important; height:320px !important; }
-
-  /* Hindari overflow horizontal dari elemen inline-block */
-  img, canvas{ max-width:100%; height:auto; }
+  .wadah-grafik{ 
+    width:95%; 
+    padding:18px; }
+  .wadah-grafik canvas{ 
+    width:100% !important; 
+    height:320px !important; }
+  img, canvas{ 
+    max-width:100%; 
+    height:auto; }
 }
 </style>
 </head>

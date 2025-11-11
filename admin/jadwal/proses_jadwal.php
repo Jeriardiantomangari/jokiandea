@@ -2,11 +2,8 @@
 session_start();
 include '../../koneksi/koneksi.php';
 
-// === PERBAIKAN MINIMAL: HAPUS header text/plain GLOBAL ===
-// header('Content-Type: text/plain; charset=utf-8');
 
 if(!isset($_SESSION['role']) || $_SESSION['role'] != 'admin'){
-    // === PERBAIKAN: balas JSON agar AJAX dataType:'json' tidak gagal ===
     header('Content-Type: application/json; charset=utf-8');
     echo json_encode(["error" => "Akses ditolak!"]);
     exit;
@@ -15,7 +12,6 @@ if(!isset($_SESSION['role']) || $_SESSION['role'] != 'admin'){
 $aksi = $_POST['aksi'] ?? '';
 
 if($aksi === 'ambil') {
-    // === PERBAIKAN: pastikan kirim JSON murni ===
     header('Content-Type: application/json; charset=utf-8');
     $id = (int)($_POST['id'] ?? 0);
     $q = mysqli_query($conn,"SELECT * FROM jadwal_praktikum WHERE id='$id'");
